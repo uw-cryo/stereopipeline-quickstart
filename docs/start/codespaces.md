@@ -8,7 +8,6 @@
 
    ```{button-link} https://codespaces.new/uw-cryo/stereopipeline-quickstart?quickstart=1
    :color: primary
-   :click-parent:
    Open in GitHub Codespaces
    ```
 

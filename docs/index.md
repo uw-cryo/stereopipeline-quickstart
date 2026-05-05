@@ -5,7 +5,6 @@ A guide to the NASA Ames Stereo Pipeline (ASP), runnable in a pre-configured Git
 ```{button-link} https://codespaces.new/uw-cryo/stereopipeline-quickstart?quickstart=1
 :color: primary
 :expand:
-:click-parent:
 Open this repo in a GitHub Codespace
 ```
 
