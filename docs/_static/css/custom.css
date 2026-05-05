@@ -1,0 +1,22 @@
+/* Subtle accent for "tip" / "warning" callouts so concept pages skim well. */
+.admonition.tip {
+  border-left-color: #2ec27e;
+}
+.admonition.warning {
+  border-left-color: #e5a50a;
+}
+
+/* Make the "Open in Codespaces" badge pop on the landing page. */
+.codespace-cta {
+  display: inline-block;
+  margin: 0.5em 0;
+  padding: 0.6em 1em;
+  background: #1f6feb;
+  color: white !important;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.codespace-cta:hover {
+  background: #1158c7;
+}

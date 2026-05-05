@@ -1,0 +1,30 @@
+name: asp
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  # Notebook UI
+  - jupyterlab
+  - notebook
+  - ipywidgets
+  # Geospatial stack (asp_plot pulls these in via pip too, but conda-forge builds
+  # are smoother for GDAL/rasterio/etc.)
+  - gdal
+  - rasterio
+  - rioxarray
+  - geopandas
+  - shapely
+  - pyproj
+  - contextily
+  # AWS access for SpaceNet + COP-DEM open buckets
+  - boto3
+  - s3fs
+  - awscli
+  # Plotting
+  - matplotlib
+  - seaborn
+  - pip:
+      # Pull asp_plot from PyPI; conda-forge package exists too but PyPI is
+      # always one step ahead during active development.
+      - asp-plot>=1.14.0

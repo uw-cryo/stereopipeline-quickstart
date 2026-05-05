@@ -1,0 +1,76 @@
+{
+  "name": "stereopipeline-quickstart",
+
+  // Pull the pre-built image from GHCR. CI builds and pushes this image on
+  // every change to the Dockerfile / environment.yml — see
+  // .github/workflows/build-image.yml.
+  //
+  // First-launch time drops from ~5 min (build) to ~30-90 s (pull) because
+  // ASP binaries + the conda env are already baked in.
+  "image": "ghcr.io/bpurinton/stereopipeline-quickstart:latest",
+
+  // Local-build fallback — uncomment this `build:` block (and comment out the
+  // `image:` line above) if you've forked the repo and don't have access to
+  // the bpurinton/* GHCR namespace, or want to rebuild offline. Note the
+  // context: ".." — it makes the build context the repo root so the
+  // Dockerfile's `COPY .devcontainer/environment.yml ...` resolves correctly.
+  //
+  // "build": {
+  //   "dockerfile": "Dockerfile",
+  //   "context": "..",
+  //   "args": {
+  //     "ASP_VERSION": "3.6.0",
+  //     "ASP_BUILD_DATE": "2025-12-26"
+  //   }
+  // },
+
+  // Codespace machine size — these are MINIMUMS; GitHub will refuse smaller
+  // machines at launch. Stereo correlation is embarrassingly parallel so 8
+  // cores gives a real ~2x speedup over 4 on the WorldView tutorial; beyond
+  // 8 the cropped ROIs don't have enough work to saturate. Larger machines
+  // burn Codespace credits proportionally faster (8-core = 2x credits/hr vs
+  // 4-core), so 8 is the sweet spot for the included tutorials.
+  "hostRequirements": {
+    "cpus": 8,
+    "memory": "32gb",
+    "storage": "64gb"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-renderers",
+        "redhat.vscode-yaml",
+        "executablebookproject.myst-highlight",
+        "AdamRaichu.pdf-viewer"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/conda/envs/asp/bin/python",
+        "jupyter.jupyterServerType": "local",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "files.watcherExclude": {
+          "**/data/**": true,
+          "**/.ipynb_checkpoints/**": true
+        }
+      }
+    }
+  },
+
+  // Run a one-time setup the first time the container is created. This pre-fetches
+  // the ASTER Zenodo archive (small, ~80 MB) so the first notebook is instant.
+  // The WorldView download is heavier and is deferred to the notebook itself.
+  "postCreateCommand": "bash .devcontainer/postCreate.sh",
+
+  "remoteUser": "vscode",
+
+  // Forward Jupyter port for users who launch a standalone Jupyter server.
+  "forwardPorts": [8888],
+  "portsAttributes": {
+    "8888": {
+      "label": "Jupyter",
+      "onAutoForward": "ignore"
+    }
+  }
+}

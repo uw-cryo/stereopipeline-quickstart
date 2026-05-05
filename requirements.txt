@@ -1,0 +1,23 @@
+# Notebook + tooling dependencies (assumes ASP is installed separately and on PATH).
+# This file is what you `pip install -r` for a local non-Codespace setup; the
+# Codespace Dockerfile installs the same packages via conda where possible.
+
+asp-plot>=1.14.0
+jupyterlab>=4.0
+notebook>=7.0
+ipywidgets>=8.0
+
+# Geospatial stack (rasterio/xarray/etc. come in via asp_plot, but we list a few extras
+# the tutorials use directly).
+contextily>=1.5
+geopandas>=1.0
+rasterio>=1.3
+rioxarray>=0.15
+
+# AWS S3 unsigned access for SpaceNet imagery + Copernicus DEM
+boto3>=1.34
+s3fs>=2024.3
+
+# Used by the WorldView fetch script to clip COP30 from AWS Open Data
+shapely>=2.0
+pyproj>=3.6

@@ -1,0 +1,10 @@
+# Docs-only dependencies for ReadTheDocs.
+# We don't install asp_plot or GDAL on RTD — notebooks are pre-executed locally
+# and committed with outputs, so RTD only needs the rendering stack.
+
+sphinx>=7.0
+myst-nb>=1.0
+sphinx-book-theme>=1.1
+sphinx-design>=0.5
+sphinx-copybutton>=0.5
+linkify-it-py>=2.0

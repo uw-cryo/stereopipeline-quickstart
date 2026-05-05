@@ -1,0 +1,50 @@
+# Local-only Claude session notes
+CLAUDE/
+CLAUDE.md
+CLAUDE_*.md
+
+# Tutorial data — populated at runtime, never committed
+data/
+notebooks/data/
+notebooks/**/aster_*/
+notebooks/**/ucsd_*/
+notebooks/**/ba/
+notebooks/**/stereo*/
+notebooks/**/ref/
+**/*.NTF
+**/*.TIF
+**/*.tif
+**/*.hdf
+**/*.HDF
+**/*.zip
+**/*.tar
+**/*.tar.bz2
+**/*.tar.gz
+
+# Allow committed example/static figures
+!docs/_static/**/*.png
+!docs/_static/**/*.tif
+
+# Jupyter Book build artefacts
+docs/_build/
+docs/examples/notebooks/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# OS / editor
+.DS_Store
+.idea/
+
+# Logs
+*.log
+*.profraw

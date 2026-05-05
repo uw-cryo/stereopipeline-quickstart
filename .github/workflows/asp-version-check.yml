@@ -1,0 +1,175 @@
+name: Check for new ASP release
+
+# Polls the NeoGeographyToolkit/StereoPipeline releases API and, if a newer
+# stable release is available than the one currently pinned in this repo,
+# opens a PR bumping ASP_VERSION + ASP_BUILD_DATE across the Dockerfile,
+# the image-build workflow, and the install docs. Merging the PR triggers
+# build-image.yml, which produces and pushes a fresh container image.
+#
+# We intentionally use a PR (not a direct push or auto-rebuild) for two
+# reasons:
+#   1. ASP releases sometimes change behavior (e.g. ASTER V003 → V004 HDF in
+#      Dec 2025); notebooks may need a coordinated update.
+#   2. Failures are visible — a failing PR is loud, a silent rebuild is not.
+#
+# ONE-TIME SETUP: in the repo's Settings → Actions → General → Workflow
+# permissions, tick **"Allow GitHub Actions to create and approve pull
+# requests"**. Without that, peter-evans/create-pull-request fails with
+# `GitHub Actions is not permitted to create or approve pull requests`.
+
+on:
+  schedule:
+    # Monthly, on the 2nd at 06:00 UTC. Offset from build-image.yml's cron
+    # (1st at 06:00) so a newly-merged bump rebuilds before the next check.
+    - cron: '0 6 2 * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve latest stable ASP release
+        id: asp
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 <<'PY'
+          import json, os, re, sys, urllib.request
+
+          API = "https://api.github.com/repos/NeoGeographyToolkit/StereoPipeline/releases?per_page=30"
+          req = urllib.request.Request(API, headers={
+              "Accept": "application/vnd.github+json",
+              "User-Agent": "stereopipeline-quickstart-version-check",
+              "Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+          })
+          releases = json.load(urllib.request.urlopen(req, timeout=30))
+
+          # A "stable" tag looks like 3.6.0 — three numeric components, nothing
+          # else. Filter out anything tagged as prerelease or named with
+          # `-alpha` / `-rc` / `daily-build` regardless of the prerelease flag.
+          STABLE_TAG = re.compile(r"^\d+\.\d+\.\d+$")
+          ASSET = re.compile(
+              r"^StereoPipeline-(?P<version>\d+\.\d+\.\d+)-(?P<date>\d{4}-\d{2}-\d{2})-x86_64-Linux\.tar\.bz2$"
+          )
+
+          for rel in releases:
+              if rel.get("prerelease") or rel.get("draft"):
+                  continue
+              if not STABLE_TAG.match(rel.get("tag_name", "")):
+                  continue
+              for asset in rel.get("assets", []):
+                  m = ASSET.match(asset.get("name", ""))
+                  if m:
+                      version = m.group("version")
+                      date = m.group("date")
+                      break
+              else:
+                  continue
+              break
+          else:
+              print("ERROR: no stable Linux x86_64 release found in the latest 30 releases", file=sys.stderr)
+              sys.exit(1)
+
+          print(f"Latest stable ASP: {version} (build {date})")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write(f"version={version}\n")
+              fh.write(f"date={date}\n")
+          PY
+
+      - name: Read currently-pinned ASP version
+        id: current
+        run: |
+          # Pull the literal ARG defaults out of the Dockerfile so we compare
+          # against the file that actually drives the build, not a copy.
+          version=$(grep -E '^ARG ASP_VERSION=' .devcontainer/Dockerfile | head -1 | cut -d= -f2)
+          date=$(grep -E '^ARG ASP_BUILD_DATE=' .devcontainer/Dockerfile | head -1 | cut -d= -f2)
+          echo "Currently pinned: ${version} (build ${date})"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "date=${date}" >> "$GITHUB_OUTPUT"
+
+      - name: Compare and short-circuit if up-to-date
+        id: compare
+        run: |
+          if [ "${{ steps.asp.outputs.version }}" = "${{ steps.current.outputs.version }}" ] \
+             && [ "${{ steps.asp.outputs.date }}"    = "${{ steps.current.outputs.date }}"    ]; then
+            echo "Already on the latest stable ASP. No PR to open."
+            echo "needs_update=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Update available: ${{ steps.current.outputs.version }} (${{ steps.current.outputs.date }}) → ${{ steps.asp.outputs.version }} (${{ steps.asp.outputs.date }})"
+            echo "needs_update=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Apply version bump across files
+        if: steps.compare.outputs.needs_update == 'true'
+        env:
+          OLD_V: ${{ steps.current.outputs.version }}
+          OLD_D: ${{ steps.current.outputs.date }}
+          NEW_V: ${{ steps.asp.outputs.version }}
+          NEW_D: ${{ steps.asp.outputs.date }}
+        run: |
+          set -euxo pipefail
+
+          # 1. Dockerfile ARG defaults — the source of truth for the build.
+          sed -i -E "s|^(ARG ASP_VERSION=).*|\1${NEW_V}|"    .devcontainer/Dockerfile
+          sed -i -E "s|^(ARG ASP_BUILD_DATE=).*|\1${NEW_D}|" .devcontainer/Dockerfile
+
+          # 2. devcontainer.json — only the commented-out fallback args, but
+          # keep them in sync so anyone flipping the comments gets a working
+          # build.
+          sed -i -E "s|(\"ASP_VERSION\":\s*\")${OLD_V}(\")|\1${NEW_V}\2|"   .devcontainer/devcontainer.json
+          sed -i -E "s|(\"ASP_BUILD_DATE\":\s*\")${OLD_D}(\")|\1${NEW_D}\2|" .devcontainer/devcontainer.json
+
+          # 3. build-image workflow — both the workflow_dispatch input
+          # `default:` lines and the fallback defaults inside the
+          # `Resolve ASP build args` step.
+          sed -i -E "s|(default:\s*')${OLD_V}(')|\1${NEW_V}\2|" .github/workflows/build-image.yml
+          sed -i -E "s|(default:\s*')${OLD_D}(')|\1${NEW_D}\2|" .github/workflows/build-image.yml
+          sed -i -E "s|(\\\$\\{\\{ github.event.inputs.asp_version \\|\\| ')${OLD_V}(' \\}\\})|\1${NEW_V}\2|"    .github/workflows/build-image.yml
+          sed -i -E "s|(\\\$\\{\\{ github.event.inputs.asp_build_date \\|\\| ')${OLD_D}(' \\}\\})|\1${NEW_D}\2|" .github/workflows/build-image.yml
+
+          # 4. Install docs — the local-install snippet has a literal
+          # ASP_VERSION=... / ASP_BUILD_DATE=... block, plus a "verify"
+          # comment showing the version string.
+          sed -i -E "s|^(ASP_VERSION=)${OLD_V}|\1${NEW_V}|"    docs/start/installation.md
+          sed -i -E "s|^(ASP_BUILD_DATE=)${OLD_D}|\1${NEW_D}|" docs/start/installation.md
+          sed -i -E "s|(parallel_stereo \(Ames Stereo Pipeline\) )${OLD_V}|\1${NEW_V}|" docs/start/installation.md
+
+          # Show what changed for the workflow log.
+          git diff --stat
+          git diff
+
+      - name: Open PR
+        if: steps.compare.outputs.needs_update == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/asp-${{ steps.asp.outputs.version }}-${{ steps.asp.outputs.date }}
+          delete-branch: true
+          commit-message: |
+            chore(asp): bump to ${{ steps.asp.outputs.version }} (${{ steps.asp.outputs.date }})
+          title: "chore(asp): bump to ${{ steps.asp.outputs.version }} (${{ steps.asp.outputs.date }})"
+          body: |
+            Auto-generated by `.github/workflows/asp-version-check.yml`.
+
+            **Bump:** `${{ steps.current.outputs.version }}` (${{ steps.current.outputs.date }}) → **`${{ steps.asp.outputs.version }}`** (${{ steps.asp.outputs.date }})
+
+            **Release page:** https://github.com/NeoGeographyToolkit/StereoPipeline/releases/tag/${{ steps.asp.outputs.version }}
+
+            ### What this PR changes
+            - `.devcontainer/Dockerfile` — `ARG ASP_VERSION` / `ARG ASP_BUILD_DATE`
+            - `.devcontainer/devcontainer.json` — fallback build-args (commented block)
+            - `.github/workflows/build-image.yml` — workflow_dispatch defaults
+            - `docs/start/installation.md` — local-install snippet + verify line
+
+            ### Before merging — quick checklist
+            - [ ] Read the [ASP release notes](https://github.com/NeoGeographyToolkit/StereoPipeline/releases/tag/${{ steps.asp.outputs.version }}) for breaking changes that might affect the tutorial notebooks (CLI flag renames, new sensor-prep paths, output-file renames).
+            - [ ] Skim `notebooks/01_aster_rainier.ipynb` and `notebooks/02_worldview_ucsd.ipynb` for any flag this release changes.
+            - [ ] Close any older auto-bump PRs from this workflow that this one supersedes — the workflow doesn't do that for you.
+            - [ ] Once merged, watch `Build & push container image` complete — the new image lands at `ghcr.io/bpurinton/stereopipeline-quickstart:asp-${{ steps.asp.outputs.version }}` and `:latest`.
