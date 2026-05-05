@@ -49,20 +49,31 @@ done
 # Re-organize at the top level: rename to <CATID>_P001.{NTF,xml} so the ASP
 # command lines stay short and human-readable. This matches the convention used
 # in asp_plot's notebooks.
+#
+# Note: the .NTF lives at IMAGES_DIR/<aws_stem>.NTF (downloaded directly from
+# S3), but the .XML is buried inside the extracted tar with a *different*
+# inner filename. We look it up by order ID (the only token that's consistent
+# between the AWS filename and the inner XML filename).
 cd "${OLDPWD}"
-declare -A CATIDS=(
-  ["12FEB15WV031300015FEB12183926-P1BS-500647760030_01_P001_________AAE_0AAAAABPABS0"]="1040010007A93700"
-  ["24FEB15WV031300015FEB24183134-P1BS-500647759040_01_P001_________AAE_0AAAAABPABS0"]="1040010007CA4D00"
+declare -A AWS_STEM=(
+  ["1040010007A93700"]="12FEB15WV031300015FEB12183926-P1BS-500647760030_01_P001_________AAE_0AAAAABPABS0"
+  ["1040010007CA4D00"]="24FEB15WV031300015FEB24183134-P1BS-500647759040_01_P001_________AAE_0AAAAABPABS0"
+)
+declare -A ORDER_ID=(
+  ["1040010007A93700"]="500647760030_01"
+  ["1040010007CA4D00"]="500647759040_01"
 )
 
-for stem in "${!CATIDS[@]}"; do
-    catid="${CATIDS[$stem]}"
-    ntf_src="${IMAGES_DIR}/${stem}.NTF"
-    xml_src=$(find "${IMAGES_DIR}" -name "${stem}.XML" -o -name "${stem}.xml" | head -1 || true)
-
+for catid in "${!AWS_STEM[@]}"; do
+    ntf_src="${IMAGES_DIR}/${AWS_STEM[$catid]}.NTF"
     [[ -f "${ntf_src}" ]] && cp -n "${ntf_src}" "${DEST}/${catid}_P001.NTF"
+
+    order="${ORDER_ID[$catid]}"
+    xml_src=$(find "${IMAGES_DIR}/${order}" -iname "*${order}_P001.XML" | head -1 || true)
     if [[ -n "${xml_src}" && -f "${xml_src}" ]]; then
         cp -n "${xml_src}" "${DEST}/${catid}_P001.xml"
+    else
+        echo "WARNING: no XML found under ${IMAGES_DIR}/${order}/ for ${catid}" >&2
     fi
 done
 
