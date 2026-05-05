@@ -28,6 +28,8 @@ notebooks/**/ref/
 # Jupyter Book build artefacts
 docs/_build/
 docs/examples/notebooks/
+# Notebooks copied into docs/tutorials/ at build time (RTD pre_build + conf.py hook)
+docs/tutorials/*.ipynb
 
 # Notebook checkpoints
 .ipynb_checkpoints/

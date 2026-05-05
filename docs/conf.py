@@ -6,6 +6,9 @@ so a contributor familiar with one repo can navigate the other.
 
 from __future__ import annotations
 
+import shutil
+from pathlib import Path
+
 # -- Project information -----------------------------------------------------
 project = "stereopipeline-quickstart"
 author = "UW Terrain Analysis and Cryosphere Observation Lab"
@@ -72,7 +75,20 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     ".DS_Store",
-    # Notebooks are copied into docs/tutorials/ at build time by .readthedocs.yaml
-    # pre_build. Don't leave the ones present in the source tree dangling.
     "**/.ipynb_checkpoints",
 ]
+
+
+# Mirror notebooks/*.ipynb into docs/tutorials/ at the start of every build.
+# RTD does this via .readthedocs.yaml pre_build; this hook makes local
+# `sphinx-build` behave the same so edits to notebooks/ flow through.
+def _copy_notebooks(app):
+    src = Path(app.srcdir).parent / "notebooks"
+    dst = Path(app.srcdir) / "tutorials"
+    dst.mkdir(exist_ok=True)
+    for nb in src.glob("*.ipynb"):
+        shutil.copy2(nb, dst / nb.name)
+
+
+def setup(app):
+    app.connect("builder-inited", _copy_notebooks)
