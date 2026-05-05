@@ -79,14 +79,6 @@ RUN conda install -n base -c conda-forge -y mamba \
 RUN echo "source activate asp" >> /home/vscode/.bashrc \
     && echo "source activate asp" >> /root/.bashrc
 
-# Register the asp env as a system Jupyter kernel so notebooks with
-# `kernelspec.name: "asp"` resolve without prompting, and VS Code's kernel
-# picker labels it cleanly as "Python (ASP)" instead of generic "base" /
-# "Python 3.x" entries from auto-discovery.
-RUN /opt/conda/envs/asp/bin/python -m ipykernel install \
-        --name asp --display-name "Python (ASP)" \
-        --prefix /usr
-
 ENV CONDA_DEFAULT_ENV=asp \
     PATH=/opt/conda/envs/asp/bin:${PATH}
 
