@@ -95,6 +95,5 @@ tutorials/02_worldview_ucsd
 
 reference/glossary
 reference/output-files
-reference/parameter-cheatsheet
 reference/further-reading
 ```

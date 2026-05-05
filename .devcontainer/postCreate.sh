@@ -47,18 +47,16 @@ fi
 # ---- 3. Friendly hello -------------------------------------------------------
 cat <<'EOF'
 
-  ____            ____
- / ___| ___  ___ |  _ \  stereopipeline-quickstart
-| |  _ / _ \/ _ \| | | | ASP + asp_plot, ready to go.
-| |_| |  __/ (_) | |_| |
- \____|\___|\___/|____/
+===============================================================
+
+stereopipeline-quickstart
+ASP + asp_plot, ready to go.
 
 Next steps:
   1. Open notebooks/01_aster_rainier.ipynb and click "Run All".
      (Data is pre-fetched into data/aster_rainier/.)
   2. Or read docs/start/codespaces.md for an orientation tour.
 
-If a notebook hangs on stereo: check the terminal — parallel_stereo prints
-its progress there, not into the notebook output stream.
+===============================================================
 
 EOF

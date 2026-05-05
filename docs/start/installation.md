@@ -6,7 +6,7 @@ To run things on your own machine instead of in a [Codespace](codespaces.md):
 
 - Linux or macOS. ASP releases binaries for Linux x86_64, Linux ARM64, and macOS (Intel and Apple Silicon). Windows users should use WSL2 with the Linux binary.
 - ~5 GB free disk for ASP and python deps; tutorials need another 5-10 GB for imagery and intermediate outputs.
-- Python 3.12+. `asp_plot`'s floor is 3.11, but `sliderule` ≥ 5.3 (pulled in transitively) uses PEP 701 nested-quote f-strings that only parse on 3.12+, so 3.11 fails at `import asp_plot.altimetry`.
+- Python 3.12+
 
 ## Step 1 — Install ASP
 

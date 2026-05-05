@@ -30,9 +30,9 @@ Everything ASP does is in service of one of those four steps.
 
 Every step has subtle failure modes:
 
-- The geometry from the satellite metadata is never quite right. Residual error from GPS noise, attitude jitter, and clock drift introduces meters of bias into the final DEM. ASP has [`bundle_adjust`](../concepts/bundle-adjustment.md) to refine the camera models from the imagery itself.
+- The geometry from the satellite metadata is never quite right. Residual error from GNSS noise, attitude jitter, and clock drift introduces meters of bias into the final DEM. ASP has [`bundle_adjust`](../concepts/bundle-adjustment.md) to refine the camera models from the imagery itself.
 - Stereo matching is hard on flat or repetitive terrain. Sand dunes, snow, water, agricultural fields all look like noise to a matcher. ASP exposes many knobs (algorithm choice, subpixel mode, search range) to handle different terrain types.
-- Resampling the input imagery onto a coarse reference DEM ([mapprojection](../concepts/mapprojection.md)) makes matching easier, but adds a second pass and is sensor-dependent.
+- Resampling the input imagery onto a coarse reference DEM ([mapprojection](../concepts/mapprojection.md)) makes matching easier, but adds processing steps.
 - The output is only as accurate as the camera models. Even after bundle adjustment there's typically a 1-10 m bias relative to ground truth. ASP has [`pc_align`](../concepts/alignment.md) to register the DEM to a reference (ICESat-2, lidar, another DEM).
 - Different sensors need different recipes. A WorldView-3 pair needs `wv_correct`, `bundle_adjust`, mapprojection, and `parallel_stereo`. An ASTER L1A pair needs `aster2asp` first. A Mars HiRISE pair needs `cam2map`. The high-level structure is the same; the per-sensor commands aren't.
 

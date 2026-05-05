@@ -54,5 +54,3 @@ ASP's outputs include `run-GoodPixelMap.tif`, which flags pixels where matching 
 ## Where to read more
 
 - [ASP stereo correlation docs](https://stereopipeline.readthedocs.io/en/latest/correlation.html)
-- Hirschmüller's original SGM paper: *Stereo Processing by Semi-Global Matching and Mutual Information* (2008)
-- [`asp_plot.stereo.StereoPlotter`](https://asp-plot.readthedocs.io/en/latest/autoapi/asp_plot/stereo/index.html) for visualizing disparities

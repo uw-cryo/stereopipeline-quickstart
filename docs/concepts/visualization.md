@@ -2,11 +2,13 @@
 
 ASP outputs are scattered across files in numerous formats. [`asp_plot`](https://asp-plot.readthedocs.io/) reads them and produces diagnostic figures and PDF reports. We use it throughout this guide.
 
+A pipeline that ran without errors can still produce an unrealistic DEM. The diagnostic plots tell you whether to trust the result.
+
 ## Two ways to use it
 
 ### 1. The `asp_plot` CLI
 
-Generates a one-page PDF that captures the entire run:
+Generates a PDF that captures the entire run:
 
 ```bash
 asp_plot \
@@ -47,21 +49,6 @@ plotter.plot_detailed_hillshade(subset_km=5)
 ```
 
 Use this when something went wrong, or to explore the diagnostic methods directly in a notebook or script.
-
-## What each module does
-
-| Module | What it visualizes | When to use |
-|---|---|---|
-| `asp_plot.scenes` | Input imagery, mapprojected or raw | Sanity check inputs |
-| `asp_plot.stereo_geometry` | Skyplot, footprints, attitude/ephemeris | Before processing, to pick good pairs |
-| `asp_plot.bundle_adjust` | Residual histograms and maps | After bundle_adjust, to verify fit |
-| `asp_plot.stereo` | Disparity, hillshade, dh maps | After stereo, to verify DEM quality |
-| `asp_plot.altimetry` | DEM vs ICESat-2 / LOLA / MOLA | Independent ground-truth check |
-| `asp_plot.csm_camera` | Original vs optimized camera trajectories | Jitter analysis (advanced) |
-
-## The mental model
-
-A pipeline that ran without errors can still produce an unrealistic DEM. The diagnostic plots tell you whether to trust the result.
 
 ## Where to read more
 

@@ -55,5 +55,3 @@ This runs `pc_align` against ICESat-2 (Earth), MOLA (Mars), or LOLA (Moon) autom
 ## Where to read more
 
 - [ASP pc_align docs](https://stereopipeline.readthedocs.io/en/latest/tools/pc_align.html)
-- [`asp_plot.altimetry`](https://asp-plot.readthedocs.io/en/latest/autoapi/asp_plot/altimetry/index.html)
-- [`asp_plot.alignment`](https://asp-plot.readthedocs.io/en/latest/autoapi/asp_plot/alignment/index.html)

@@ -47,4 +47,3 @@ Healthy bundle adjustment: initial residuals 1-10 px, final residuals <0.5 px, d
 ## Where to read more
 
 - [ASP bundle_adjust docs](https://stereopipeline.readthedocs.io/en/latest/tools/bundle_adjust.html)
-- [`asp_plot.bundle_adjust`](https://asp-plot.readthedocs.io/en/latest/autoapi/asp_plot/bundle_adjust/index.html)

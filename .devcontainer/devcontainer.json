@@ -25,11 +25,10 @@
   // },
 
   // Codespace machine size — these are MINIMUMS; GitHub will refuse smaller
-  // machines at launch. Stereo correlation is embarrassingly parallel so 8
-  // cores gives a real ~2x speedup over 4 on the WorldView tutorial; beyond
-  // 8 the cropped ROIs don't have enough work to saturate. Larger machines
+  // machines at launch. Stereo correlation is parallel so 8
+  // cores gives a real ~2x speedup over 4 on the WorldView tutorial; Larger machines
   // burn Codespace credits proportionally faster (8-core = 2x credits/hr vs
-  // 4-core), so 8 is the sweet spot for the included tutorials.
+  // 4-core).
   "hostRequirements": {
     "cpus": 8,
     "memory": "32gb",

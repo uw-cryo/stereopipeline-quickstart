@@ -1,6 +1,6 @@
 # Mapprojection
 
-Stereo matching is easier when the two images are nearly aligned in geographic space. Mapprojection, resampling each image onto a regular grid defined by a coarse reference DEM, does that. It's optional but usually worth running.
+Stereo matching is easier when the images are nearly aligned in geographic space. Mapprojection, resampling each image onto a regular grid defined by a coarse reference DEM, does that. It's optional but often worth running.
 
 ## The intuition
 

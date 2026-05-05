@@ -7,29 +7,29 @@ Every ASP run, regardless of sensor, follows the same five-stage pattern. Once y
 ```{mermaid}
 flowchart TD
     A[Raw imagery + metadata] -->|aster2asp / wv_correct / cam2map| B[Sensor-prepared imagery]
-    B -->|bundle_adjust| C[Refined cameras]
+    B -->|bundle_adjust<br/>OPTIONAL| C[Refined cameras]
     C -->|mapproject<br/>OPTIONAL| D[Mapprojected imagery]
     D -->|parallel_stereo| E[Disparity & point cloud]
     C -->|parallel_stereo<br/>direct path| E
     E -->|point2dem| F[DEM]
-    F -->|pc_align| G[Aligned DEM]
+    F -->|pc_align<br/>OPTIONAL| G[Aligned DEM]
 ```
 
 | # | Stage | Tool(s) | What changes |
 |---|---|---|---|
 | 1 | Sensor prep | `aster2asp`, `wv_correct`, `cam2map`, `dg_mosaic` | Raw vendor format → ASP-friendly imagery + camera files |
-| 2 | Bundle adjustment (optional) | `bundle_adjust` | Camera models refined; offsets reduced from ~10 m → ~1 m |
+| 2 | Bundle adjustment (optional) | `bundle_adjust` | Camera models refined; offsets reduced |
 | 3 | Mapprojection (optional) | `mapproject` | Imagery resampled onto a reference DEM grid |
 | 4 | Stereo + DEM generation | `parallel_stereo`, `point2dem` | Matched pixels → point cloud → gridded DEM |
 | 5 | Alignment (optional) | `pc_align`, `geodiff` | DEM registered to ground truth (ICESat-2 / lidar / another DEM) |
 
-The two tutorials in this repo follow this template.
+The tutorials in this repo follow this template.
 
-## Stage 1 — Sensor preparation
+## Stage 1: Sensor preparation
 
 ASP wants two things from each input scene:
 
-1. An image as a single-band GeoTIFF (or NTF for WorldView).
+1. An image as a single-band raster file (GeoTiff, NTF).
 2. A camera model describing where the satellite was and where it was pointing. Either an XML file (DigitalGlobe/Vantor) or generated on the fly (ASTER).
 
 Most vendor data needs a per-sensor preprocessing step:
@@ -43,9 +43,9 @@ Most vendor data needs a per-sensor preprocessing step:
 The sensor-prep step is where the most per-sensor knowledge lives. Once your imagery is in the standard "image.tif + image.xml" pair, the rest of the pipeline looks the same regardless of sensor.
 ```
 
-## Stage 2 — Bundle adjustment
+## Stage 2: Bundle adjustment
 
-The vendor camera models for any satellite are off by a few meters in position and a few arc-seconds in attitude. That translates to several meters of bias in the resulting DEM, and inconsistent bias between the two images, which corrupts the stereo geometry.
+The vendor camera models for any satellite are off slightly in position and attitude. This can translate to several meters of bias in the resulting DEM, and inconsistent bias between the images, which corrupts the stereo geometry.
 
 `bundle_adjust` fixes this by:
 
@@ -57,7 +57,7 @@ Outputs are an `*-clean.match` file (the matches), an updated camera adjustment,
 
 See [Bundle adjustment](bundle-adjustment.md) for the full story.
 
-## Stage 3 — Mapprojection (optional but usually worth it)
+## Stage 3: Mapprojection
 
 Stereo matching is easier when the two images are aligned in geographic space (the same patch of ground at the same pixel in both images). Mapprojection resamples each image onto a regular grid defined by a coarse reference DEM (Copernicus 30 m for Earth, MOLA for Mars, etc.).
 
@@ -77,7 +77,7 @@ The tradeoff is one extra pass through the imagery and a dependency on having a 
 
 See [Mapprojection](mapprojection.md).
 
-## Stage 4 — Stereo + DEM generation
+## Stage 4: Stereo + DEM generation
 
 `parallel_stereo` runs four sub-steps:
 
@@ -97,7 +97,7 @@ point2dem -r earth --auto-proj-center --tr 5 run_stereo/run-PC.tif
 
 See [Stereo photogrammetry](stereo-photogrammetry.md).
 
-## Stage 5 — Alignment
+## Stage 5: Alignment
 
 After bundle adjustment, the DEM is still in the vendor's coordinate frame, with typically a 1-10 m bias relative to ground truth. `pc_align` shifts and (optionally) rotates the DEM to minimize its difference against a trusted reference:
 
@@ -121,4 +121,4 @@ flowchart LR
     All -->|asp_plot CLI| Report[PDF report]
 ```
 
-Each ASP stage produces files; each `asp_plot` class consumes them. The `asp_plot` CLI ties it all together into a one-page PDF. See [Visualization](visualization.md).
+Each ASP stage produces files; each `asp_plot` class consumes them. The `asp_plot` CLI ties it all together into a PDF report. See [Visualization](visualization.md).

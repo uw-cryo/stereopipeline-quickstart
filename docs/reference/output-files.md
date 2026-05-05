@@ -1,6 +1,6 @@
 # ASP output files
 
-What every file in an ASP run directory means. Most are TIFFs (sometimes encoding non-image data), and most are named with a `RUN_PREFIX-` followed by a fixed suffix.
+What key files in an ASP run directory means. Most are named with a `RUN_PREFIX-` followed by a fixed suffix. This is not every file, just those we are most interested in.
 
 ## After `bundle_adjust -o ba/run`
 
@@ -14,15 +14,11 @@ What every file in an ASP run directory means. Most are TIFFs (sometimes encodin
 
 ## After `mapproject`
 
-Just the resampled images:
-
 | File | Contents |
 |---|---|
 | `IMAGE.map.tif` (or whatever you named it) | Image resampled onto reference DEM grid |
 
 ## After `parallel_stereo -o stereo/run`
-
-ASP produces ~15 files in the stereo directory:
 
 | File | Contents |
 |---|---|
@@ -33,7 +29,6 @@ ASP produces ~15 files in the stereo directory:
 | `stereo/run-L.tif`, `run-R.tif` | Preprocessed left/right images |
 | `stereo/run-lMask.tif`, `run-rMask.tif` | Per-image masks |
 | `stereo/run-GoodPixelMap.tif` | Where matching succeeded (1) vs failed (0) |
-| `stereo/run-IntersectionErr.tif` | Triangulation residual per pixel; useful blunder detector |
 | `stereo/run-stereo.default` | Snapshot of stereo parameters used |
 | `stereo/log-stereo-*.txt` | Per-stage log files |
 
@@ -54,15 +49,3 @@ ASP produces ~15 files in the stereo directory:
 | `align/run-transform.txt` | 4×4 rigid transformation matrix |
 | `align/run-inverse-transform.txt` | Inverse, for going back |
 | `align/log-pc_align-*.txt` | Log with begin/end percentile errors |
-
-## File-finding utility
-
-`asp_plot.utils.glob_file()` is what every `asp_plot` class uses internally. You can use it directly:
-
-```python
-from asp_plot.utils import glob_file
-dem = glob_file("./stereo", "*-DEM.tif")
-match = glob_file("./ba", "*-clean.match")
-```
-
-It returns a `pathlib.Path` (or raises if zero or multiple matches).

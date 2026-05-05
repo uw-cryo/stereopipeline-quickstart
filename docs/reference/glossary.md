@@ -38,13 +38,13 @@ DEM
   Digital Elevation Model. A regular grid of heights — the final product of an ASP run. ASP file: `*-DEM.tif`.
 
 dh
-  "Difference in height". Pixel-wise difference between two DEMs (or between a DEM and altimetry). Always describe as "DEM minus reference" to avoid sign confusion.
+  "Difference in height". Pixel-wise difference between two DEMs (or between a DEM and altimetry).
 
 geodiff
   ASP tool that computes the difference between two DEMs and reports statistics.
 
 ground sample distance (GSD)
-  Pixel size of imagery on the ground, in meters. WV3 pan-sharp GSD ≈ 0.31 m; ASTER GSD ≈ 15 m.
+  Pixel size of imagery on the ground, in meters. WV3 pan-sharp GSD ≈ 0.30 m; ASTER GSD ≈ 15 m.
 
 ICESat-2
   NASA's Ice, Cloud, and Land Elevation Satellite 2. Provides global laser altimetry used for DEM alignment.
@@ -71,7 +71,7 @@ NMAD
   Normalized Median Absolute Deviation — robust scale estimator. `1.4826 × median(|x - median(x)|)`. Equals std for normal distributions; resistant to outliers. Used everywhere `asp_plot` reports DEM error.
 
 NTF
-  NITF (National Imagery Transmission Format). Image format used by WorldView and other commercial sensors.
+  NITF (National Imagery Transmission Format). Image format used by some commercial sensors.
 
 parallax
   Apparent shift of a pixel between two images of the same ground point taken from different viewpoints. Encodes the height of the ground point.
@@ -98,7 +98,7 @@ SfM
   Structure from Motion. The general algorithmic family that bundle adjustment + stereo belongs to.
 
 SGM / MGM
-  Semi-Global Matching / Modified Global Matching. The stereo-correlation algorithms ASP uses (`asp_sgm`, `asp_mgm`).
+  Semi-Global Matching / Modified Global Matching. The stereo-correlation algorithms ASP uses to produce highest quality results (`asp_sgm`, `asp_mgm`).
 
 SlideRule
   Cloud-native API for on-demand ICESat-2 processing. `asp_plot` uses it to fetch ATL06-SR data.
@@ -110,7 +110,7 @@ stereo
   ASP's master command for stereo correlation + triangulation. The parallel version (`parallel_stereo`) is what tutorials actually use.
 
 subpixel mode
-  Setting that controls how `parallel_stereo` refines integer-pixel matches. Mode 9 (Bayes EM with MGM) is the default for tutorials here.
+  Setting that controls how `parallel_stereo` refines integer-pixel matches; e.g. mode 9 (Bayes EM with MGM).
 
 tie point
   A single 3D ground point observed (and matched) in two or more images. Bundle adjustment optimizes camera parameters using tie-point reprojection errors.

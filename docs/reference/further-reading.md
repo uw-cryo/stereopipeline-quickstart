@@ -5,6 +5,7 @@
 - **[ASP documentation](https://stereopipeline.readthedocs.io/)** — the canonical reference. Hundreds of pages, very thorough.
 - **[ASP examples](https://stereopipeline.readthedocs.io/en/latest/examples.html)** — per-sensor recipes (DigitalGlobe, ASTER, HiRISE, CTX, MOC, LRO NAC, Pleiades, SPOT, Cassini, …). When you need to process a sensor we don't cover, start here.
 - **[ASP GitHub](https://github.com/NeoGeographyToolkit/StereoPipeline)** — source, releases, issues.
+- **[ASP support group](https://groups.google.com/g/ames-stereo-pipeline-support)** — best place to ask sensor-specific questions. 
 
 ## Visualization and diagnostics
 
@@ -25,8 +26,3 @@
 - **[uw-cryo/skysat_stereo](https://github.com/uw-cryo/skysat_stereo)** — high-cadence Planet imagery + ASP.
 - **[uw-cryo/wv_stereo_processing](https://github.com/uw-cryo/wv_stereo_processing)** — production-grade WorldView pipelines.
 - **[NeoGeographyToolkit/StereoPipelineSolvedExamples](https://github.com/NeoGeographyToolkit/StereoPipelineSolvedExamples)** — solved examples shipped with ASP itself.
-
-## Related communities
-
-- **[ASP support group](https://groups.google.com/g/ames-stereo-pipeline-support)** — best place to ask sensor-specific questions. 
-- **[ASP issue tracker](https://github.com/NeoGeographyToolkit/StereoPipeline/issues)** — place to note bugs in ASP.
