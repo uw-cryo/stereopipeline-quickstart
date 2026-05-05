@@ -1,41 +1,39 @@
 #!/usr/bin/env python
-"""Clip a Copernicus GLO-30 DEM tile to a bounding box, no API key needed.
+"""Clip a Copernicus GLO-30 DEM to a bounding box with WGS84 ellipsoid heights.
 
-The Copernicus DEM is hosted as a free public AWS Open Data bucket — much
-nicer than `fetch_dem` (which needs an OpenTopography API key) for codespaces.
+Source: AWS Open Data bucket `copernicus-dem-30m` (no API key, no auth).
+That data ships heights referenced to the EGM2008 geoid (EPSG:3855). ASP
+expects ellipsoid heights (EPSG:4979), so this script applies the
+geoid -> ellipsoid shift via gdalwarp with a compound source/target CRS,
+mirroring the recipe in uw-cryo/fetch_dem (which OpenTopography uses for
+its `_E` demtype variants).
 
 Usage:
     python scripts/fetch_cop_dem.py \\
         --bbox -117.27 32.85 -117.20 32.92 \\
         --t-srs EPSG:32611 \\
         --tr 30 \\
-        --out data/ucsd/cop30.tif
-
-The output is a single GeoTIFF with WGS84 ellipsoid heights, reprojected to
-the requested SRS at the requested resolution.
+        --out data/ucsd/cop30_wgs84_ellip.tif
 """
 
 from __future__ import annotations
 
 import argparse
 import math
+import subprocess
+import tempfile
 from pathlib import Path
 
 import boto3
 from botocore import UNSIGNED
 from botocore.client import Config
-import rasterio
-from rasterio.merge import merge
-from rasterio.warp import calculate_default_transform, reproject, Resampling
-from rasterio.session import AWSSession
-from rasterio.io import MemoryFile
 
 BUCKET = "copernicus-dem-30m"
 S3 = boto3.client("s3", config=Config(signature_version=UNSIGNED))
 
 
 def tile_name(lat: int, lon: int) -> str:
-    """Return the Copernicus DEM tile filename for a 1° tile origin (SW corner)."""
+    """Return the Copernicus DEM tile S3 key for a 1° tile origin (SW corner)."""
     ns = "N" if lat >= 0 else "S"
     ew = "E" if lon >= 0 else "W"
     return (
@@ -45,19 +43,9 @@ def tile_name(lat: int, lon: int) -> str:
 
 
 def tiles_covering(west: float, south: float, east: float, north: float):
-    """Yield 1° tile keys (S3 paths) that intersect the requested bbox."""
     for lat in range(math.floor(south), math.ceil(north)):
         for lon in range(math.floor(west), math.ceil(east)):
             yield tile_name(lat, lon)
-
-
-def fetch_tile(key: str) -> rasterio.io.MemoryFile:
-    """Download one COP30 tile from S3 into a rasterio MemoryFile."""
-    print(f"  → s3://{BUCKET}/{key}")
-    obj = S3.get_object(Bucket=BUCKET, Key=key)
-    body = obj["Body"].read()
-    mem = MemoryFile(body)
-    return mem
 
 
 def main() -> None:
@@ -71,68 +59,73 @@ def main() -> None:
         help="Bounding box in EPSG:4326 (lon/lat).",
     )
     p.add_argument(
-        "--t-srs", default="EPSG:4326", help="Target SRS for the output (default: EPSG:4326)."
+        "--t-srs",
+        default="EPSG:4326",
+        help="Target horizontal SRS (default: EPSG:4326).",
     )
-    p.add_argument("--tr", type=float, default=30.0, help="Target resolution in target-SRS units.")
+    p.add_argument(
+        "--tr",
+        type=float,
+        default=30.0,
+        help="Target resolution in target-SRS units (default: 30).",
+    )
     p.add_argument("--out", type=Path, required=True, help="Output GeoTIFF path.")
     args = p.parse_args()
 
     west, south, east, north = args.bbox
     args.out.parent.mkdir(parents=True, exist_ok=True)
 
+    # COP30 ships WGS84 lon/lat (EPSG:4326) + EGM2008 geoid heights (EPSG:3855).
+    # Target: requested horizontal SRS + WGS84 ellipsoid heights (EPSG:4979).
+    # gdalwarp applies the per-pixel geoid -> ellipsoid shift via PROJ's
+    # bundled EGM2008 grid.
+    src_crs = "EPSG:4326+EPSG:3855"
+    dst_crs = f"{args.t_srs}+EPSG:4979"
+
     print(f"Fetching COP30 tiles covering bbox=({west},{south},{east},{north})")
-    memfiles = []
-    datasets = []
-    for key in tiles_covering(west, south, east, north):
-        try:
-            mem = fetch_tile(key)
-            ds = mem.open()
-            memfiles.append(mem)
-            datasets.append(ds)
-        except S3.exceptions.NoSuchKey:
-            print(f"  (tile not present: {key} — likely ocean)")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tile_files: list[str] = []
+        for key in tiles_covering(west, south, east, north):
+            try:
+                obj = S3.get_object(Bucket=BUCKET, Key=key)
+            except S3.exceptions.NoSuchKey:
+                print(f"  (tile not present: {key} — likely ocean)")
+                continue
+            tile_path = Path(tmpdir) / Path(key).name
+            tile_path.write_bytes(obj["Body"].read())
+            tile_files.append(str(tile_path))
+            print(f"  → {key}")
 
-    if not datasets:
-        raise RuntimeError("No tiles found for the requested bbox; is it over open ocean?")
+        if not tile_files:
+            raise RuntimeError(
+                "No tiles found for the requested bbox; is it over open ocean?"
+            )
 
-    print(f"Mosaicking {len(datasets)} tile(s)...")
-    mosaic, mosaic_transform = merge(datasets, bounds=(west, south, east, north))
-    src_crs = datasets[0].crs
-
-    # Reproject to target SRS at requested resolution
-    print(f"Reprojecting to {args.t_srs} at {args.tr} m resolution → {args.out}")
-    dst_transform, dst_w, dst_h = calculate_default_transform(
-        src_crs, args.t_srs,
-        mosaic.shape[2], mosaic.shape[1],
-        west, south, east, north,
-        resolution=args.tr,
-    )
-    profile = {
-        "driver": "GTiff",
-        "dtype": mosaic.dtype,
-        "count": 1,
-        "width": dst_w,
-        "height": dst_h,
-        "crs": args.t_srs,
-        "transform": dst_transform,
-        "compress": "deflate",
-        "tiled": True,
-    }
-    with rasterio.open(args.out, "w", **profile) as dst:
-        reproject(
-            source=mosaic[0],
-            destination=rasterio.band(dst, 1),
-            src_transform=mosaic_transform,
-            src_crs=src_crs,
-            dst_transform=dst_transform,
-            dst_crs=args.t_srs,
-            resampling=Resampling.bilinear,
+        print(f"Reprojecting {len(tile_files)} tile(s) to {dst_crs} at {args.tr} units")
+        subprocess.run(
+            [
+                "gdalwarp",
+                "-r", "cubic",
+                "-co", "COMPRESS=LZW",
+                "-co", "TILED=YES",
+                "-co", "BIGTIFF=IF_SAFER",
+                "-te_srs", "EPSG:4326",
+                "-te", str(west), str(south), str(east), str(north),
+                "-tr", str(args.tr), str(args.tr),
+                "-s_srs", src_crs,
+                "-t_srs", dst_crs,
+                *tile_files,
+                str(args.out),
+            ],
+            check=True,
         )
 
-    for ds in datasets:
-        ds.close()
-    for mem in memfiles:
-        mem.close()
+    # gdalwarp tags the output with only the target horizontal SRS; re-assert
+    # the compound CRS so downstream tools see the vertical component.
+    subprocess.run(
+        ["gdal_edit.py", str(args.out), "-a_srs", dst_crs],
+        check=True,
+    )
     print("Done.")
 
 
