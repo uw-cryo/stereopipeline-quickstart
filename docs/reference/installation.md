@@ -1,6 +1,6 @@
 # Local install
 
-To run things on your own machine instead of in a [Codespace](codespaces.md):
+To run things on your own machine instead of in a [Codespace](../start/codespaces.md):
 
 ## Requirements
 

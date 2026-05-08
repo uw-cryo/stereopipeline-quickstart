@@ -1,56 +1,19 @@
 # Visualization with `asp_plot`
 
-ASP outputs are scattered across files in numerous formats. [`asp_plot`](https://asp-plot.readthedocs.io/) reads them and produces diagnostic figures and PDF reports. We use it throughout this guide.
+```{admonition} Work in progress
+:class: warning
+Placeholder content. Being rewritten with figures.
+```
 
-A pipeline that ran without errors can still produce an unrealistic DEM. The diagnostic plots tell you whether to trust the result.
+ASP outputs are scattered across files in many formats; [`asp_plot`](https://asp-plot.readthedocs.io/) reads them and produces diagnostic figures and PDF reports used throughout this guide.
 
 ## Two ways to use it
 
-### 1. The `asp_plot` CLI
+<!-- FIGURE IDEA: two screenshots side by side — left, a thumbnail montage of pages from the asp_plot CLI's PDF report (cover, scenes, residuals, dh, altimetry); right, a Jupyter notebook cell calling StereoPlotter.plot_detailed_hillshade with the figure rendered inline. Same data, different consumption modes. -->
 
-Generates a PDF that captures the entire run:
-
-```bash
-asp_plot \
-  --directory ./aster_rainier \
-  --stereo_directory out_stereo_proj \
-  --plot_altimetry True \
-  --pc_align True \
-  --report_filename rainier_report.pdf
-```
-
-The PDF includes: title page with DEM metadata + processing parameters, scenes, stereo geometry, match points, bundle adjustment residuals, disparity, DEM hillshade and dh-vs-reference, ICESat-2/LOLA/MOLA comparison, and (optionally) a `pc_align` summary page.
-
-Use this when you want a record of a successful run.
-
-### 2. The Python API
-
-For interactive exploration in a notebook:
-
-```python
-from asp_plot.scenes import ScenePlotter
-from asp_plot.stereo import StereoPlotter
-from asp_plot.bundle_adjust import ReadBundleAdjustFiles, PlotBundleAdjustFiles
-
-# Inspect input scenes
-ScenePlotter("./aster_rainier", "out_stereo_proj").plot_scenes()
-
-# Bundle adjustment residuals
-ba = ReadBundleAdjustFiles("./aster_rainier", "ba")
-gdfs = ba.get_initial_final_residuals_gdfs()
-PlotBundleAdjustFiles(gdfs).plot_n_residuals()
-
-# DEM hillshade
-plotter = StereoPlotter(
-    "./aster_rainier", "out_stereo_proj",
-    reference_dem="./out_stereo/run-200m-DEM.tif",
-)
-plotter.plot_detailed_hillshade(subset_km=5)
-```
-
-Use this when something went wrong, or to explore the diagnostic methods directly in a notebook or script.
+The CLI (`asp_plot --directory ... --report_filename ...`) generates a single PDF capturing the whole run; the Python API (`ScenePlotter`, `StereoPlotter`, `PlotBundleAdjustFiles`, `Altimetry`) is for interactive exploration in a notebook.
 
 ## Where to read more
 
 - [`asp_plot` documentation](https://asp-plot.readthedocs.io/)
-- [`asp_plot` example notebooks](https://asp-plot.readthedocs.io/en/latest/examples/index.html) — deeper examples beyond the tutorials here.
+- [`asp_plot` example notebooks](https://asp-plot.readthedocs.io/en/latest/examples/index.html)
