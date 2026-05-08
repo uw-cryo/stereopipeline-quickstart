@@ -1,48 +1,33 @@
 # Bundle adjustment
 
-The vendor's camera models can be slightly inaccurate. Bundle adjustment fixes them by minimizing reprojection error of features matched between the input images.
+```{admonition} Work in progress
+:class: warning
+Placeholder content. Being rewritten with figures.
+```
+
+The vendor's camera models are slightly inaccurate; bundle adjustment refines them by minimizing reprojection errors of features matched between input images.
 
 ## What the optimizer does
 
-Given:
+<!-- FIGURE IDEA: schematic of two cameras viewing several tie points; arrows from camera centers through image-plane observations to the 3D points; small "wiggle" arrows on cameras and points indicating what the optimizer varies. Caption: "minimize the sum of squared reprojection errors over all observations." -->
 
-- Input cameras: initial position and pointing for each image.
-- Tie points: pixels matched between images, each representing a single 3D ground point seen multiple times.
-
-Bundle adjustment varies the camera parameters and the 3D positions of tie points to minimize reprojection errors.
+Given initial cameras and tie points, `bundle_adjust` jointly varies camera parameters and 3D tie-point positions to drive reprojection error toward zero.
 
 ## Why this matters for stereo
 
-If the two cameras are misaligned by even a couple of meters in 3D space, the same ground point appears at slightly different locations in the two images, even after correct stereo matching. That maps into a height error in the final DEM. Without bundle adjustment, biases of several meters and tilt artifacts of similar magnitude are common.
+<!-- FIGURE IDEA: cartoon of two slightly-misaligned cameras producing rays that don't quite intersect at the ground point — the gap is the "intersection error". After bundle adjustment, the rays meet cleanly. Could overlay an actual run-IntersectionErr.tif crop to make it concrete. -->
 
-After bundle adjustment, the residual reprojection error is typically <1 px and the DEM bias drops to ~1 m or less.
+Without bundle adjustment, vendor camera misalignment translates into meters of bias and tilt in the final DEM; with it, residual reprojection error drops below 1 px and DEM bias to around 1 m.
 
 ## Outputs you can visualize
 
-`bundle_adjust` writes a CSV of tie-point residuals before and after optimization:
+<!-- FIGURE IDEA: paired histograms of initial vs final residuals from the WV3 tutorial — initial wide, multi-pixel; final narrow, sub-pixel. Plus a map view colored by residual magnitude over the scene footprint, showing the spatial distribution. -->
 
-- `*-initial_residuals_pointmap.csv`: reprojection error per tie point at the start.
-- `*-final_residuals_pointmap.csv`: same after optimization.
-
-`asp_plot.bundle_adjust.PlotBundleAdjustFiles` plots both side by side as histograms and map views.
-
-```{tip}
-Healthy bundle adjustment: initial residuals 1-10 px, final residuals <0.5 px, distributed roughly uniformly. Unhealthy: final residuals >1 px or clustered in one corner; you may have insufficient or poorly-distributed tie points.
-```
+Initial- and final-pass per-tie-point residual CSVs (`*-initial_residuals_pointmap.csv`, `*-final_residuals_pointmap.csv`) are read by `asp_plot.bundle_adjust.PlotBundleAdjustFiles` for before/after comparison.
 
 ## Common knobs
 
-`--ip-per-image`
-:   Target number of interest points per image. Default ~5000; tutorials use 10000 for denser coverage.
-
-`--tri-weight` / `--tri-robust-threshold`
-:   Penalty on ground-point movement during optimization. Keeps the solution from drifting if you don't have ground control. Tutorials use `0.1 / 0.1`.
-
-`--camera-weight 0`
-:   Lets the camera parameters move freely (default is to anchor them).
-
-`--mapproj-dem REF.tif`
-:   Optional. Recomputes residuals after mapprojecting matches onto a reference DEM, useful for diagnosing bundle quality in absolute geographic terms.
+Interest-point density (`--ip-per-image`), tie-point penalty (`--tri-weight`, `--tri-robust-threshold`), and camera-anchor weight (`--camera-weight`) are the parameters most often tuned.
 
 ## Where to read more
 

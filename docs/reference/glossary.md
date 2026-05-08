@@ -58,9 +58,6 @@ jitter
 LOLA
   Lunar Orbiter Laser Altimeter. Reference altimetry for Moon DEMs.
 
-mapprojection
-  Resampling input imagery onto a regular geographic grid using a coarse reference DEM. Makes stereo matching dramatically easier. See [Mapprojection](../concepts/mapprojection.md).
-
 match file
   ASP file containing tie-point matches between two images. File extension `.match` (binary) or `.csv`.
 
@@ -72,6 +69,9 @@ NMAD
 
 NTF
   NITF (National Imagery Transmission Format). Image format used by some commercial sensors.
+
+orthorectification
+  Resampling input imagery onto a regular geographic grid using a coarse reference DEM. Makes stereo matching dramatically easier. ASP's tool for this is `mapproject`, and ASP docs call the step "mapprojection". See [Orthorectification](../concepts/orthorectification.md).
 
 parallax
   Apparent shift of a pixel between two images of the same ground point taken from different viewpoints. Encodes the height of the ground point.

@@ -47,6 +47,10 @@ myst_heading_anchors = 3
 html_theme = "sphinx_book_theme"
 html_title = "stereopipeline-quickstart"
 html_theme_options = {
+    "announcement": (
+        "Work in progress — content is being rewritten. "
+        "Notebooks in <code>notebooks/</code> are functional; prose pages are placeholders."
+    ),
     "repository_url": "https://github.com/uw-cryo/stereopipeline-quickstart",
     "use_repository_button": True,
     "use_issues_button": True,

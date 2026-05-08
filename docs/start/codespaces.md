@@ -51,4 +51,4 @@ GitHub gives every personal account a monthly Codespaces allowance for free — 
 Students and educators with a `.edu` email get a larger allowance. Apply to the [GitHub Student Developer Pack](https://education.github.com/pack) or [GitHub for Teachers](https://education.github.com/teachers).
 ```
 
-If you'd rather not use Codespaces, see [the local install guide](installation.md).
+If you'd rather not use Codespaces, see [the local install guide](../reference/installation.md).

@@ -64,7 +64,6 @@ A replacement for the [official ASP documentation](https://stereopipeline.readth
 
 start/what-is-asp
 start/codespaces
-start/installation
 ```
 
 ```{toctree}
@@ -74,7 +73,7 @@ start/installation
 concepts/pipeline-overview
 concepts/stereo-photogrammetry
 concepts/bundle-adjustment
-concepts/mapprojection
+concepts/orthorectification
 concepts/alignment
 concepts/visualization
 ```
@@ -94,5 +93,6 @@ tutorials/02_worldview_ucsd
 
 reference/glossary
 reference/output-files
+reference/installation
 reference/further-reading
 ```

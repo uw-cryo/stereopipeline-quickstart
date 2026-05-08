@@ -1,55 +1,35 @@
 # Stereo photogrammetry
 
-From two views of the same patch of ground, the horizontal shift (parallax) of a pixel between the two images depends on:
+```{admonition} Work in progress
+:class: warning
+Placeholder content. Being rewritten with figures.
+```
 
-- The baseline: distance between the two satellite positions.
-- The convergence angle between the two viewing directions at the ground point.
-- The height of the ground point relative to a reference surface.
-
-If you know the first two from camera metadata, the third falls out of the parallax.
+Two views of the same patch of ground from different angles produce parallax — a pixel shift between images that encodes ground height.
 
 ## What ASP actually computes
 
-For every pixel `(x_L, y_L)` in the left image, ASP looks for its match `(x_R, y_R)` in the right image. The disparity at that pixel is the vector `(x_R - x_L, y_R - y_L)` after both images have been put into a common reference frame (by mapprojection or by an internal epipolar-alignment step).
+<!-- FIGURE IDEA: stereo-pair geometry diagram — two camera positions, a ground point, rays from each camera to the same point, and the disparity (delta-x, delta-y) shown on the image planes. Triangulation arrow showing how rays + cameras yield the 3D point. -->
 
-```{mermaid}
-flowchart LR
-    L[Left pixel] -->|stereo correlator| D[Disparity vector]
-    R[Right image<br/>search window] --> D
-    D -->|triangulate with cameras| P[3D point]
-```
-
-With disparity for every pixel and the two camera models, ASP triangulates each match into a 3D ground coordinate.
+For every pixel in the left image, ASP finds its match in the right image; the resulting disparity vectors plus the camera models triangulate to 3D ground coordinates.
 
 ## Knobs that matter
 
-`--stereo-algorithm`
-:   Which matcher to use. `asp_mgm` (modified semi-global matching) is the modern default. `asp_bm` (block matching) is faster but less robust on textured terrain.
+<!-- FIGURE IDEA: 2x2 hillshade comparison from the same input pair — asp_bm vs asp_mgm across the columns, subpixel-mode 1 vs 9 down the rows. Shows visually how much each knob affects the output. -->
 
-`--subpixel-mode`
-:   How to refine integer-pixel matches to fractional pixels. `9` (Bayes EM with MGM) is highest quality. `2` (parabolic fit) is faster.
-
-`--corr-tile-size`
-:   Tile size for parallelism. Larger tiles give better matching context but use more memory. Default 1024 is fine.
-
-The full list is in the [ASP stereo docs](https://stereopipeline.readthedocs.io/en/latest/correlation.html).
+The matcher (`--stereo-algorithm`) and the subpixel refiner (`--subpixel-mode`) are the two parameters that most affect quality and runtime.
 
 ## Geometry that matters
 
-Convergence angle. Too small (<10°) and parallax is tiny, so height precision is poor. Too large (>40°) and the two images look too different to match. Typical range for natural terrain: 15-30°.
+<!-- FIGURE IDEA: skyplot from asp_plot.stereo_geometry showing the two satellite positions and convergence angle for the WV3 tutorial pair. Pair with a text inset citing the convergence angle and B/H ratio. -->
 
-Base-to-height ratio (B/H). Inter-satellite baseline divided by altitude. Larger B/H gives better height precision. For Earth-orbiting satellites, 0.3-0.6 is typical.
-
-`asp_plot.stereo_geometry.StereoGeometryPlotter` reads these from the XML metadata and plots them.
+Convergence angle and base-to-height ratio set the height precision achievable; both come from the satellite metadata and you can plot them with `asp_plot.stereo_geometry.StereoGeometryPlotter`.
 
 ## Where matching fails
 
-- Featureless terrain. Sand, snow, water, dense forest canopy. The matcher has nothing to lock onto.
-- Repetitive textures. Agricultural rows, gravel rooftops. The matcher locks onto the wrong feature.
-- Occlusion. Cliffs, building facades visible in only one image. No match available.
-- Atmospheric or illumination differences. Strong shadow shifts between acquisitions confuse the matcher.
+<!-- FIGURE IDEA: panel of GoodPixelMap (run-GoodPixelMap.tif) crops over each failure mode — water, snow, dense canopy, sharp shadow boundary, building facade occlusion. Red/green pixels make the failures legible at a glance. -->
 
-ASP's outputs include `run-GoodPixelMap.tif`, which flags pixels where matching succeeded. Check this before trusting the DEM.
+Featureless terrain, repetitive textures, occlusion, and strong illumination differences all break the matcher; `run-GoodPixelMap.tif` flags where matching succeeded.
 
 ## Where to read more
 
