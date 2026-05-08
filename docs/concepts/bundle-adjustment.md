@@ -17,11 +17,11 @@ Given initial cameras and tie points, `bundle_adjust` jointly varies camera para
 
 <!-- FIGURE IDEA: cartoon of two slightly-misaligned cameras producing rays that don't quite intersect at the ground point — the gap is the "intersection error". After bundle adjustment, the rays meet cleanly. Could overlay an actual run-IntersectionErr.tif crop to make it concrete. -->
 
-Without bundle adjustment, vendor camera misalignment translates into meters of bias and tilt in the final DEM; with it, residual reprojection error drops below 1 px and DEM bias to around 1 m.
+Without bundle adjustment, vendor camera misalignment shows up as bias and tilt in the final DEM; with it, residual reprojection error and DEM bias both shrink.
 
 ## Outputs you can visualize
 
-<!-- FIGURE IDEA: paired histograms of initial vs final residuals from the WV3 tutorial — initial wide, multi-pixel; final narrow, sub-pixel. Plus a map view colored by residual magnitude over the scene footprint, showing the spatial distribution. -->
+<!-- FIGURE IDEA: paired histograms of initial vs final residuals from the WV3 tutorial. Plus a map view colored by residual magnitude over the scene footprint, showing the spatial distribution. -->
 
 Initial- and final-pass per-tie-point residual CSVs (`*-initial_residuals_pointmap.csv`, `*-final_residuals_pointmap.csv`) are read by `asp_plot.bundle_adjust.PlotBundleAdjustFiles` for before/after comparison.
 

@@ -21,7 +21,7 @@ Vendor-specific tools (`aster2asp`, `wv_correct`, `cam2map`, `dg_mosaic`) conver
 
 ## Stage 2: Bundle adjustment
 
-<!-- FIGURE IDEA: residual scatter plot — initial vs final residuals for the WV3 tutorial. Same dataset shown twice: meters of scatter pre-adjustment, sub-pixel after. Reuse the asp_plot output from the existing tutorial run. -->
+<!-- FIGURE IDEA: residual scatter plot — initial vs final residuals for the WV3 tutorial, reusing the asp_plot output from the existing tutorial run. -->
 
 `bundle_adjust` refines the vendor camera models by minimizing reprojection errors of features matched between the input images. See [Bundle adjustment](bundle-adjustment.md).
 
