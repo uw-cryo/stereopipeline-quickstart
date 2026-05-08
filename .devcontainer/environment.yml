@@ -28,3 +28,5 @@ dependencies:
       # Pull asp_plot from PyPI; conda-forge package exists too but PyPI is
       # always one step ahead during active development.
       - asp-plot>=1.14.0
+      # GUI exploration (experiments/) — see experiments/README.md
+      - solara>=1.30
