@@ -31,6 +31,15 @@ echo "--> asp_plot version:"
 # manipulation in lifecycle wrapping.
 /opt/conda/envs/asp/bin/python -c "import asp_plot; print(asp_plot.__version__)"
 
+# ---- 1.5 Branch-only deps not yet baked into the GHCR image -----------------
+# experiments/gui_solara.ipynb needs solara. environment.yml on this branch
+# adds it, but the prebuilt image won't pick that up until the build-image
+# workflow runs. pip-install into the conda env on each Codespace create so
+# the prototype works without a manual step. Drop this block once the image
+# has been rebuilt (or once this branch lands on main).
+echo "--> Ensuring solara is installed (branch-only, not yet in the image)..."
+/opt/conda/envs/asp/bin/pip install --quiet "solara>=1.30"
+
 # ---- 2. Pre-fetch ASTER demo data -------------------------------------------
 DATA_DIR="${PWD}/data/aster_rainier"
 mkdir -p "${DATA_DIR}"
