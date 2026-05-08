@@ -19,12 +19,6 @@ ASP began at NASA Ames in the late 2000s for planetary stereo (Mars, Moon) and g
 
 ASP is not one program but dozens of single-purpose command-line binaries (`bundle_adjust`, `mapproject`, `parallel_stereo`, `point2dem`, `pc_align`, ...) that pipe outputs into each other. This UNIX-style modularity is powerful but means the workflow is expressed as a sequence of CLI invocations.
 
-## CLI today, GUI tomorrow
-
-<!-- FIGURE IDEA: side-by-side mockup — left panel shows a terminal with a long parallel_stereo invocation; right panel shows a browser-based form with the same parameters as labeled sliders/dropdowns/checkboxes. Same end result, different interface. -->
-
-Today, running ASP requires comfort with the command line. The longer-term direction (including the SNWG-funded effort that motivates this guide) is to provide browser-based interfaces — sliders, checkboxes, dropdowns — that drive ASP under the hood, so end users never see the CLI.
-
 ## Why "stereo"?
 
 <!-- FIGURE IDEA: classic two-camera parallax diagram — a tall feature (mountain or building) seen from two satellite positions, with rays from each camera converging on the feature. Pixel positions on each sensor offset by an amount proportional to height. Caption emphasizes "parallax encodes height". -->
