@@ -24,7 +24,11 @@
 
 ## Machine size
 
-The minimum Codespace machine type for this repo is 8-core / 32 GB / 64 GB storage (set in `.devcontainer/devcontainer.json`). You can pick a larger machine at launch time via the "Create codespace with options" menu. Smaller machines aren't offered, as processing with ASP requires significant resources. Larger machines are billed at higher rates; see [Codespaces pricing](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces).
+The minimum Codespace machine type for this repo is 4-core / 16 GB / 32 GB storage (set in `.devcontainer/devcontainer.json`). 4-core is the floor every GitHub account can launch without extra billing setup. You can pick a larger machine at launch time via the "Create codespace with options" menu — stereo correlation is parallel and will be roughly 2× faster on 8 cores. Larger machines are billed at higher rates; see [Codespaces pricing](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces).
+
+```{tip}
+If you select a machine larger than 4 cores, bump the `--processes` flag in the `parallel_stereo` calls (and `--threads` in `bundle_adjust` / `mapproject`) to match your core count for a real speedup.
+```
 
 ## Run a tutorial
 

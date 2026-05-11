@@ -25,14 +25,17 @@
   // },
 
   // Codespace machine size — these are MINIMUMS; GitHub will refuse smaller
-  // machines at launch. Stereo correlation is parallel so 8
-  // cores gives a real ~2x speedup over 4 on the WorldView tutorial; Larger machines
-  // burn Codespace credits proportionally faster (8-core = 2x credits/hr vs
-  // 4-core).
+  // machines at launch. 4 cores is the floor every GitHub account can launch
+  // without extra billing setup (see issue #3); 8/16-core options require
+  // a payment method + spending limit on the personal account, which is an
+  // unacceptable blocker for a learning resource. Stereo correlation is
+  // parallel and will be ~2x faster on 8 cores — users on larger machines
+  // can bump the --processes / --threads-multiprocess flags in the notebooks
+  // to take advantage.
   "hostRequirements": {
-    "cpus": 8,
-    "memory": "32gb",
-    "storage": "64gb"
+    "cpus": 4,
+    "memory": "16gb",
+    "storage": "32gb"
   },
 
   "customizations": {
