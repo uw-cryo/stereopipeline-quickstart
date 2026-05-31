@@ -1,4 +1,4 @@
-# Open-Source Stereo Pipeline Alternatives
+# Alternative Open-Source Stereo Pipelines
 
 Comparisons of ASP with other widely used open-source stereo photogrammetry pipelines, using the [SpaceNet UCSD WorldView-3 example](https://asp-plot.readthedocs.io/en/latest/examples/notebooks/worldview_spacenet_ucsd_stereo.html) as a common test case.
 

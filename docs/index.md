@@ -15,43 +15,43 @@ This site is the static companion to the [GitHub repo](https://github.com/uw-cry
 ::::{grid} 1 1 2 3
 :gutter: 3
 
-:::{grid-item-card} New to stereo photogrammetry
+:::{grid-item-card} New to stereo photogrammetry?
 :link: start/what-is-asp
 :link-type: doc
 What ASP does, what a "stereo pipeline" is, and where the moving parts fit. Read this first if you're not sure why bundle adjustment exists.
 :::
 
-:::{grid-item-card} Ready to run something
+:::{grid-item-card} Ready to run something?
 :link: start/codespaces
 :link-type: doc
 Launch the Codespace, open a notebook, hit Run All.
 :::
 
-:::{grid-item-card} Want a deeper concept primer
+:::{grid-item-card} Want a deeper concept primer?
 :link: concepts/pipeline-overview
 :link-type: doc
 The end-to-end mental model: from raw imagery to aligned DEM. With diagrams.
 :::
 
-:::{grid-item-card} Want to run the tutorials
+:::{grid-item-card} Want to run the tutorials?
 :link: tutorials/index
 :link-type: doc
 Two walkthroughs: ASTER (medium-res) and WorldView-3 (high-res). Both fully open.
 :::
 
-:::{grid-item-card} Need to look something up
+:::{grid-item-card} Need to look something up?
 :link: reference/glossary
 :link-type: doc
 Glossary, ASP output-file naming, parameter cheat sheet, links to the canonical ASP docs.
 :::
 
-:::{grid-item-card} Want pretty plots from your run
+:::{grid-item-card} Want pretty plots from your run?
 :link: concepts/visualization
 :link-type: doc
 How `asp_plot` produces diagnostic figures, PDF reports, and ICESat-2 comparisons.
 :::
 
-:::{grid-item-card} Curious how ASP compares to CARS & SETSM
+:::{grid-item-card} Curious about alternative open-source stereo pipelines?
 :link: comparisons/index
 :link-type: doc
 The same WorldView-3 pair run through three open-source stereo pipelines, side by side.
