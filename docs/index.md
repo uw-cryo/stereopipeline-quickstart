@@ -50,6 +50,12 @@ Glossary, ASP output-file naming, parameter cheat sheet, links to the canonical 
 :link-type: doc
 How `asp_plot` produces diagnostic figures, PDF reports, and ICESat-2 comparisons.
 :::
+
+:::{grid-item-card} Curious how ASP compares to CARS & SETSM
+:link: comparisons/index
+:link-type: doc
+The same WorldView-3 pair run through three open-source stereo pipelines, side by side.
+:::
 ::::
 
 ## What this is not
@@ -85,6 +91,13 @@ concepts/visualization
 tutorials/index
 tutorials/01_aster_rainier
 tutorials/02_worldview_ucsd
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Comparisons
+
+comparisons/index
 ```
 
 ```{toctree}
