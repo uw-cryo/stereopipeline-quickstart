@@ -1,6 +1,6 @@
 # Tutorials
 
-Two end-to-end notebooks. Both use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
+Three end-to-end notebooks. All use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
 
 ::::{grid} 1 1 2 2
 :gutter: 3
@@ -29,9 +29,14 @@ Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly
 - `parallel_stereo` on the mapprojected pair
 - `asp_plot --pc_align` for ICESat-2 alignment
 
-A companion notebook adds `bundle_adjust` for comparison.
-
 Output: 2 m DEM over University City, San Diego.
+:::
+
+:::{grid-item-card} 3. WorldView-3 UCSD with bundle adjustment
+:link: 03_worldview_ucsd_ba
+:link-type: doc
+
+Variant of Tutorial 2 that adds `bundle_adjust` to refine the vendor RPC cameras before orthorectification. Outputs are suffixed `_ba`, so both runs share a data directory and the two `asp_plot` reports can be compared side by side.
 :::
 ::::
 
@@ -39,7 +44,7 @@ Output: 2 m DEM over University City, San Diego.
 
 If you've never run ASP before, do the ASTER tutorial first. It has fewer parameters, and a coarser resolution.
 
-The WorldView tutorial then adds bundle adjustment, cropping, and a finer resolution, higher accuracy result.
+The WorldView tutorial then adds cropping and a finer resolution, higher accuracy result. The bundle-adjustment variant comes last: run it after Tutorial 2 and compare the reports to see what camera refinement adds.
 
 ## Beyond the tutorials
 
