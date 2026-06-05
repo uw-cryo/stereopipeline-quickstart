@@ -22,8 +22,8 @@ The tutorials use openly available data; no API keys, no Earthdata login require
 | Tutorial | Sensor | Region | Data source |
 |---|---|---|---|
 | `01_aster_rainier.ipynb` | ASTER L1A | Mt. Rainier, WA | Zenodo (10.5281/zenodo.7972223) |
-| `02_worldview_ucsd.ipynb` | WorldView-3 | University City, San Diego | SpaceNet CORE3D (AWS S3) |
-| `03_worldview_ucsd_ba.ipynb` | WorldView-3 | University City, San Diego | SpaceNet CORE3D (AWS S3) |
+| `02_worldview_ucsd.ipynb` | WorldView-3 | UCSD, San Diego | SpaceNet CORE3D (AWS S3) |
+| `03_worldview_ucsd_ba.ipynb` | WorldView-3 | UCSD, San Diego | SpaceNet CORE3D (AWS S3) |
 
 ## Read the static docs
 

@@ -37,7 +37,7 @@ Open one of the notebooks under `notebooks/`:
 | File | What it does |
 |---|---|
 | `01_aster_rainier.ipynb` | ASTER L1A → 30 m DEM of Mt. Rainier |
-| `02_worldview_ucsd.ipynb` | WorldView-3 → 2 m DEM of University City, San Diego |
+| `02_worldview_ucsd.ipynb` | WorldView-3 → 2 m DEM east of UCSD |
 | `03_worldview_ucsd_ba.ipynb` | Tutorial 2 plus bundle adjustment, for comparison |
 
 Each notebook has a "Run All" button at the top. Cells are small enough to run them step by step.

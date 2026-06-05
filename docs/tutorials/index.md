@@ -29,7 +29,7 @@ Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly
 - `parallel_stereo` on the mapprojected pair
 - `asp_plot --pc_align` for ICESat-2 alignment
 
-Output: 2 m DEM over University City, San Diego.
+Output: 2 m DEM east of the UCSD campus.
 :::
 
 :::{grid-item-card} 3. WorldView-3 UCSD with bundle adjustment
