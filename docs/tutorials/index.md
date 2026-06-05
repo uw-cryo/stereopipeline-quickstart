@@ -25,10 +25,11 @@ Output: ~30 m DEM of Mt. Rainier.
 Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly hosted on AWS). The full recipe:
 - Stereo geometry analysis with `StereoGeometryPlotter`
 - COP-DEM clip from AWS Open Data
-- `bundle_adjust` on full images
 - `mapproject` to the COP-DEM grid
 - `parallel_stereo` on the mapprojected pair
 - `asp_plot --pc_align` for ICESat-2 alignment
+
+A companion notebook adds `bundle_adjust` for comparison.
 
 Output: 2 m DEM over University City, San Diego.
 :::
