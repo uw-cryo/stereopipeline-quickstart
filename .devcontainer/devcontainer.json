@@ -46,7 +46,7 @@
         "ms-toolsai.jupyter-renderers",
         "redhat.vscode-yaml",
         "executablebookproject.myst-highlight",
-        "AdamRaichu.pdf-viewer"
+        "mathematic.vscode-pdf"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/opt/conda/envs/asp/bin/python",
