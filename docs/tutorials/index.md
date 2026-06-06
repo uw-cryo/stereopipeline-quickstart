@@ -11,11 +11,12 @@ Three end-to-end notebooks. All use openly available data; no NASA Earthdata or 
 
 Stereo from a single ASTER L1A scene. The gentlest end-to-end flow:
 - `aster2asp` to extract nadir + back-looking views
-- `parallel_stereo` (raw, then mapprojected for cleaner output)
-- `point2dem` to grid the result
-- `asp_plot` for diagnostics + PDF report
+- `parallel_stereo` + `point2dem` on the raw imagery
+- COP-DEM clip from AWS Open Data
+- `mapproject` + `parallel_stereo` re-run on the orthorectified pair
+- `asp_plot` PDF report for each pass
 
-Output: ~30 m DEM of Mt. Rainier.
+Output: two ~30 m DEMs of Mt. Rainier, raw and orthorectified.
 :::
 
 :::{grid-item-card} 2. WorldView-3 UCSD
