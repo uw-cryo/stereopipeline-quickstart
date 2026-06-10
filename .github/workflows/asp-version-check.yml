@@ -137,9 +137,9 @@ jobs:
           # 4. Install docs — the local-install snippet has a literal
           # ASP_VERSION=... / ASP_BUILD_DATE=... block, plus a "verify"
           # comment showing the version string.
-          sed -i -E "s|^(ASP_VERSION=)${OLD_V}|\1${NEW_V}|"    docs/start/installation.md
-          sed -i -E "s|^(ASP_BUILD_DATE=)${OLD_D}|\1${NEW_D}|" docs/start/installation.md
-          sed -i -E "s|(parallel_stereo \(Ames Stereo Pipeline\) )${OLD_V}|\1${NEW_V}|" docs/start/installation.md
+          sed -i -E "s|^(ASP_VERSION=)${OLD_V}|\1${NEW_V}|"    docs/reference/installation.md
+          sed -i -E "s|^(ASP_BUILD_DATE=)${OLD_D}|\1${NEW_D}|" docs/reference/installation.md
+          sed -i -E "s|(parallel_stereo \(Ames Stereo Pipeline\) )${OLD_V}|\1${NEW_V}|" docs/reference/installation.md
 
           # Show what changed for the workflow log.
           git diff --stat
@@ -166,7 +166,7 @@ jobs:
             - `.devcontainer/Dockerfile` — `ARG ASP_VERSION` / `ARG ASP_BUILD_DATE`
             - `.devcontainer/devcontainer.json` — fallback build-args (commented block)
             - `.github/workflows/build-image.yml` — workflow_dispatch defaults
-            - `docs/start/installation.md` — local-install snippet + verify line
+            - `docs/reference/installation.md` — local-install snippet + verify line
 
             ### Before merging — quick checklist
             - [ ] Read the [ASP release notes](https://github.com/NeoGeographyToolkit/StereoPipeline/releases/tag/${{ steps.asp.outputs.version }}) for breaking changes that might affect the tutorial notebooks (CLI flag renames, new sensor-prep paths, output-file renames).

@@ -12,8 +12,8 @@
 
 FROM mcr.microsoft.com/devcontainers/miniconda:1-3
 
-ARG ASP_VERSION=3.6.0
-ARG ASP_BUILD_DATE=2025-12-26
+ARG ASP_VERSION=3.7.0
+ARG ASP_BUILD_DATE=2026-06-08
 ARG ASP_TARBALL=StereoPipeline-${ASP_VERSION}-${ASP_BUILD_DATE}-x86_64-Linux.tar.bz2
 ARG ASP_URL=https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/${ASP_VERSION}/${ASP_TARBALL}
 

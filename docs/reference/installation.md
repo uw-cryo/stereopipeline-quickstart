@@ -14,8 +14,8 @@ Download the latest release tarball from the [ASP releases page](https://github.
 
 ```bash
 # Example for Linux x86_64; pick the right tarball for your platform.
-ASP_VERSION=3.6.0
-ASP_BUILD_DATE=2025-12-26
+ASP_VERSION=3.7.0
+ASP_BUILD_DATE=2026-06-08
 curl -fL -o asp.tar.bz2 \
   https://github.com/NeoGeographyToolkit/StereoPipeline/releases/download/${ASP_VERSION}/StereoPipeline-${ASP_VERSION}-${ASP_BUILD_DATE}-x86_64-Linux.tar.bz2
 
@@ -31,7 +31,7 @@ Verify:
 
 ```bash
 parallel_stereo --version
-# parallel_stereo (Ames Stereo Pipeline) 3.6.0
+# parallel_stereo (Ames Stereo Pipeline) 3.7.0
 ```
 
 ## Step 2 — Install `asp-plot`

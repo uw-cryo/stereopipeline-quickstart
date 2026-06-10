@@ -30,13 +30,13 @@ on:
   workflow_dispatch:
     inputs:
       asp_version:
-        description: 'ASP version (e.g. 3.6.0)'
+        description: 'ASP version (e.g. 3.7.0)'
         required: false
-        default: '3.6.0'
+        default: '3.7.0'
       asp_build_date:
         description: 'ASP release build date (YYYY-MM-DD as it appears in the tarball filename)'
         required: false
-        default: '2025-12-26'
+        default: '2026-06-08'
   schedule:
     # Monthly rebuild so security updates from the base image flow through
     # even when our Dockerfile/environment.yml are unchanged.
@@ -73,8 +73,8 @@ jobs:
       - name: Resolve ASP build args
         id: asp
         run: |
-          echo "version=${{ github.event.inputs.asp_version || '3.6.0' }}" >> "$GITHUB_OUTPUT"
-          echo "date=${{ github.event.inputs.asp_build_date || '2025-12-26' }}" >> "$GITHUB_OUTPUT"
+          echo "version=${{ github.event.inputs.asp_version || '3.7.0' }}" >> "$GITHUB_OUTPUT"
+          echo "date=${{ github.event.inputs.asp_build_date || '2026-06-08' }}" >> "$GITHUB_OUTPUT"
 
       - name: Compute image tags
         id: meta
