@@ -1,6 +1,6 @@
 # stereopipeline-quickstart
 
-A guide to the NASA Ames Stereo Pipeline (ASP), runnable in a pre-configured GitHub Codespace with ASP and [`asp_plot`](https://asp-plot.readthedocs.io/) installed.
+A guide to the NASA Ames Stereo Pipeline (ASP), runnable in a pre-configured GitHub Codespace with ASP and [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) installed.
 
 ```{button-link} https://codespaces.new/uw-cryo/stereopipeline-quickstart?quickstart=1
 :color: primary
@@ -48,7 +48,7 @@ Glossary, ASP output-file naming, parameter cheat sheet, links to the canonical 
 :::{grid-item-card} Want pretty plots from your run?
 :link: concepts/visualization
 :link-type: doc
-How `asp_plot` produces diagnostic figures, PDF reports, and ICESat-2 comparisons.
+How `asp-plot` produces diagnostic figures, PDF reports, and ICESat-2 comparisons.
 :::
 
 :::{grid-item-card} Curious about alternative open-source stereo pipelines?

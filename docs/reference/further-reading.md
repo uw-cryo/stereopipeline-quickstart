@@ -9,7 +9,7 @@
 
 ## Visualization and diagnostics
 
-- **[`asp_plot` documentation](https://asp-plot.readthedocs.io/)** — full API reference + example notebooks for jitter correction, planetary missions, no-mapprojection workflows, scene selection.
+- **[`asp-plot` documentation](https://asp-plot.readthedocs.io/en/latest/)** — full API reference + example notebooks for jitter correction, planetary missions, no-mapprojection workflows, scene selection.
 
 ## Reference data
 

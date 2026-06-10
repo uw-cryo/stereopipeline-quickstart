@@ -34,9 +34,9 @@ parallel_stereo --version
 # parallel_stereo (Ames Stereo Pipeline) 3.6.0
 ```
 
-## Step 2 — Install asp_plot
+## Step 2 — Install `asp-plot`
 
-`asp_plot` and its python deps are easiest via conda/mamba:
+[`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) and its python deps are easiest via conda/mamba:
 
 ```bash
 # Create a clean env (recommended)

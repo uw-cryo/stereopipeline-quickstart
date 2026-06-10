@@ -14,7 +14,7 @@ Stereo from a single ASTER L1A scene. The gentlest end-to-end flow:
 - `parallel_stereo` + `point2dem` on the raw imagery
 - COP-DEM clip from AWS Open Data
 - `mapproject` + `parallel_stereo` re-run on the orthorectified pair
-- `asp_plot` PDF report for each pass
+- `asp-plot` PDF report for each pass
 
 Output: two ~30 m DEMs of Mt. Rainier, raw and orthorectified.
 :::
@@ -37,7 +37,7 @@ Output: 2 m DEM of the UCSD campus and sea cliffs.
 :link: 03_worldview_ucsd_ba
 :link-type: doc
 
-Variant of Tutorial 2 that adds `bundle_adjust` to refine the vendor RPC cameras before orthorectification. Outputs are suffixed `_ba`, so both runs share a data directory and the two `asp_plot` reports can be compared side by side.
+Variant of Tutorial 2 that adds `bundle_adjust` to refine the vendor RPC cameras before orthorectification. Outputs are suffixed `_ba`, so both runs share a data directory and the two `asp-plot` reports can be compared side by side.
 :::
 ::::
 
@@ -49,4 +49,4 @@ The WorldView tutorial then adds cropping and a finer resolution, higher accurac
 
 ## Beyond the tutorials
 
-The [`asp_plot` example notebooks](https://asp-plot.readthedocs.io/en/latest/examples/index.html) cover jitter correction, planetary missions (LRO NAC, Mars MOC NA, CTX), no-mapprojection variants, and scene selection.
+The [`asp-plot` example notebooks](https://asp-plot.readthedocs.io/en/latest/examples/index.html) cover jitter correction, planetary missions (LRO NAC, Mars MOC NA, CTX), no-mapprojection variants, and scene selection.
