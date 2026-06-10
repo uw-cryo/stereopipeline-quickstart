@@ -27,4 +27,4 @@ dependencies:
   - pip:
       # Pull asp_plot from PyPI; conda-forge package exists too but PyPI is
       # always one step ahead during active development.
-      - asp-plot>=1.14.0
+      - asp-plot>=1.15.1

@@ -2,7 +2,7 @@
 # This file is what you `pip install -r` for a local non-Codespace setup; the
 # Codespace Dockerfile installs the same packages via conda where possible.
 
-asp-plot>=1.14.0
+asp-plot>=1.15.1
 jupyterlab>=4.0
 notebook>=7.0
 ipywidgets>=8.0
