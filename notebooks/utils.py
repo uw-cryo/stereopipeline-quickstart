@@ -1,40 +1,43 @@
-"""Tiny helper module for the stereopipeline-quickstart tutorial notebooks."""
+"""Helpers shared by the tutorial notebooks."""
 from __future__ import annotations
 
-from pathlib import Path
+import re
+import subprocess
 
 
-def icesat2_check(
-    dem_fn: str | Path,
-    directory: str | Path = ".",
-    *,
-    processing_levels: tuple[str, ...] = ("all",),
-) -> None:
-    """ICESat-2 ATL06-SR mapview + landcover-stratified histogram vs a DEM.
+def scene_bbox(*image_camera_pairs, session=None, pad=0.05):
+    """Lon/lat bounding box covering one or more scenes, as "minlon minlat maxlon maxlat".
 
-    Mirrors the pattern in `asp_plot/notebooks/ASTER/aster_with_mapprojection.ipynb`:
-    derives `map_crs` from the DEM, configures Esri WorldImagery basemap kwargs,
-    fetches ATL06-SR via SlideRule (parquet-cached), then renders the two panels.
+    Runs ASP's `camera_footprint` on each (image, camera) pair and unions the
+    results. `pad` (degrees) absorbs terrain-induced footprint shift, since the
+    footprint is computed on the datum ellipsoid.
     """
-    import contextily as ctx
-    from asp_plot.altimetry import Altimetry
-    from asp_plot.utils import Raster
+    boxes = []
+    for image, camera in image_camera_pairs:
+        cmd = ["camera_footprint", "--quick", "--datum", "WGS84"]
+        if session:
+            cmd += ["-t", session]
+        cmd += [str(image), str(camera)]
+        out = subprocess.run(cmd, capture_output=True, text=True, check=True).stdout
+        m = re.search(
+            r"Min: \(([-\d.eE+]+), ([-\d.eE+]+)\) width: ([-\d.eE+]+) height: ([-\d.eE+]+)",
+            out,
+        )
+        if not m:
+            raise RuntimeError(f"Could not parse camera_footprint output:\n{out}")
+        minlon, minlat, w, h = map(float, m.groups())
+        boxes.append((minlon, minlat, minlon + w, minlat + h))
+    minlon = min(b[0] for b in boxes) - pad
+    minlat = min(b[1] for b in boxes) - pad
+    maxlon = max(b[2] for b in boxes) + pad
+    maxlat = max(b[3] for b in boxes) + pad
+    return f"{minlon:.4f} {minlat:.4f} {maxlon:.4f} {maxlat:.4f}"
 
-    epsg = Raster(str(dem_fn)).get_epsg_code()
-    map_crs = f"EPSG:{epsg}"
-    ctx_kwargs = {
-        "crs": map_crs,
-        "source": ctx.providers.Esri.WorldImagery,
-        "attribution_size": 0,
-        "alpha": 0.5,
-    }
 
-    icesat = Altimetry(directory=str(directory), dem_fn=str(dem_fn))
-    icesat.request_atl06sr_multi_processing(
-        processing_levels=list(processing_levels),
-        save_to_parquet=True,
-    )
-    icesat.mapview_plot_atl06sr_to_dem(
-        key=processing_levels[0], map_crs=map_crs, **ctx_kwargs
-    )
-    icesat.histogram_by_landcover(key=processing_levels[0])
+def utm_epsg(bbox):
+    """EPSG code ("EPSG:326xx" north / "EPSG:327xx" south) of the UTM zone at a bbox center."""
+    minlon, minlat, maxlon, maxlat = map(float, bbox.split())
+    lon = (minlon + maxlon) / 2
+    lat = (minlat + maxlat) / 2
+    zone = int((lon + 180) // 6) + 1
+    return f"EPSG:{(32600 if lat >= 0 else 32700) + zone}"

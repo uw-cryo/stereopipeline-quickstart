@@ -1,6 +1,6 @@
 # Run the tutorials in a Codespace
 
-[GitHub Codespaces](https://docs.github.com/en/codespaces) gives you a Linux VM with VS Code in your browser. The Codespace boots with ASP and `asp_plot` already installed.
+[GitHub Codespaces](https://docs.github.com/en/codespaces) gives you a Linux VM with VS Code in your browser. The Codespace boots with ASP and [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) already installed.
 
 ## Launch
 
@@ -11,20 +11,24 @@
    Open in GitHub Codespaces
    ```
 
-2. GitHub pulls a pre-built container image from [GHCR](https://ghcr.io/bpurinton/stereopipeline-quickstart) — ASP binaries and the `asp_plot` conda env are already baked in. (If the image isn't accessible from your fork, the devcontainer.json includes a commented-out `build:` block you can flip on for a from-source build.)
+2. GitHub pulls a pre-built container image from [GHCR](https://ghcr.io/bpurinton/stereopipeline-quickstart) — ASP binaries and the `asp-plot` conda env are already baked in. (If the image isn't accessible from your fork, the devcontainer.json includes a commented-out `build:` block you can flip on for a from-source build.)
 
 3. When VS Code opens in your browser, the terminal will show a friendly banner:
 
    ```
    stereopipeline-quickstart
-   ASP + asp_plot, ready to go.
+   ASP + asp-plot, ready to go.
    Next steps:
      1. Open notebooks/01_aster_rainier.ipynb and click "Run All".
    ```
 
 ## Machine size
 
-The minimum Codespace machine type for this repo is 8-core / 32 GB / 64 GB storage (set in `.devcontainer/devcontainer.json`). You can pick a larger machine at launch time via the "Create codespace with options" menu. Smaller machines aren't offered, as processing with ASP requires significant resources. Larger machines are billed at higher rates; see [Codespaces pricing](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces).
+The minimum Codespace machine type for this repo is 4-core / 16 GB / 32 GB storage (set in `.devcontainer/devcontainer.json`). 4-core is the floor every GitHub account can launch without extra billing setup. You can pick a larger machine at launch time via the "Create codespace with options" menu — stereo correlation is parallel and will be roughly 2× faster on 8 cores. Larger machines are billed at higher rates; see [Codespaces pricing](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces).
+
+```{tip}
+If you select a machine larger than 4 cores, bump the `--processes` flag in the `parallel_stereo` calls (and `--threads` in `bundle_adjust` / `mapproject`) to match your core count for a real speedup.
+```
 
 ## Run a tutorial
 
@@ -33,7 +37,8 @@ Open one of the notebooks under `notebooks/`:
 | File | What it does |
 |---|---|
 | `01_aster_rainier.ipynb` | ASTER L1A → 30 m DEM of Mt. Rainier |
-| `02_worldview_ucsd.ipynb` | WorldView-3 → 1 m DEM of UCSD campus |
+| `02_worldview_ucsd.ipynb` | WorldView-3 → 4 m DEM of UCSD |
+| `03_worldview_ucsd_ba.ipynb` | Tutorial 2 plus bundle adjustment, for comparison |
 
 Each notebook has a "Run All" button at the top. Cells are small enough to run them step by step.
 

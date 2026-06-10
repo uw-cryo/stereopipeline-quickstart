@@ -25,9 +25,9 @@ ASP is not one program but dozens of single-purpose command-line binaries (`bund
 
 A single satellite image cannot recover height; two images of the same ground from different angles produce parallax, which encodes height.
 
-## Where `asp_plot` fits
+## Where `asp-plot` fits
 
-[`asp_plot`](https://asp-plot.readthedocs.io/) reads ASP's scattered output files and produces diagnostic figures and PDF reports; it's used at every step of this guide.
+[`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) reads ASP's scattered output files and produces diagnostic figures and PDF reports; it's used at every step of this guide.
 
 ## What's next
 

@@ -3,6 +3,9 @@ CLAUDE/
 CLAUDE.md
 CLAUDE_*.md
 
+# Local-only optimization experiments
+experiments/
+
 # Tutorial data — populated at runtime, never committed
 data/
 notebooks/data/

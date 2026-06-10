@@ -1,11 +1,11 @@
-# Visualization with `asp_plot`
+# Visualization with `asp-plot`
 
 ```{admonition} Work in progress
 :class: warning
 Placeholder content. Being rewritten with figures.
 ```
 
-ASP outputs are scattered across files in many formats; [`asp_plot`](https://asp-plot.readthedocs.io/) reads them and produces diagnostic figures and PDF reports used throughout this guide.
+ASP outputs are scattered across files in many formats; [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) reads them and produces diagnostic figures and PDF reports used throughout this guide.
 
 ## Two ways to use it
 
@@ -15,5 +15,5 @@ The CLI (`asp_plot --directory ... --report_filename ...`) generates a single PD
 
 ## Where to read more
 
-- [`asp_plot` documentation](https://asp-plot.readthedocs.io/)
-- [`asp_plot` example notebooks](https://asp-plot.readthedocs.io/en/latest/examples/index.html)
+- [`asp-plot` documentation](https://asp-plot.readthedocs.io/en/latest/)
+- [`asp-plot` example notebooks](https://asp-plot.readthedocs.io/en/latest/examples/index.html)

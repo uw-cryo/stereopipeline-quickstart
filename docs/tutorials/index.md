@@ -1,6 +1,6 @@
 # Tutorials
 
-Two end-to-end notebooks. Both use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
+Three end-to-end notebooks. All use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
 
 ::::{grid} 1 1 2 2
 :gutter: 3
@@ -11,11 +11,12 @@ Two end-to-end notebooks. Both use openly available data; no NASA Earthdata or V
 
 Stereo from a single ASTER L1A scene. The gentlest end-to-end flow:
 - `aster2asp` to extract nadir + back-looking views
-- `parallel_stereo` (raw, then mapprojected for cleaner output)
-- `point2dem` to grid the result
-- `asp_plot` for diagnostics + PDF report
+- `parallel_stereo` + `point2dem` on the raw imagery
+- COP-DEM clip from AWS Open Data
+- `mapproject` + `parallel_stereo` re-run on the orthorectified pair
+- `asp-plot` PDF report for each pass
 
-Output: ~30 m DEM of Mt. Rainier.
+Output: two ~30 m DEMs of Mt. Rainier, raw and orthorectified.
 :::
 
 :::{grid-item-card} 2. WorldView-3 UCSD
@@ -25,12 +26,18 @@ Output: ~30 m DEM of Mt. Rainier.
 Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly hosted on AWS). The full recipe:
 - Stereo geometry analysis with `StereoGeometryPlotter`
 - COP-DEM clip from AWS Open Data
-- `bundle_adjust` on full images
 - `mapproject` to the COP-DEM grid
 - `parallel_stereo` on the mapprojected pair
 - `asp_plot --pc_align` for ICESat-2 alignment
 
-Output: ~1 m DEM of UCSD campus.
+Output: 4 m DEM of the UCSD campus and sea cliffs.
+:::
+
+:::{grid-item-card} 3. WorldView-3 UCSD with bundle adjustment
+:link: 03_worldview_ucsd_ba
+:link-type: doc
+
+Variant of Tutorial 2 that adds `bundle_adjust` to refine the vendor RPC cameras before orthorectification. Outputs are suffixed `_ba`, so both runs share a data directory and the two `asp-plot` reports can be compared side by side.
 :::
 ::::
 
@@ -38,8 +45,8 @@ Output: ~1 m DEM of UCSD campus.
 
 If you've never run ASP before, do the ASTER tutorial first. It has fewer parameters, and a coarser resolution.
 
-The WorldView tutorial then adds bundle adjustment, cropping, and a finer resolution, higher accuracy result.
+The WorldView tutorial then adds cropping and a finer resolution, higher accuracy result. The bundle-adjustment variant comes last: run it after Tutorial 2 and compare the reports to see what camera refinement adds.
 
 ## Beyond the tutorials
 
-The [`asp_plot` example notebooks](https://asp-plot.readthedocs.io/en/latest/examples/index.html) cover jitter correction, planetary missions (LRO NAC, Mars MOC NA, CTX), no-mapprojection variants, and scene selection.
+The [`asp-plot` example notebooks](https://asp-plot.readthedocs.io/en/latest/examples/index.html) cover jitter correction, planetary missions (LRO NAC, Mars MOC NA, CTX), no-mapprojection variants, and scene selection.

@@ -47,8 +47,8 @@ ASP calls this step "mapprojection" in its toolchain (`mapproject`, `--mapproj-d
 
 `pc_align` registers the DEM to a trusted reference (ICESat-2, MOLA, LOLA, or another DEM) using ICP. See [Alignment](alignment.md).
 
-## What asp_plot does at every stage
+## What `asp-plot` does at every stage
 
 <!-- FIGURE IDEA: thumbnail strip of an actual asp_plot PDF report (cover, scenes page, residuals page, dh page, altimetry page). Anchors the abstract "diagnostic plots" claim to a real artifact. -->
 
-Each ASP stage produces files; `asp_plot` reads them and produces diagnostic plots and PDF reports. See [Visualization](visualization.md).
+Each ASP stage produces files; [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) reads them and produces diagnostic plots and PDF reports. See [Visualization](visualization.md).

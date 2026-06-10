@@ -29,7 +29,7 @@ It helps with near-uniform bias and small global tilt; it doesn't help with loca
 
 `pc_align` prints percentile breakdowns of inter-point distances before and after; the median (50th percentile) drop is the headline metric.
 
-## The `--pc_align` flag in `asp_plot`
+## The `--pc_align` flag in `asp-plot`
 
 `asp_plot --pc_align` runs `pc_align` against the appropriate altimetry reference based on the DEM's CRS and adds an alignment-summary page to the PDF report.
 

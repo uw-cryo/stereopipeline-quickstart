@@ -7,8 +7,8 @@ ASP and stereo photogrammetry vocabulary, with links to the deeper concept pages
 ASP
   Ames Stereo Pipeline. NASA's open-source stereo photogrammetry toolkit. [Docs](https://stereopipeline.readthedocs.io/).
 
-asp_plot
-  The Python visualization companion to ASP. Reads ASP output files and produces diagnostic plots + PDF reports. [Docs](https://asp-plot.readthedocs.io/).
+asp-plot
+  The Python visualization companion to ASP. Reads ASP output files and produces diagnostic plots + PDF reports. [Docs](https://asp-plot.readthedocs.io/en/latest/).
 
 ATL06-SR
   ICESat-2 Land Ice Height (sliderule edition) — the canonical Earth-altimetry product used for DEM alignment. Fetched on the fly via [SlideRule](https://slideruleearth.io/).
@@ -65,7 +65,7 @@ MOLA
   Mars Orbiter Laser Altimeter. Reference altimetry for Mars DEMs.
 
 NMAD
-  Normalized Median Absolute Deviation — robust scale estimator. `1.4826 × median(|x - median(x)|)`. Equals std for normal distributions; resistant to outliers. Used everywhere `asp_plot` reports DEM error.
+  Normalized Median Absolute Deviation — robust scale estimator. `1.4826 × median(|x - median(x)|)`. Equals std for normal distributions; resistant to outliers. Used everywhere `asp-plot` reports DEM error.
 
 NTF
   NITF (National Imagery Transmission Format). Image format used by some commercial sensors.
@@ -101,7 +101,7 @@ SGM / MGM
   Semi-Global Matching / Modified Global Matching. The stereo-correlation algorithms ASP uses to produce highest quality results (`asp_sgm`, `asp_mgm`).
 
 SlideRule
-  Cloud-native API for on-demand ICESat-2 processing. `asp_plot` uses it to fetch ATL06-SR data.
+  Cloud-native API for on-demand ICESat-2 processing. `asp-plot` uses it to fetch ATL06-SR data.
 
 SpaceNet
   Open dataset of high-resolution commercial satellite imagery, hosted on AWS. The UCSD WV3 scenes used in this guide come from the SpaceNet CORE3D collection.
