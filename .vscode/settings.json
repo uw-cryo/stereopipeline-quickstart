@@ -2,6 +2,4 @@
   "chat.disableAIFeatures": true,
   "workbench.secondarySideBar.defaultVisibility": "hidden",
   "files.autoSaveDelay": 500,
-  "files.exclude": {
-  },
 }

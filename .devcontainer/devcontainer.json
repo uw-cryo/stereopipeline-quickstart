@@ -55,6 +55,22 @@
         "files.watcherExclude": {
           "**/data/**": true,
           "**/.ipynb_checkpoints/**": true
+        },
+        // Hide infrastructure from the file explorer so first-time learners
+        // in a Codespace see only notebooks/ + data/. These live here (as
+        // Codespace-only Remote settings) rather than in .vscode/settings.json
+        // so local development still shows the full tree.
+        "files.exclude": {
+          ".github": true,
+          ".devcontainer": true,
+          ".vscode": true,
+          "docs": true,
+          ".readthedocs.yaml": true,
+          "requirements.txt": true,
+          ".gitignore": true,
+          "CHANGELOG.md": true,
+          "AGENTS.md": true,
+          "LICENSE": true
         }
       }
     }
