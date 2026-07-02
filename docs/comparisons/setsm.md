@@ -101,10 +101,16 @@ SETSM resolves the same urban structure as ASP — buildings, streets, and the c
 :::{grid-item}
 ![ASP 2m](figures/ucsd-asp2m-hillshade.png)
 **ASP 2m DEM**
+<div class="fullres-btns">
+  <a class="fullres-btn" href="../_images/ucsd-asp2m-hillshade.png" target="_blank" rel="noopener noreferrer">Open at full resolution ↗</a>
+</div>
 :::
 :::{grid-item}
 ![SETSM 2m](figures/ucsd-setsm2m-hillshade.png)
 **SETSM 2m DEM**
+<div class="fullres-btns">
+  <a class="fullres-btn" href="../_images/ucsd-setsm2m-hillshade.png" target="_blank" rel="noopener noreferrer">Open at full resolution ↗</a>
+</div>
 :::
 ::::
 

@@ -20,3 +20,25 @@
 .codespace-cta:hover {
   background: #1158c7;
 }
+
+/* "Open at full resolution" buttons under the hillshade comparison grids. */
+.fullres-btns {
+  display: flex;
+  gap: 0.75em;
+  flex-wrap: wrap;
+  margin: 0.25em 0 1em;
+}
+.fullres-btn {
+  display: inline-block;
+  padding: 0.4em 0.9em;
+  border: 1px solid var(--pst-color-primary, #1f6feb);
+  border-radius: 6px;
+  color: var(--pst-color-primary, #1f6feb) !important;
+  font-size: 0.9em;
+  font-weight: 600;
+  text-decoration: none;
+}
+.fullres-btn:hover {
+  background: var(--pst-color-primary, #1f6feb);
+  color: #fff !important;
+}

@@ -131,10 +131,16 @@ CARS resolves the urban structure cleanly — buildings, streets, the I-5 freewa
 :::{grid-item}
 ![ASP 2m](figures/ucsd-asp2m-hillshade.png)
 **ASP 2m DEM**
+<div class="fullres-btns">
+  <a class="fullres-btn" href="../_images/ucsd-asp2m-hillshade.png" target="_blank" rel="noopener noreferrer">Open at full resolution ↗</a>
+</div>
 :::
 :::{grid-item}
 ![CARS 2m](figures/ucsd-cars2m-hillshade.png)
 **CARS 2m DEM**
+<div class="fullres-btns">
+  <a class="fullres-btn" href="../_images/ucsd-cars2m-hillshade.png" target="_blank" rel="noopener noreferrer">Open at full resolution ↗</a>
+</div>
 :::
 ::::
 
