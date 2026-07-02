@@ -151,7 +151,9 @@ Both two-report comparisons replay the first run's figure selections so the PDFs
 - 01 ortho report reuses `stereo/rainier_aster_report_figure_selections.yml`.
 - 03 BA report reuses `stereo/ucsd_wv3_report_figure_selections.yml` (run 02 first).
 
-asp_plot ≥ 1.16.0 writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_plot --reuse_selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone. Pinned at `>=1.16.0` in both requirements.txt and environment.yml.
+asp_plot ≥ 1.16.0 writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_plot --reuse_selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone. Pinned at `>=1.19.0` in both requirements.txt and environment.yml.
+
+As of asp_plot ≥ 1.18.0 the report's Processing Parameters page also renders the reconstructed `mapproject` command(s), rebuilt from the mapprojected output GeoTIFF metadata (ASP's `mapproject` writes no log to parse). No notebook change is needed to get this; `asp_plot` produces it. This surfaces the tool name `mapproject` in the reports, consistent with [ADR-0005](architecture/0005-orthorectification-vs-mapproject.md).
 
 ### COP30 reference DEM: AWS Open Data + local EGM2008 → ellipsoid shift
 
