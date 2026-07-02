@@ -68,7 +68,7 @@
           ".readthedocs.yaml": true,
           "requirements.txt": true,
           ".gitignore": true,
-          "CHANGELOG.md": true,
+          "architecture": true,
           "AGENTS.md": true,
           "LICENSE": true
         }
