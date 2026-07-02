@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to AI coding agents (Claude Code and others) and to human contributors when working in this repository. It is the git-tracked onboarding reference for the repo's architecture and conventions; keep it in sync with the code.
+This file provides guidance to AI coding agents (Claude Code and others) and to human contributors when working in this repository. It is the git-tracked onboarding reference for the repo's current-state architecture and conventions; keep it in sync with the code. The durable why behind consequential decisions lives in the architecture decision records under [`architecture/`](architecture/README.md); this file links to them rather than restating rationale.
 
 ## Goal
 
@@ -18,8 +18,8 @@ stereopipeline-quickstart/
 ├── README.md                          # Codespace badge + landing
 ├── LICENSE                            # BSD-3 (matches asp_plot)
 ├── AGENTS.md                          # this file
+├── architecture/                      # ADRs (why-decisions); index in architecture/README.md
 ├── .gitignore                         # CLAUDE/, data/, NTFs, etc.
-├── CHANGELOG.md
 ├── requirements.txt                   # pip-only path for non-Codespace users
 ├── .readthedocs.yaml                  # RTD config
 ├── .vscode/
@@ -77,17 +77,15 @@ stereopipeline-quickstart/
 
 ## Major decisions
 
+Consequential decisions have a full record under [`architecture/`](architecture/README.md); the entries below are current-state summaries that link to the ADR holding the why. Sections without an ADR link are conventions and implementation notes that live here in full.
+
 ### Separate repo (not folded into `asp_plot`)
 
-Considered: (a) separate repo, (b) new `tutorials/` section in `asp_plot`, (c) reuse `uw-cryo/asp_tutorials`. Picked (a) so:
+A standalone repo teaching ASP itself, with `asp_plot` as the visualization layer at every step (not the subject). See [ADR-0001](architecture/0001-separate-repo.md).
 
-- Audience separation is clear. `asp_plot` docs target users *of asp_plot*; this repo targets users *new to ASP entirely*.
-- The Codespace image is heavyweight (multi-GB). Bundling it into `asp_plot` would slow CI / docs builds for the python package.
-- Different release cadence. ASP updates every few months; `asp_plot` is more active. Pinning ASP separately is healthier.
+### Sphinx + myst-nb docs
 
-### Sphinx + myst-nb (not Jupyter Book proper, not Quarto, not MkDocs)
-
-Same stack as `asp_plot` so docs contributors can move between the two repos without learning a new tool. Notebooks live in `notebooks/` and are mirrored into `docs/tutorials/` at build time:
+Same stack as `asp_plot`; see [ADR-0003](architecture/0003-sphinx-myst-nb-docs.md). Notebooks live in `notebooks/` and are mirrored into `docs/tutorials/` at build time:
 
 - On RTD: `.readthedocs.yaml` `pre_build` runs `cp notebooks/*.ipynb docs/tutorials/`.
 - Locally: a `builder-inited` hook in `docs/conf.py` does the same, so `sphinx-build docs docs/_build/html` works with no preamble.
@@ -100,19 +98,15 @@ Import gotcha: RTD's auto-detect can flag a public repo as "private" when its ca
 
 ### Docs prose is a placeholder skeleton; figures and content land via PRs
 
-The docs site (RTD) shows a site-wide "Work in progress" banner via `sphinx-book-theme`'s `announcement` option, and every concept and intro page has a per-page WIP admonition. The pages contain section headings plus one-sentence stubs that describe what each section will cover, and each section carries an HTML comment of the form `<!-- FIGURE IDEA: ... -->` capturing what kind of figure should be authored when the section gets fleshed out. The content rebuild happens iteratively in follow-up PRs (one per concept page, each with figures). When editing concept pages: add prose, swap in real figures, but don't delete the FIGURE IDEA comments unless you're replacing them with the actual figure.
+See [ADR-0004](architecture/0004-docs-wip-skeleton.md). The concept/intro pages ship as a WIP skeleton: a site-wide "Work in progress" banner (`sphinx-book-theme` `announcement`), per-page WIP admonitions, one-sentence section stubs, and an HTML comment `<!-- FIGURE IDEA: ... -->` per section. Content is fleshed out iteratively in follow-up PRs. When editing concept pages: add prose, swap in real figures, but don't delete a FIGURE IDEA comment unless you're replacing it with the actual figure.
 
 ### `docs/comparisons/` section
 
-A top-level docs section running the same WorldView-3 UCSD pair (`21deg_12d`, 21.2° convergence) through three open-source stereo pipelines and showing the results side by side. ASP is the baseline (processed in the `asp_plot` RTD example notebooks, linked out, not re-run here); CARS (CNES) and SETSM (OSU/PGC) each get a page.
-
-Unlike the concept pages, these are fully-fleshed, not WIP skeletons: `index.md` carries an overview, a scope-disclaimer note (qualitative, no quantitative ranking), a "Key Differences" table, and a hidden toctree over `setsm`, `cars`. `cars.md` and `setsm.md` carry full Docker build/run recipes, config, run-metrics tables, and 3-up hillshade comparison grids (COP30 / ASP / the tool). No FIGURE IDEA comments — the figures (`figures/ucsd-*-hillshade.png`) are committed. The note style here leans more verbose (bold inline labels, hard metric numbers) than the rest of the docs.
-
-Wiring: `docs/index.md` adds a landing grid card and a "Comparisons" toctree section (between Tutorials and Reference). `docs/conf.py` needs no change — `nb_execution_mode = "off"` already applies globally, so no per-page execution exclusion is needed.
+See [ADR-0009](architecture/0009-qualitative-tool-comparisons.md). A top-level section running the same WorldView-3 UCSD pair (`21deg_12d`, 21.2° convergence) through ASP, CARS (CNES), and SETSM (OSU/PGC), side by side and qualitative (no quantitative ranking). Unlike the concept pages these ship fully-fleshed, not WIP: `index.md` carries an overview, a scope-disclaimer note, a "Key Differences" table, and a hidden toctree over `setsm`, `cars`; `cars.md` / `setsm.md` carry full Docker recipes, config, run-metrics tables, and 3-up hillshade grids (`figures/ucsd-*-hillshade.png`, committed). `docs/index.md` adds a landing card and a "Comparisons" toctree section; `docs/conf.py` needs no change (`nb_execution_mode = "off"` is global).
 
 ### "Orthorectification" (our concept) vs "mapproject" (ASP tool)
 
-This guide deliberately uses "orthorectification" for the concept of resampling input imagery onto a reference DEM grid, in user-facing prose (docs and notebook markdown cells). ASP's own toolchain calls it "mapprojection" and the binary is `mapproject` — those names are kept verbatim wherever they appear as code, file names, or as references to the ASP CLI. Each affected page (`concepts/orthorectification.md`, `concepts/pipeline-overview.md`, `reference/glossary.md`, the intro markdown of both notebooks) carries a callout note surfacing this naming gap. Don't rename `mapproject` in code cells, the bundle-adjust flag `--mapproj-dem`, or directory names like `out_stereo_proj`.
+See [ADR-0005](architecture/0005-orthorectification-vs-mapproject.md). Prose (docs + notebook markdown) uses "orthorectification"; ASP's own names (`mapproject`, "mapprojection", `--mapproj-dem`, paths like `out_stereo_proj`) are kept verbatim in code, filenames, and CLI references. Each affected page carries a callout note surfacing the naming gap. Don't rename `mapproject`, `--mapproj-dem`, or `*_proj`-style paths in code cells.
 
 ### `:click-parent:` only inside grid-item-card
 
@@ -120,41 +114,35 @@ sphinx-design's stretched-link option needs a positioned ancestor; a `grid-item-
 
 ### Pre-built container image hosted on GHCR (not built per-Codespace)
 
-CI builds and pushes `ghcr.io/bpurinton/stereopipeline-quickstart:latest` on every change to `Dockerfile` / `environment.yml`, plus a monthly cron rebuild. Codespaces pulls this image rather than running `docker build` at launch time. The from-source `build:` block is preserved (commented out) in `devcontainer.json` as a fallback.
-
-The image is hosted under the `bpurinton` namespace rather than `uw-cryo` because flipping package visibility to public on `ghcr.io/uw-cryo/...` needs uw-cryo org admin, which is not available. A uw-cryo-namespaced image was briefly published and found to be stuck private with no path to public, so the build switched to the `bpurinton` namespace.
-
-The cross-namespace push needs explicit auth: a classic PAT with `write:packages` scope, stored as Actions secret `GHCR_PAT`. The build-image workflow's `Log in to GHCR` step uses `username: bpurinton` + `password: ${{ secrets.GHCR_PAT }}`. To revert to default GITHUB_TOKEN auth (and host under the repo owner's namespace), swap those two lines and update `IMAGE_NAME`.
+See [ADR-0006](architecture/0006-ghcr-bpurinton-namespace.md). CI builds and pushes `ghcr.io/bpurinton/stereopipeline-quickstart:latest` on every `Dockerfile` / `environment.yml` change plus a monthly cron; Codespaces pulls it. The from-source `build:` block stays commented out in `devcontainer.json` as a fallback. Hosted under the `bpurinton` namespace (not `uw-cryo`) because making a `uw-cryo` GHCR package public needs org admin. The cross-namespace push uses a classic PAT with `write:packages`, stored as the `GHCR_PAT` Actions secret; the workflow's GHCR login step uses `username: bpurinton` + that secret. To revert to `GITHUB_TOKEN` auth under the repo owner's namespace, swap those two lines and update `IMAGE_NAME`.
 
 ### ASP-version-check workflow
 
-Runs monthly (cron, plus manual trigger). Polls NeoGeographyToolkit/StereoPipeline releases, filters to stable `X.Y.Z` tags (skips `*-alpha`, `daily-build`, prereleases), parses the Linux x86_64 tarball filename to extract VERSION and BUILD_DATE, and if newer than the values currently pinned in the Dockerfile, opens a PR via `peter-evans/create-pull-request@v6`. The PR sed-bumps four files consistently:
+See [ADR-0014](architecture/0014-asp-version-tracking.md). Runs monthly (plus manual trigger), polls StereoPipeline releases, and opens a PR (never auto-merge) that sed-bumps the pinned version consistently across four files:
 
 - `.devcontainer/Dockerfile` (the `ARG ASP_VERSION` / `ARG ASP_BUILD_DATE`)
 - `.devcontainer/devcontainer.json` (the commented-out fallback args)
 - `.github/workflows/build-image.yml` (workflow_dispatch defaults + inline default expressions)
 - `docs/reference/installation.md` (local-install snippet + verify line)
 
-Deliberately PR-based (not auto-merge) because ASP releases occasionally change behavior (e.g. ASTER V003 → V004 in Dec 2025) and a human should eyeball the diff before the new image is built.
-
-One-time setup: in repo Settings → Actions → General → Workflow permissions, "Allow GitHub Actions to create and approve pull requests" must be enabled. Without it, `create-pull-request` fails.
+One-time setup: repo Settings → Actions → General → Workflow permissions, enable "Allow GitHub Actions to create and approve pull requests". Without it, `create-pull-request` fails.
 
 ### Codespace machine size: 4-core floor
 
-`hostRequirements`: 4-core / 16 GB / 32 GB storage. Lowered from 8/32/64 so newcomers whose personal accounts lack a Codespaces payment method can launch without extra billing setup — 4 cores is the tier every GitHub account gets for free. The 16 GB / 32 GB values match GitHub's 4-core tier; leaving them higher would force the codespace back onto an 8-core machine. The tutorials were retuned to run acceptably at this floor. Larger machines still work — bump the thread/process counts and `TR` to use them.
+See [ADR-0010](architecture/0010-4-core-codespace-floor.md). `hostRequirements`: 4-core / 16 GB / 32 GB. The 16 GB / 32 GB values match GitHub's 4-core tier; raising them forces the machine back to 8 cores. The tutorials are tuned to run at this floor; larger machines work by bumping the thread/process counts and `TR`.
 
 ### Python 3.12 (not 3.11)
 
-`asp_plot`'s pyproject allows Python ≥ 3.11, but `sliderule >= 5.3` (pulled in transitively as of `asp_plot` 1.14) uses PEP 701 nested-quote f-strings that only parse on 3.12+. On 3.11 the `asp_plot` CLI hard-fails at `import asp_plot.altimetry` with a `SyntaxError`. The conda env is pinned to 3.12 in `environment.yml` and documented in `installation.md`.
+See [ADR-0013](architecture/0013-python-312-floor.md). The conda env is pinned to 3.12 in `environment.yml` (documented in `installation.md`) because `sliderule >= 5.3` (transitive via `asp_plot` 1.14) uses PEP 701 f-strings that only parse on 3.12+; on 3.11 `import asp_plot.altimetry` fails with a `SyntaxError`.
 
 ### ASTER two-report workflow
 
-The ASTER notebook mirrors the WV flow and produces two DEMs + two reports for comparison:
+See [ADR-0008](architecture/0008-aster-cop30-two-reports.md). The ASTER notebook mirrors the WV flow, producing two DEMs + two reports:
 
-1. Raw pass: `parallel_stereo` straight on the raw imagery (no BA, no ortho) → `stereo/run-DEM.tif` at 30 m → `stereo/rainier_aster_report.pdf`. Settings `--stereo-algorithm asp_bm` + `--subpixel-mode 1` (parabolic). Mode 9 (Bayes-EM/MGM) errors out on `asp_bm` ("Subpixel mode 9 is not supported with block matching. Use mode <= 6"), which is why this is mode 1.
-2. Ortho pass: fetch a COP30 DEM (same `fetch_cop_dem.py` recipe as WV), `mapproject` both views onto it at 15 m, re-run stereo with `asp_mgm` + `--subpixel-mode 9` → `stereo_ortho/run-DEM.tif` → `stereo_ortho/rainier_aster_ortho_report.pdf` (COP30 as reference).
+1. Raw pass: `parallel_stereo` on the raw imagery (no BA, no ortho) → `stereo/run-DEM.tif` at 30 m → `stereo/rainier_aster_report.pdf`. Uses `--stereo-algorithm asp_bm` + `--subpixel-mode 1`; mode 9 is unsupported on block matching ("Use mode <= 6").
+2. Ortho pass: fetch a COP30 DEM, `mapproject` both views onto it at 15 m, re-run stereo with `asp_mgm` + `--subpixel-mode 9` → `stereo_ortho/run-DEM.tif` → `stereo_ortho/rainier_aster_ortho_report.pdf` (COP30 reference).
 
-The COP30 reference is cleaner to explain than a self-made downsampled reference, and reuses the WV machinery. `asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4` for the 4-core floor.
+`asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4` for the 4-core floor.
 
 ### `--reuse_selections` for comparable reports
 
@@ -167,32 +155,20 @@ asp_plot ≥ 1.16.0 writes the sidecar next to each report PDF (`<report_stem>_f
 
 ### COP30 reference DEM: AWS Open Data + local EGM2008 → ellipsoid shift
 
-`scripts/fetch_cop_dem.py` fetches Copernicus GLO-30 tiles from the public AWS Open Data bucket `copernicus-dem-30m` (no API key, no auth) and converts them to WGS84 ellipsoid heights locally via `gdalwarp` with a compound source/target CRS, mirroring the recipe in `uw-cryo/fetch_dem`.
-
-The compound CRS pair is the load-bearing detail:
+See [ADR-0007](architecture/0007-cop30-egm2008-shift.md). `scripts/fetch_cop_dem.py` fetches Copernicus GLO-30 tiles from the public AWS bucket `copernicus-dem-30m` (no API key) and shifts them from EGM2008 geoid to WGS84 ellipsoid heights locally via `gdalwarp` with a compound CRS pair (mirrors `uw-cryo/fetch_dem`):
 
 - Source: `EPSG:4326+EPSG:3855` (WGS84 lon/lat + EGM2008 geoid).
 - Target: `<t_srs>+EPSG:4979` (requested horizontal + WGS84 ellipsoid).
 
-`gdalwarp` applies the per-pixel geoid → ellipsoid shift via PROJ's bundled EGM2008 grid. After the warp, `gdal_edit.py -a_srs` re-asserts the compound CRS in the output metadata so downstream tools see the vertical component.
-
-**Why this matters:** the AWS bucket ships heights referenced to the EGM2008 geoid. ASP's `mapproject` expects ellipsoid heights. Feeding geoid heights into `mapproject` introduces a global vertical bias of 30-50 m (depending on latitude; ~−35 m at UCSD) that shows up as a constant offset in dh plots and gets absorbed by `pc_align`, masking real bundle-adjust residuals. The fix mirrors what `fetch_dem` does for its `_E` demtype variants.
-
-We do the conversion ourselves rather than depend on OpenTopography's API-key route because (a) the conversion is mechanical once you know the compound-CRS recipe, (b) PROJ's EGM2008 grid is bundled in the conda-forge `proj` package (or auto-fetched via `PROJ_NETWORK`), and (c) it keeps the no-friction zero-API-key launch experience.
-
-If a Codespace ever can't find the EGM2008 grid, `gdalwarp` will error loudly with something like "Cannot find proj.db" or "Cannot find egm08_25.gtx". Pre-caching the grid in the Dockerfile is a fallback if this becomes flaky.
+`gdalwarp` applies the per-pixel shift via PROJ's bundled EGM2008 grid; `gdal_edit.py -a_srs` then re-asserts the compound CRS. ASP represents DEM heights above the datum ellipsoid (per its `dem_geoid` / `mapproject` docs), so skipping this shift feeds geoid heights into `mapproject` and injects a vertical datum-mismatch bias (tens of meters; ~−35 m at UCSD). If a Codespace can't find the EGM2008 grid, `gdalwarp` errors loudly ("Cannot find proj.db" / "egm08_25.gtx"); pre-caching the grid in the Dockerfile is a fallback.
 
 ### WV3 ROI and resolution
 
-`T_PROJWIN = "476000 3637000 478000 3639000"` in UTM 11N — the coastal 2 × 2 km clip (sea cliffs → UCSD campus). Processing GSD `TR = 1.0` (`mapproject`), output `point2dem --tr 4.0` → a 4 m DEM. At TR 1.0 the clip is ~4 Mpix/image vs ~40 Mpix at native; correlation scales with pixel count, so this is the biggest single speedup. 4 m is coarse for WV3 — a deliberate teaching-artifact tradeoff; bump `TR` back down on a bigger machine.
-
-A crossover ROI east of UCSD (`477750 3634800 480750 3637800`) has far denser ICESat-2 coverage (1745 pts / 3 tracks vs the coastal 450 / 2) but the coastal clip is kept for the cliffs-to-campus landscape.
-
-Speed findings from local BA-timing experiments (all 4-thread): `--ip-per-tile 10` halved BA at identical residual (default ~50 IPs/tile detects ~94,500, only ~5% survive). Dead ends measured: BA stopping criteria (Ceres converges in 2 iterations; all time is IP detect/match), dropping `--ip-per-image` (auto = same count), NTF→tiled-GeoTIFF conversion (costs more than it saves). `--mapprojected-data` BA was fastest but reorders the workflow; not adopted. Biggest lever overall was skipping BA entirely (the 02/03 split).
+See [ADR-0011](architecture/0011-wv3-roi-and-resolution.md). `T_PROJWIN = "476000 3637000 478000 3639000"` in UTM 11N (coastal 2 × 2 km, sea cliffs → UCSD campus). Processing GSD `TR = 1.0` (`mapproject`), output `point2dem --tr 4.0` → a 4 m DEM. 4 m is coarse for WV3, a deliberate teaching-artifact tradeoff; bump `TR` down on a bigger machine. A denser-ICESat-2 crossover ROI east of UCSD (`477750 3634800 480750 3637800`) exists but the coastal clip is kept for the landscape.
 
 ### WV3 thread budget tuned for the 4-core floor
 
-`asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4 --threads-singleprocess 4` (MGM is memory-heavy and multithreads within a process, so few-processes-many-threads is right on a 16 GB box; `--processes 4` would ~4× the ~5 GB/process estimate and OOM). On a bigger machine, raise `--processes` (cores ÷ threads). `bundle_adjust` and `mapproject` use `--threads 4`.
+Config detail behind [ADR-0011](architecture/0011-wv3-roi-and-resolution.md). `asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4 --threads-singleprocess 4` (MGM is memory-heavy and multithreads within a process, so few-processes-many-threads is right on a 16 GB box; `--processes 4` risks OOM). On a bigger machine, raise `--processes` (cores ÷ threads). `bundle_adjust` and `mapproject` use `--threads 4`.
 
 ### No chdir in notebooks; full relative paths from `notebooks/`
 
@@ -269,7 +245,7 @@ Two places set VS Code settings, and the split is deliberate:
 - `.vscode/settings.json` (workspace scope) applies everywhere the folder is opened, local *and* Codespace. It holds only editor behavior that should always apply: `chat.disableAIFeatures`, `workbench.secondarySideBar.defaultVisibility: "hidden"`, `files.autoSaveDelay`.
 - `.devcontainer/devcontainer.json` → `customizations.vscode.settings` (Remote [Codespaces] scope) applies only inside the container. Open the folder locally without "Reopen in Container" and these never apply.
 
-The file-explorer hiding lives in the devcontainer block, not workspace settings, so it is Codespace-only. Its `files.exclude` hides infrastructure a first-time learner doesn't need — `.github`, `.devcontainer`, `.vscode`, `docs`, `.readthedocs.yaml`, `requirements.txt`, `.gitignore`, `CHANGELOG.md`, `AGENTS.md` — to focus the explorer on `notebooks/` + `data/`. Local development shows the full tree. `files.exclude` merges across scopes, so the empty workspace block is intentionally absent (nothing is hidden locally).
+The file-explorer hiding lives in the devcontainer block, not workspace settings, so it is Codespace-only. Its `files.exclude` hides infrastructure a first-time learner doesn't need — `.github`, `.devcontainer`, `.vscode`, `docs`, `architecture`, `.readthedocs.yaml`, `requirements.txt`, `.gitignore`, `AGENTS.md`, `LICENSE` — to focus the explorer on `notebooks/` + `data/`. Local development shows the full tree. `files.exclude` merges across scopes, so the empty workspace block is intentionally absent (nothing is hidden locally).
 
 ### Vantor (not Maxar) branding
 

@@ -37,6 +37,10 @@ For explanations and conceptual background, visit [stereopipeline-quickstart.rea
 
 See [`docs/start/installation.md`](docs/start/installation.md) for details.
 
+## Design decisions
+
+Why this repo is built the way it is lives in architecture decision records under [`architecture/`](architecture/README.md), one immutable record per consequential choice (Codespace floor, reference-DEM handling, tutorial structure, and so on). `AGENTS.md` is the companion current-state reference for contributors; the Architecture Decision Records (ADRs) hold the rationale behind the choices it describes.
+
 ## Related
 
 - [`NeoGeographyToolkit/StereoPipeline`](https://github.com/NeoGeographyToolkit/StereoPipeline) — ASP itself
