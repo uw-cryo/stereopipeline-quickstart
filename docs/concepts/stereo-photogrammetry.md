@@ -14,7 +14,7 @@ The triangulated points land in a point cloud (`run-PC.tif`), which `point2dem` 
 
 <!-- FIGURE IDEA: 2x2 hillshade comparison from the same input pair — asp_bm vs asp_mgm across the columns, subpixel-mode 1 vs 9 down the rows. Shows visually how much each knob affects the output. -->
 
-The matcher (`--stereo-algorithm`) and the subpixel refiner (`--subpixel-mode`) are the two parameters that most affect quality and runtime. `asp_bm` is ASP's classic block matcher, fast and robust; `asp_mgm` costs more compute and does better in low-texture and steep terrain. The tutorials pair `asp_bm` with `--subpixel-mode 1` for the quick first ASTER pass and `asp_mgm` with `--subpixel-mode 9` everywhere else; the [ASP correlation docs](https://stereopipeline.readthedocs.io/en/latest/correlation.html) describe the full menu.
+The matcher (`--stereo-algorithm`) and the subpixel refiner (`--subpixel-mode`) are the two parameters that most affect quality and runtime. `asp_bm` is ASP's classic block matcher, fast and effective on well-textured images; `asp_mgm` costs more compute and memory and does better where texture is poor or repetitive. The tutorials pair `asp_bm` with `--subpixel-mode 1` for the quick first ASTER pass and `asp_mgm` with `--subpixel-mode 9` everywhere else; the [ASP correlation docs](https://stereopipeline.readthedocs.io/en/latest/correlation.html) describe the full menu.
 
 ## Geometry that matters
 
@@ -30,7 +30,7 @@ The skyplot (left) shows where each satellite sat in the sky when it imaged the 
 
 <!-- FIGURE IDEA: panel of GoodPixelMap (run-GoodPixelMap.tif) crops over each failure mode — water, snow, dense canopy, sharp shadow boundary, building facade occlusion. Red/green pixels make the failures legible at a glance. -->
 
-Featureless surfaces (open water, fresh snow, sand), repetitive texture, occlusion (one camera sees a slope face the other cannot), clouds, and illumination differences between acquisitions all break the matcher. Failures show up as red in `run-GoodPixelMap.tif` and as voids in the DEM. Voids in reasonable places are normal; voids everywhere usually mean a geometry or preprocessing problem, not a matching problem.
+Featureless surfaces (open water, fresh snow, sand), repetitive texture, occlusion (one camera sees a slope face the other cannot), clouds, and illumination differences between acquisitions all break the matcher. Failures show up as red in `run-GoodPixelMap.tif` (successful matches are gray) and as voids in the DEM. Voids in reasonable places are normal; voids everywhere usually mean a geometry or preprocessing problem, not a matching problem.
 
 ## Where to read more
 

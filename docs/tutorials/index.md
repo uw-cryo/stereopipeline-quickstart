@@ -2,6 +2,11 @@
 
 Three end-to-end notebooks. All use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
 
+```{admonition} To run these notebooks, launch the Codespace first
+:class: important
+The tutorial pages below are static renders of the notebooks in `notebooks/`, shown with saved outputs. To run them yourself, [open this repo in a GitHub Codespace](../start/codespaces.md); it boots with ASP, `asp-plot`, and the demo data scripts already installed, so the notebooks run top to bottom with no setup. Running on your own machine instead needs the [local install](../reference/installation.md).
+```
+
 ::::{grid} 1 1 2 2
 :gutter: 3
 
@@ -28,7 +33,7 @@ Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly
 - COP-DEM clip from AWS Open Data
 - `mapproject` to the COP-DEM grid
 - `parallel_stereo` on the orthorectified pair
-- `asp_plot --pc_align` for ICESat-2 alignment
+- `asp_plot` PDF report with ICESat-2 alignment (`pc_align` runs by default)
 
 Output: 4 m DEM of the UCSD campus and sea cliffs.
 :::

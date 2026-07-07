@@ -10,7 +10,7 @@ Sensor prep → bundle adjustment → orthorectification → stereo + DEM genera
 
 ## Stage 1: Sensor preparation
 
-<!-- FIGURE IDEA: small grid showing example raw vendor formats (ASTER HDF, WorldView NTF + XML, ISIS cube) on the left and the canonical "image.tif + camera.xml" pair on the right, with the relevant per-sensor binary in the middle. -->
+![Per-sensor tools convert raw vendor formats into the image plus camera model pair ASP expects](figures/sensor-prep.svg)
 
 Vendor-specific tools (`aster2asp`, `wv_correct`, `cam2map`, `dg_mosaic`) convert raw vendor data into the standard image-plus-camera pair ASP expects.
 

@@ -10,7 +10,7 @@ The vendor's camera models are slightly inaccurate; bundle adjustment refines th
 
 ## Why this matters for stereo
 
-With misaligned cameras, the two viewing rays for a matched pixel do not quite meet; `parallel_stereo` records that miss distance per pixel in `run-IntersectionErr.tif`, and the misalignment surfaces in the DEM as bias and tilt. Bundle adjustment shrinks all three.
+With misaligned cameras, the two viewing rays for a matched pixel do not quite meet. Triangulation records that miss distance per point as the fourth band of `run-PC.tif` (`point2dem --errorimage` grids it into `run-IntersectionErr.tif`), and the misalignment surfaces in the DEM as bias and tilt. Bundle adjustment shrinks all of these.
 
 ![Before bundle adjustment the rays miss each other; after, they intersect](figures/intersection-error.svg)
 
