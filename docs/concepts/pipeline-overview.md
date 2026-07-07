@@ -1,10 +1,5 @@
 # Pipeline overview
 
-```{admonition} Work in progress
-:class: warning
-Some figures on this page still need full processing runs to produce.
-```
-
 Every ASP run, regardless of sensor, follows the same five-stage pattern.
 
 ## The five stages

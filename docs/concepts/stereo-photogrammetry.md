@@ -1,10 +1,5 @@
 # Stereo photogrammetry
 
-```{admonition} Work in progress
-:class: warning
-Some figures on this page still need full processing runs to produce.
-```
-
 Two views of the same patch of ground from different angles produce parallax: a pixel shift between images that encodes ground height.
 
 ## What ASP actually computes

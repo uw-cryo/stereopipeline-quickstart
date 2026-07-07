@@ -48,8 +48,9 @@ html_theme = "sphinx_book_theme"
 html_title = "stereopipeline-quickstart"
 html_theme_options = {
     "announcement": (
-        "⚠️ Work in progress — content is being rewritten. "
-        "Codespace notebooks are functional."
+        "⚠️ Work in progress. Codespace notebooks are functional. "
+        '<a href="https://github.com/uw-cryo/stereopipeline-quickstart/issues" '
+        'target="_blank" rel="noopener noreferrer">Please report issues!</a>'
     ),
     "repository_url": "https://github.com/uw-cryo/stereopipeline-quickstart",
     "use_repository_button": True,
@@ -66,6 +67,7 @@ html_theme_options = {
 
 html_static_path = ["_static"]
 html_css_files = ["css/custom.css"]
+html_js_files = ["js/external-links.js"]
 
 # -- Cross-references --------------------------------------------------------
 intersphinx_mapping = {

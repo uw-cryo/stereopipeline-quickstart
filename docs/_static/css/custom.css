@@ -6,6 +6,13 @@
   border-left-color: #e5a50a;
 }
 
+/* Announcement-banner links inherit the theme link color, which is
+   unreadable on the dark banner background; keep them white. */
+.bd-header-announcement a {
+  color: #fff !important;
+  text-decoration: underline;
+}
+
 /* Make the "Open in Codespaces" badge pop on the landing page. */
 .codespace-cta {
   display: inline-block;

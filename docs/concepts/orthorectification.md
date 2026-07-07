@@ -1,10 +1,5 @@
 # Orthorectification
 
-```{admonition} Work in progress
-:class: warning
-Some figures on this page still need full processing runs to produce.
-```
-
 ```{note}
 ASP calls this step "mapprojection" in its toolchain (the binary is `mapproject`, the bundle-adjust flag is `--mapproj-dem`). This guide uses "orthorectification" — the more standard photogrammetry term — for the concept while keeping ASP's tool names verbatim.
 ```

@@ -1,10 +1,5 @@
 # Visualization with `asp-plot`
 
-```{admonition} Work in progress
-:class: warning
-Some figures on this page still need full processing runs to produce.
-```
-
 ASP outputs are scattered across files in many formats; [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) reads them and produces diagnostic figures and PDF reports used throughout this guide.
 
 ## Two ways to use it

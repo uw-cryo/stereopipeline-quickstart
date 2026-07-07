@@ -1,10 +1,5 @@
 # Alignment
 
-```{admonition} Work in progress
-:class: warning
-Some figures on this page still need full processing runs to produce.
-```
-
 Even a clean stereo DEM usually sits slightly off true ground, because small camera-model errors translate into a shift of the whole surface. `pc_align` removes that shift by registering the DEM to a trusted reference.
 
 ## The reference dataset
