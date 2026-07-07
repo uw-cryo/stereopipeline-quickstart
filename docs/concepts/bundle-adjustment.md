@@ -1,34 +1,36 @@
 # Bundle adjustment
 
-```{admonition} Work in progress
-:class: warning
-Placeholder content. Being rewritten with figures.
-```
-
-The vendor's camera models are slightly inaccurate; bundle adjustment refines them by minimizing reprojection errors of features matched between input images.
+The vendor's camera models are slightly inaccurate; bundle adjustment refines them by minimizing reprojection errors of features matched between the input images.
 
 ## What the optimizer does
 
-<!-- FIGURE IDEA: schematic of two cameras viewing several tie points; arrows from camera centers through image-plane observations to the 3D points; small "wiggle" arrows on cameras and points indicating what the optimizer varies. Caption: "minimize the sum of squared reprojection errors over all observations." -->
+`bundle_adjust` detects interest points in each image, matches them across images into tie points, and then jointly varies the camera parameters and the tie point positions to shrink the reprojection errors: the distance between where each tie point actually appears in an image and where the camera model says it should appear.
 
-Given initial cameras and tie points, `bundle_adjust` jointly varies camera parameters and 3D tie-point positions to drive reprojection error toward zero.
+![Bundle adjustment nudges camera parameters and tie point positions to shrink reprojection errors](figures/bundle-adjust-schematic.svg)
 
 ## Why this matters for stereo
 
-<!-- FIGURE IDEA: cartoon of two slightly-misaligned cameras producing rays that don't quite intersect at the ground point — the gap is the "intersection error". After bundle adjustment, the rays meet cleanly. Could overlay an actual run-IntersectionErr.tif crop to make it concrete. -->
+With misaligned cameras, the two viewing rays for a matched pixel do not quite meet; `parallel_stereo` records that miss distance per pixel in `run-IntersectionErr.tif`, and the misalignment surfaces in the DEM as bias and tilt. Bundle adjustment shrinks all three.
 
-Without bundle adjustment, vendor camera misalignment shows up as bias and tilt in the final DEM; with it, residual reprojection error and DEM bias both shrink.
+![Before bundle adjustment the rays miss each other; after, they intersect](figures/intersection-error.svg)
 
-## Outputs you can visualize
+## What it looks like on real data
 
-<!-- FIGURE IDEA: paired histograms of initial vs final residuals from the WV3 tutorial. Plus a map view colored by residual magnitude over the scene footprint, showing the spatial distribution. -->
+From a `bundle_adjust` run on the [WorldView tutorial's](../tutorials/03_worldview_ucsd_ba.ipynb) stereo pair, the per-tie-point reprojection residuals before and after optimization:
 
-Initial- and final-pass per-tie-point residual CSVs (`*-initial_residuals_pointmap.csv`, `*-final_residuals_pointmap.csv`) are read by `asp_plot.bundle_adjust.PlotBundleAdjustFiles` for before/after comparison.
+![Histograms of initial and final bundle adjustment residuals from the WorldView tutorial](figures/wv3-ba-residuals-hist.png)
+
+The same residuals in map view over the scene footprint (initial values above 10 px are shown clipped):
+
+![Map view of initial and final bundle adjustment residuals](figures/wv3-ba-residuals-map.png)
+
+Both figures come from the residual point maps `bundle_adjust` writes (`*-initial_residuals_pointmap.csv`, `*-final_residuals_pointmap.csv`), read with `asp_plot.bundle_adjust.PlotBundleAdjustFiles`. Look for two things: the residual hump moving toward zero, and no strong spatial pattern left in the final map.
 
 ## Common knobs
 
-Interest-point density (`--ip-per-image`), tie-point penalty (`--tri-weight`, `--tri-robust-threshold`), and camera-anchor weight (`--camera-weight`) are the parameters most often tuned.
+Interest-point density (`--ip-per-image`, `--ip-per-tile`), tie-point penalty (`--tri-weight`, `--tri-robust-threshold`), and camera-anchor weight (`--camera-weight`) are the parameters most often tuned.
 
 ## Where to read more
 
 - [ASP bundle_adjust docs](https://stereopipeline.readthedocs.io/en/latest/tools/bundle_adjust.html)
+- [Bundle adjustment in the ASP workflow](https://stereopipeline.readthedocs.io/en/latest/next_steps.html)

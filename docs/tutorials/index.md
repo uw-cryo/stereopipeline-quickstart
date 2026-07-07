@@ -27,7 +27,7 @@ Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly
 - Stereo geometry analysis with `StereoGeometryPlotter`
 - COP-DEM clip from AWS Open Data
 - `mapproject` to the COP-DEM grid
-- `parallel_stereo` on the mapprojected pair
+- `parallel_stereo` on the orthorectified pair
 - `asp_plot --pc_align` for ICESat-2 alignment
 
 Output: 4 m DEM of the UCSD campus and sea cliffs.
@@ -49,4 +49,4 @@ The WorldView tutorial then adds cropping and a finer resolution, higher accurac
 
 ## Beyond the tutorials
 
-The [`asp-plot` example notebooks](https://asp-plot.readthedocs.io/en/latest/examples/index.html) cover jitter correction, planetary missions (LRO NAC, Mars MOC NA, CTX), no-mapprojection variants, and scene selection.
+The [`asp-plot` example notebooks](https://asp-plot.readthedocs.io/en/latest/examples/index.html) cover jitter correction, planetary missions (LRO NAC, Mars MOC NA, CTX), variants that skip orthorectification, and scene selection.

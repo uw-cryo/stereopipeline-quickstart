@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1030 204" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Timeline of ASP milestones from mid-1990s rover work to the current release">
+  <!-- figure surface -->
+  <rect x="0.5" y="0.5" width="1029" height="203" rx="10" fill="#fcfcfb" stroke="#0b0b0b" stroke-opacity="0.1"/>
+
+  <!-- axis -->
+  <line x1="40" y1="110" x2="1000" y2="110" stroke="#c3c2b7" stroke-width="1.5"/>
+
+  <!-- mid-1990s (above) -->
+  <text x="88" y="56" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">mid-1990s</text>
+  <text x="88" y="72" text-anchor="middle" font-size="13.5" fill="#52514e">rover stereo vision</text>
+  <text x="88" y="87" text-anchor="middle" font-size="13.5" fill="#52514e">at NASA Ames</text>
+  <line x1="88" y1="94" x2="88" y2="105" stroke="#c3c2b7" stroke-width="1.2"/>
+  <circle cx="88" cy="110" r="4" fill="#2a78d6"/>
+
+  <!-- 2009 v1.0 (below) -->
+  <circle cx="483" cy="110" r="4" fill="#2a78d6"/>
+  <line x1="483" y1="115" x2="483" y2="126" stroke="#c3c2b7" stroke-width="1.2"/>
+  <text x="483" y="142" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">2009 &#183; v1.0</text>
+  <text x="483" y="158" text-anchor="middle" font-size="13.5" fill="#52514e">open-sourced</text>
+  <text x="483" y="173" text-anchor="middle" font-size="13.5" fill="#52514e">Mars + Moon cameras</text>
+
+  <!-- 2012 v2.0 (above) -->
+  <text x="568" y="56" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">2012 &#183; v2.0</text>
+  <text x="568" y="72" text-anchor="middle" font-size="13.5" fill="#52514e">Earth support</text>
+  <text x="568" y="87" text-anchor="middle" font-size="13.5" fill="#52514e">(WorldView)</text>
+  <line x1="568" y1="94" x2="568" y2="105" stroke="#c3c2b7" stroke-width="1.2"/>
+  <circle cx="568" cy="110" r="4" fill="#2a78d6"/>
+
+  <!-- 2015 v2.5 (below) -->
+  <circle cx="652" cy="110" r="4" fill="#2a78d6"/>
+  <line x1="652" y1="115" x2="652" y2="126" stroke="#c3c2b7" stroke-width="1.2"/>
+  <text x="652" y="142" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">2015 &#183; v2.5</text>
+  <text x="652" y="158" text-anchor="middle" font-size="13.5" fill="#52514e" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">stereo_gui</text>
+
+  <!-- 2016 v2.5.3 (above) -->
+  <text x="680" y="56" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">2016 &#183; v2.5.3</text>
+  <text x="680" y="72" text-anchor="middle" font-size="13.5" fill="#52514e">ASTER support</text>
+  <line x1="680" y1="94" x2="680" y2="105" stroke="#c3c2b7" stroke-width="1.2"/>
+  <circle cx="680" cy="110" r="4" fill="#2a78d6"/>
+
+  <!-- 2020 v2.7 (below) -->
+  <circle cx="793" cy="110" r="4" fill="#2a78d6"/>
+  <line x1="793" y1="115" x2="793" y2="126" stroke="#c3c2b7" stroke-width="1.2"/>
+  <text x="793" y="142" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">2020 &#183; v2.7</text>
+  <text x="793" y="158" text-anchor="middle" font-size="13.5" fill="#52514e">CSM camera models</text>
+
+  <!-- 2022 v3.2 (above) -->
+  <text x="849" y="56" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">2022 &#183; v3.2</text>
+  <text x="849" y="72" text-anchor="middle" font-size="13.5" fill="#52514e">jitter correction</text>
+  <line x1="849" y1="94" x2="849" y2="105" stroke="#c3c2b7" stroke-width="1.2"/>
+  <circle cx="849" cy="110" r="4" fill="#2a78d6"/>
+
+  <!-- 2026 v3.7 (below) -->
+  <circle cx="955" cy="110" r="4" fill="#2a78d6"/>
+  <line x1="955" y1="115" x2="955" y2="126" stroke="#c3c2b7" stroke-width="1.2"/>
+  <text x="955" y="142" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">2026 &#183; v3.7</text>
+  <text x="955" y="158" text-anchor="middle" font-size="13.5" fill="#52514e">current release</text>
+</svg>

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 396" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Two satellites viewing the same summit from different angles; the summit lands at different pixel positions in each image">
+  <!-- figure surface -->
+  <rect x="0.5" y="0.5" width="759" height="395" rx="10" fill="#fcfcfb" stroke="#0b0b0b" stroke-opacity="0.1"/>
+
+  <!-- rays to summit (behind satellites and mountain) -->
+  <line x1="170" y1="72" x2="380" y2="150" stroke="#2a78d6" stroke-width="1.8"/>
+  <line x1="590" y1="72" x2="380" y2="150" stroke="#2a78d6" stroke-width="1.8"/>
+
+  <!-- satellite 1 -->
+  <g transform="translate(170,60)">
+    <rect x="-26" y="-6" width="16" height="12" fill="#2a78d6"/>
+    <rect x="10" y="-6" width="16" height="12" fill="#2a78d6"/>
+    <rect x="-9" y="-9" width="18" height="18" rx="3" fill="#52514e"/>
+  </g>
+  <text x="170" y="34" text-anchor="middle" font-size="13" fill="#0b0b0b">view 1</text>
+
+  <!-- satellite 2 -->
+  <g transform="translate(590,60)">
+    <rect x="-26" y="-6" width="16" height="12" fill="#2a78d6"/>
+    <rect x="10" y="-6" width="16" height="12" fill="#2a78d6"/>
+    <rect x="-9" y="-9" width="18" height="18" rx="3" fill="#52514e"/>
+  </g>
+  <text x="590" y="34" text-anchor="middle" font-size="13" fill="#0b0b0b">view 2</text>
+
+  <!-- mountain -->
+  <path d="M 270 280 L 380 150 L 490 280 Z" fill="#e8e6e0" stroke="#898781" stroke-width="1.5"/>
+  <circle cx="380" cy="150" r="4" fill="#0b0b0b"/>
+  <text x="380" y="133" text-anchor="middle" font-size="12" fill="#52514e">summit</text>
+
+  <!-- ground -->
+  <line x1="60" y1="280" x2="700" y2="280" stroke="#c3c2b7" stroke-width="1.5"/>
+
+  <!-- height reference -->
+  <line x1="380" y1="150" x2="380" y2="280" stroke="#898781" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text x="368" y="222" text-anchor="end" font-size="12" fill="#52514e">height</text>
+
+  <!-- image strips -->
+  <g>
+    <rect x="120" y="318" width="200" height="40" rx="6" fill="#fcfcfb" stroke="#898781"/>
+    <line x1="220" y1="322" x2="220" y2="354" stroke="#c3c2b7" stroke-width="1.5"/>
+    <line x1="262" y1="322" x2="262" y2="354" stroke="#2a78d6" stroke-width="2.5"/>
+    <line x1="224" y1="338" x2="256" y2="338" stroke="#52514e" stroke-width="1.2" marker-end="url(#tick-arrow)"/>
+    <text x="220" y="376" text-anchor="middle" font-size="11" fill="#898781">image from view 1</text>
+  </g>
+  <g>
+    <rect x="440" y="318" width="200" height="40" rx="6" fill="#fcfcfb" stroke="#898781"/>
+    <line x1="540" y1="322" x2="540" y2="354" stroke="#c3c2b7" stroke-width="1.5"/>
+    <line x1="498" y1="322" x2="498" y2="354" stroke="#2a78d6" stroke-width="2.5"/>
+    <line x1="536" y1="338" x2="504" y2="338" stroke="#52514e" stroke-width="1.2" marker-end="url(#tick-arrow)"/>
+    <text x="540" y="376" text-anchor="middle" font-size="11" fill="#898781">image from view 2</text>
+  </g>
+  <defs>
+    <marker id="tick-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#52514e"/>
+    </marker>
+  </defs>
+
+</svg>
