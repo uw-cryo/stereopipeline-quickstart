@@ -19,8 +19,17 @@ extensions = [
     "myst_nb",
     "sphinx_design",
     "sphinx_copybutton",
+    "sphinx_tippy",
     "sphinx.ext.intersphinx",
 ]
+
+# Hover previews for {term} glossary references (sphinx-tippy). Tip content is
+# generated statically at build time. The skip regex limits tips to glossary
+# term links, so other internal links stay plain.
+tippy_skip_urls = [r"^(?!.*glossary\.html#term-).*"]
+tippy_enable_wikitips = False
+tippy_enable_doitips = False
+tippy_anchor_parent_selector = "article.bd-article"
 
 source_suffix = {
     ".md": "myst-nb",

@@ -12,7 +12,7 @@ Raw images of the same terrain from two viewpoints differ a lot: the satellite g
 
 ![Orthorectification shrinks the search range stereo matching must cover](figures/ortho-search-range.svg)
 
-Measured on the ASTER tutorial pair, run both ways: the disparity spread the correlator has to cover collapses from tens of pixels to about one.
+Measured on the ASTER tutorial pair, run both ways: the {term}`disparity <disparity map>` spread the correlator has to cover collapses from tens of pixels to about one.
 
 ![Disparity histograms for the same ASTER pair, raw vs orthorectified](figures/aster-disparity-hist.png)
 
@@ -33,7 +33,7 @@ Very flat terrain, missing reference DEMs, or quick first passes can use ASP's `
 | MOLA | Mars | mission altimetry |
 | LOLA | Moon | mission altimetry |
 
-One pitfall: ASP expects DEM heights above the ellipsoid, but many products (including COP30) ship heights above a geoid. Feeding a geoid-referenced DEM to `mapproject` injects a vertical bias of tens of meters. The tutorials' `fetch_cop_dem.py` script applies the geoid-to-ellipsoid shift for you; if you bring your own reference DEM, check its vertical datum first.
+One pitfall: ASP expects DEM heights above the {term}`ellipsoid`, but many products (including COP30) ship heights above a {term}`geoid`. Feeding a geoid-referenced DEM to `mapproject` injects a vertical bias of tens of meters. The tutorials' `fetch_cop_dem.py` script applies the geoid-to-ellipsoid shift for you; if you bring your own reference DEM, check its vertical datum first.
 
 ## The two-pass trick
 
@@ -41,7 +41,7 @@ When you have no good reference DEM, make your own: run a coarse first stereo pa
 
 ![Two-pass recipe: a coarse first DEM feeds orthorectification for a refined second pass](figures/two-pass-flow.svg)
 
-The [ASTER tutorial](../tutorials/01_aster_rainier.ipynb) runs this pattern with COP30 as the second-pass surface, producing a report for each pass so you can compare them. The hillshades below are the two passes over the Mount Rainier massif: the raw pass loses the snow-covered upper mountain and smears the valleys; the orthorectified pass recovers both.
+The [ASTER tutorial](../tutorials/01_aster_rainier.ipynb) runs this pattern with COP30 as the second-pass surface, producing a report for each pass so you can compare them. The {term}`hillshades <hillshade>` below are the two passes over the Mount Rainier massif: the raw pass loses the snow-covered upper mountain and smears the valleys; the orthorectified pass recovers both.
 
 ![Hillshades of the ASTER tutorial's pass-1 and pass-2 DEMs over Mount Rainier](figures/aster-two-pass-hillshade.png)
 

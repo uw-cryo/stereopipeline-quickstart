@@ -28,7 +28,7 @@ ASP calls this step "mapprojection" in its toolchain (`mapproject`, `--mapproj-d
 
 ## Stage 4: Stereo + DEM generation
 
-`parallel_stereo` matches pixels between the two images and triangulates them into a point cloud; `point2dem` grids the cloud into a regular DEM. From the WorldView tutorial, the disparity map and the DEM it becomes:
+`parallel_stereo` matches pixels between the two images and triangulates them into a {term}`point cloud`; `point2dem` grids the cloud into a regular DEM. The heights are of whatever surface the cameras saw, rooftops and tree canopy included, so the product is strictly a digital surface model ({term}`DSM`); this guide follows ASP in calling it a DEM. From the WorldView tutorial, the {term}`disparity map` and the DEM it becomes:
 
 ![Disparity map and the resulting hillshaded DEM from the WorldView tutorial](figures/wv3-disparity-dem.png)
 
@@ -36,7 +36,7 @@ See [Stereo photogrammetry](stereo-photogrammetry.md).
 
 ## Stage 5: Alignment
 
-`pc_align` registers the DEM to a trusted reference (ICESat-2, MOLA, LOLA, or another DEM) using ICP. See [Alignment](alignment.md).
+`pc_align` registers the DEM to a trusted reference ({term}`ICESat-2`, {term}`MOLA`, {term}`LOLA`, or another DEM) using {term}`ICP`. See [Alignment](alignment.md).
 
 ## What `asp-plot` does at every stage
 

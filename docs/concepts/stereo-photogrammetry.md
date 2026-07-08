@@ -1,14 +1,14 @@
 # Stereo photogrammetry
 
-Two views of the same patch of ground from different angles produce parallax: a pixel shift between images that encodes ground height.
+Two views of the same patch of ground from different angles produce {term}`parallax`: a pixel shift between images that encodes ground height.
 
 ## What ASP actually computes
 
-For every pixel in the left image, `parallel_stereo` searches the right image for the best-matching pixel. The result is a disparity map: a per-pixel shift between the two images. Triangulation then combines each matched pair with the camera models: the two viewing rays are intersected in space, and the intersection is a 3D ground point.
+For every pixel in the left image, `parallel_stereo` searches the right image for the best-matching pixel. The result is a {term}`disparity map`: a per-pixel shift between the two images. Triangulation then combines each matched pair with the camera models: the two viewing rays are intersected in space, and the intersection is a 3D ground point.
 
 ![Rays from matched pixels in two images intersect at the triangulated ground point](figures/stereo-triangulation.svg)
 
-The triangulated points land in a point cloud (`run-PC.tif`), which `point2dem` grids into a DEM. See [Pipeline overview](pipeline-overview.md) for where this sits in the full flow.
+The triangulated points land in a {term}`point cloud` (`run-PC.tif`), which `point2dem` grids into a DEM. See [Pipeline overview](pipeline-overview.md) for where this sits in the full flow.
 
 ## Knobs that matter
 
@@ -18,7 +18,7 @@ The matcher (`--stereo-algorithm`) and the subpixel refiner (`--subpixel-mode`) 
 
 ## Geometry that matters
 
-Height precision is set before you run anything, by the viewing geometry: the convergence angle (the angle between the two viewing rays) and the base-to-height ratio. Too little convergence and the rays intersect at a shallow angle, so small matching errors become large height errors; too much and the two images look so different that matching degrades.
+Height precision is set before you run anything, by the viewing geometry: the {term}`convergence angle` (the angle between the two viewing rays) and the {term}`base-to-height ratio <base-to-height ratio (B/H)>`. Too little convergence and the rays intersect at a shallow angle, so small matching errors become large height errors; too much and the two images look so different that matching degrades.
 
 Both quantities come from the vendor metadata. `asp_plot.stereo_geometry.StereoGeometryPlotter` reads the camera XMLs and plots them, as run in [the WorldView tutorial](../tutorials/02_worldview_ucsd.ipynb) for its stereo pair:
 

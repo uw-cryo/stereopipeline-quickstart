@@ -35,19 +35,37 @@ disparity map
   Per-pixel (x, y) shift between matched pixels in a stereo pair. ASP file: `*-F.tif`.
 
 DEM
-  Digital Elevation Model. A regular grid of heights — the final product of an ASP run. ASP file: `*-DEM.tif`.
+  Digital Elevation Model. A regular grid of heights — the final product of an ASP run. ASP file: `*-DEM.tif`. The umbrella term covering both DSM and DTM.
 
 dh
   "Difference in height". Pixel-wise difference between two DEMs (or between a DEM and altimetry).
 
+DSM
+  Digital Surface Model. A DEM whose heights are of the first surface the sensor sees: rooftops, tree canopy, snow. Stereo DEMs, ASP's included, are surface models.
+
+DTM
+  Digital Terrain Model. A DEM whose heights are of the bare ground, with buildings and vegetation removed. Deriving one from a stereo DSM requires additional filtering.
+
+ellipsoid
+  Smooth mathematical model of a planet's shape (WGS84 for Earth). ASP heights are relative to the ellipsoid unless you convert them.
+
 geodiff
   ASP tool that computes the difference between two DEMs and reports statistics.
+
+geoid
+  Equipotential surface approximating mean sea level (EGM96 or EGM2008 for Earth). Geoid and ellipsoid heights differ by tens of meters depending on location; mixing the two is a classic source of vertical bias. See [Orthorectification](../concepts/orthorectification.md).
 
 ground sample distance (GSD)
   Pixel size of imagery on the ground, in meters. WV3 pan-sharp GSD ≈ 0.30 m; ASTER GSD ≈ 15 m.
 
+hillshade
+  Shaded-relief rendering of a DEM under a synthetic light source. The standard way to inspect DEM quality by eye; produced by `gdaldem hillshade` or `asp-plot`.
+
 ICESat-2
   NASA's Ice, Cloud, and Land Elevation Satellite 2. Provides global laser altimetry used for DEM alignment.
+
+ICP
+  Iterative Closest Point. Registration algorithm that alternates pairing each point with its nearest reference neighbor and solving the rigid move that best fits the pairs. What `pc_align` runs. See [Alignment](../concepts/alignment.md).
 
 interest point (IP)
   Distinctive corner or blob detected in an image, used as a candidate feature for matching across images.

@@ -4,11 +4,11 @@ Even a clean stereo DEM usually sits slightly off true ground, because small cam
 
 ## The reference dataset
 
-ICESat-2 ATL06-SR for Earth, MOLA for Mars, LOLA for the Moon, or any prior high-quality DEM (3DEP, ArcticDEM, regional lidar). A good reference does not need to be dense; it needs to be accurate and to sample stable terrain. A few thousand well-placed altimetry points constrain a rigid shift better than a dense but biased DEM.
+ICESat-2 {term}`ATL06-SR` for Earth, {term}`MOLA` for Mars, {term}`LOLA` for the Moon, or any prior high-quality DEM (3DEP, ArcticDEM, regional lidar). A good reference does not need to be dense; it needs to be accurate and to sample stable terrain. A few thousand well-placed altimetry points constrain a rigid shift better than a dense but biased DEM.
 
 ## What `pc_align` does
 
-The algorithm is iterative closest point (ICP): pair each point of your DEM with the nearest reference point, find the rigid transformation (rotation and translation; a translation-only or scale-solving variant if you ask for one) that minimizes those distances, apply it, and repeat until the fit stops improving. The output is your DEM moved onto the reference.
+The algorithm is iterative closest point ({term}`ICP`): pair each point of your DEM with the nearest reference point, find the rigid transformation (rotation and translation; a translation-only or scale-solving variant if you ask for one) that minimizes those distances, apply it, and repeat until the fit stops improving. The output is your DEM moved onto the reference.
 
 ![pc_align translates the DEM so it passes through the reference altimetry points](figures/icp-align.svg)
 
@@ -22,7 +22,7 @@ If the difference map against the reference still shows structure after alignmen
 
 ## Reading the alignment report
 
-`pc_align` prints percentile breakdowns of the point-to-reference distances before and after alignment, plus the transformation it applied. From a run of the WorldView tutorial's DEM against its COP30 reference:
+`pc_align` prints percentile breakdowns of the point-to-reference distances before and after alignment, plus the transformation it applied. From a run of the WorldView tutorial's DEM against its {term}`COP30 <Copernicus DEM (COP30)>` reference:
 
 ```text
 Input:  error percentile of smallest errors (meters): 16%: 3.87315,  50%: 7.13745, 84%: 11.2421

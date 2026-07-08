@@ -7,6 +7,12 @@
 - **[ASP GitHub](https://github.com/NeoGeographyToolkit/StereoPipeline)** — source, releases, issues.
 - **[ASP support group](https://groups.google.com/g/ames-stereo-pipeline-support)** — best place to ask sensor-specific questions. 
 
+## Stereo concepts, explained elsewhere
+
+- **[CARS technical foundations](https://cars.readthedocs.io/en/stable/technical_foundations/index.html)** — CNES's illustrated walk from a stereo pair to a DSM. A good second telling of the story this guide's [concept pages](../concepts/pipeline-overview.md) tell.
+- **[PGC introduction to stereoscopic imagery](https://www.pgc.umn.edu/guides/stereo-derived-elevation-models/introduction-to-stereoscopic-imagery/)** — how in-track and cross-track stereo collection works, from the group behind ArcticDEM.
+- **[UP42 on DEMs, DSMs, and DTMs](https://up42.com/blog/everything-you-need-to-know-about-digital-elevation-models-dem-digital)** — the elevation-model vocabulary sorted out.
+
 ## Visualization and diagnostics
 
 - **[`asp-plot` documentation](https://asp-plot.readthedocs.io/en/latest/)** — full API reference + example notebooks for jitter correction, planetary missions, workflows that skip orthorectification, scene selection.

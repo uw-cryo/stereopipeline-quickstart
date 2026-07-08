@@ -1,12 +1,12 @@
 # What is the Ames Stereo Pipeline?
 
-The NASA Ames Stereo Pipeline (ASP) is open-source software that turns pairs (or sets) of overlapping satellite or planetary images into digital elevation models (DEMs).
+The NASA Ames Stereo Pipeline (ASP) is open-source software that turns pairs (or sets) of overlapping satellite or planetary images into digital elevation models ({term}`DEMs <DEM>`).
 
 ## A short history
 
 ![Timeline of ASP milestones from mid-1990s rover work to the current release](figures/asp-timeline.svg)
 
-ASP grew out of stereo vision work for NASA rovers in the mid-1990s at NASA Ames Research Center, was adapted to orbital cameras, and was open-sourced in 2009 with a planetary focus (Mars and Moon cameras such as HiRISE, CTX, MOC, and Apollo Metric). Earth support followed: WorldView in 2012 and ASTER in 2016, the two sensors this guide's tutorials use. Development continues at NASA Ames, with recent releases adding Community Sensor Model (CSM) cameras and jitter correction. The software paper is [Beyer et al. (2018)](https://doi.org/10.1029/2018EA000409); releases live on the [ASP GitHub](https://github.com/NeoGeographyToolkit/StereoPipeline/releases).
+ASP grew out of stereo vision work for NASA rovers in the mid-1990s at NASA Ames Research Center, was adapted to orbital cameras, and was open-sourced in 2009 with a planetary focus (Mars and Moon cameras such as HiRISE, CTX, MOC, and Apollo Metric). Earth support followed: WorldView in 2012 and ASTER in 2016, the two sensors this guide's tutorials use. Development continues at NASA Ames, with recent releases adding Community Sensor Model ({term}`CSM`) cameras and {term}`jitter` correction. The software paper is [Beyer et al. (2018)](https://doi.org/10.1029/2018EA000409); releases live on the [ASP GitHub](https://github.com/NeoGeographyToolkit/StereoPipeline/releases).
 
 ## A toolchain of modular executables
 
@@ -24,7 +24,7 @@ This guide runs everything as commands in notebooks: a browser Codespace has no 
 
 ## Why "stereo"?
 
-A single satellite image cannot recover height. A second image from a different viewpoint adds the missing information: the same feature lands at different pixel positions in the two images, and that offset (parallax) grows with the feature's height. Stereo matching finds the offset for every pixel; triangulation converts offsets into heights. The rest of the pipeline exists to make the matching easier and the heights more accurate.
+A single satellite image cannot recover height, for the same reason one eye judges depth poorly: depth comes from comparing two views. A second image from a different viewpoint adds the missing information: the same feature lands at different pixel positions in the two images, and that offset ({term}`parallax`) grows with the feature's height. Stereo matching finds the offset for every pixel; triangulation converts offsets into heights. The rest of the pipeline exists to make the matching easier and the heights more accurate.
 
 ![Two satellites view the same summit; it lands at different pixel positions in each image](figures/parallax.svg)
 
