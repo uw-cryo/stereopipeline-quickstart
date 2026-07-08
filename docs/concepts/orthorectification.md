@@ -12,7 +12,9 @@ Raw images of the same terrain from two viewpoints differ a lot: the satellite g
 
 ![Orthorectification shrinks the search range stereo matching must cover](figures/ortho-search-range.svg)
 
-<!-- FIGURE IDEA: overlay the actual disparity histograms from a raw vs orthorectified run of the same pair, showing the reduction in spread. -->
+Measured on the ASTER tutorial pair, run both ways: the disparity spread the correlator has to cover collapses from tens of pixels to about one.
+
+![Disparity histograms for the same ASTER pair, raw vs orthorectified](figures/aster-disparity-hist.png)
 
 After orthorectification, the residual disparity is dominated by error in the reference DEM (small) rather than satellite geometry (large).
 
@@ -21,8 +23,6 @@ After orthorectification, the residual disparity is dominated by error in the re
 Very flat terrain, missing reference DEMs, or quick first passes can use ASP's `--alignment-method affineepipolar` instead, which aligns the images with a single image-wide transformation rather than a per-pixel one. The ASTER tutorial's first pass runs this way.
 
 ## What reference DEM to use
-
-<!-- FIGURE IDEA: world map shaded by reference-DEM coverage and resolution: COP30 globally, 3DEP / ArcticDEM / REMA highlighted regions. -->
 
 | Reference | Coverage | Notes |
 |---|---|---|
@@ -41,9 +41,9 @@ When you have no good reference DEM, make your own: run a coarse first stereo pa
 
 ![Two-pass recipe: a coarse first DEM feeds orthorectification for a refined second pass](figures/two-pass-flow.svg)
 
-<!-- FIGURE IDEA: pair with hillshades of pass-1 vs pass-2 outputs from the actual ASTER tutorial run to show the quality gain. -->
+The [ASTER tutorial](../tutorials/01_aster_rainier.ipynb) runs this pattern with COP30 as the second-pass surface, producing a report for each pass so you can compare them. The hillshades below are the two passes over the Mount Rainier massif: the raw pass loses the snow-covered upper mountain and smears the valleys; the orthorectified pass recovers both.
 
-The [ASTER tutorial](../tutorials/01_aster_rainier.ipynb) runs this pattern with COP30 as the second-pass surface, producing a report for each pass so you can compare them.
+![Hillshades of the ASTER tutorial's pass-1 and pass-2 DEMs over Mount Rainier](figures/aster-two-pass-hillshade.png)
 
 ## Where to read more
 

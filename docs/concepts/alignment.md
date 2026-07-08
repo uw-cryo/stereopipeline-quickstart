@@ -14,15 +14,28 @@ The algorithm is iterative closest point (ICP): pair each point of your DEM with
 
 ## When it helps and when it doesn't
 
-<!-- FIGURE IDEA: two dh maps side by side — one dominated by a constant offset (pc_align fixes this) and one dominated by spatially-varying noise (pc_align cannot fix this). Caption: rigid bias vs localized errors. -->
+`pc_align` fixes what a rigid move can fix: near-uniform bias and small global tilt. It cannot fix localized blunders, matching noise, or non-rigid warp; those need attention upstream (better bundle adjustment, better stereo parameters, or better input imagery). The difference-to-reference maps below, both from tutorial runs, show the two cases:
 
-`pc_align` fixes what a rigid move can fix: near-uniform bias and small global tilt. It cannot fix localized blunders, matching noise, or non-rigid warp; those need attention upstream (better bundle adjustment, better stereo parameters, or better input imagery). If the difference map against the reference still shows structure after alignment, the problem is not alignment.
+![Difference maps: a near-uniform offset alignment can fix, and spatially varying error it cannot](figures/dh-rigid-vs-varying.png)
+
+If the difference map against the reference still shows structure after alignment, the problem is not alignment.
 
 ## Reading the alignment report
 
-<!-- FIGURE IDEA: example pc_align stdout snippet (Beg/End errors percentiles + translation vector) annotated with arrows pointing to the median, the translation magnitude, and what to do if the median doesn't drop. -->
+`pc_align` prints percentile breakdowns of the point-to-reference distances before and after alignment, plus the transformation it applied. From a run of the WorldView tutorial's DEM against its COP30 reference:
 
-`pc_align` prints percentile breakdowns of the point-to-reference distances before and after alignment, plus the transformation it applied. The headline metric is the drop in the median (50th percentile) distance. Also sanity-check the translation vector: it should be a plausible magnitude for your sensor. A median that barely drops, or a huge translation, means the DEM and reference disagree in a way ICP cannot reconcile; check the vertical datums and the overlap area first.
+```text
+Input:  error percentile of smallest errors (meters): 16%: 3.87315,  50%: 7.13745, 84%: 11.2421
+Output: error percentile of smallest errors (meters): 16%: 0.574244, 50%: 2.08287, 84%: 5.95369
+Translation vector (North-East-Down, meters): Vector3(2.1610355,3.4450347,7.0166972)
+Translation vector magnitude (meters): 8.1100172
+```
+
+Three things to read off:
+
+- The 50% lines are the headline metric: the median point-to-reference distance dropped from about 7 m to about 2 m.
+- The translation vector says where the DEM moved: here mostly down by 7 m, with a couple of meters horizontally. It should be a plausible magnitude for your sensor.
+- A median that barely drops, or a huge translation, means the DEM and reference disagree in a way ICP cannot reconcile; check the vertical datums and the overlap area first.
 
 ## Alignment inside `asp-plot`
 
