@@ -39,7 +39,7 @@ See [`docs/start/installation.md`](docs/start/installation.md) for details.
 
 ## Design decisions
 
-Why this repo is built the way it is lives in architecture decision records under [`architecture/`](architecture/README.md), one immutable record per consequential choice (Codespace floor, reference-DEM handling, tutorial structure, and so on). `AGENTS.md` is the companion current-state reference for contributors; the Architecture Decision Records (ADRs) hold the rationale behind the choices it describes.
+Why this repo is built the way it is lives in architecture decision records under [`architecture/`](architecture/README.md), one immutable record per consequential choice (Codespace floor, reference-DEM handling, tutorial structure, and so on). `AGENTS.md` is the lean onboarding reference for contributors and coding agents, `ARCHITECTURE.md` is the current-state codemap, and the Architecture Decision Records (ADRs) hold the rationale behind the choices both describe.
 
 ## Related
 
