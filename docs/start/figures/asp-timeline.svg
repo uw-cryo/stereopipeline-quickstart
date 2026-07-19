@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1030 204" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Timeline of ASP milestones from mid-1990s rover work to the current release">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1030 204" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Timeline of ASP milestones from mid-1990s rover work to ongoing development">
   <!-- figure surface -->
   <rect x="0.5" y="0.5" width="1029" height="203" rx="10" fill="#fcfcfb" stroke="#0b0b0b" stroke-opacity="0.1"/>
 
@@ -11,6 +11,20 @@
   <text x="88" y="87" text-anchor="middle" font-size="13.5" fill="#52514e">at NASA Ames</text>
   <line x1="88" y1="94" x2="88" y2="105" stroke="#c3c2b7" stroke-width="1.2"/>
   <circle cx="88" cy="110" r="4" fill="#2a78d6"/>
+
+  <!-- 1997 Mars Pathfinder (below) -->
+  <circle cx="144" cy="110" r="4" fill="#2a78d6"/>
+  <line x1="144" y1="115" x2="144" y2="126" stroke="#c3c2b7" stroke-width="1.2"/>
+  <text x="144" y="142" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">1997</text>
+  <text x="144" y="158" text-anchor="middle" font-size="13.5" fill="#52514e">first planetary use</text>
+  <text x="144" y="173" text-anchor="middle" font-size="13.5" fill="#52514e">(Mars Pathfinder)</text>
+
+  <!-- 2006 orbital cameras (above) -->
+  <text x="396" y="56" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">2006</text>
+  <text x="396" y="72" text-anchor="middle" font-size="13.5" fill="#52514e">adapted to</text>
+  <text x="396" y="87" text-anchor="middle" font-size="13.5" fill="#52514e">orbital cameras</text>
+  <line x1="396" y1="94" x2="396" y2="105" stroke="#c3c2b7" stroke-width="1.2"/>
+  <circle cx="396" cy="110" r="4" fill="#2a78d6"/>
 
   <!-- 2009 v1.0 (below) -->
   <circle cx="483" cy="110" r="4" fill="#2a78d6"/>
@@ -54,5 +68,6 @@
   <circle cx="955" cy="110" r="4" fill="#2a78d6"/>
   <line x1="955" y1="115" x2="955" y2="126" stroke="#c3c2b7" stroke-width="1.2"/>
   <text x="955" y="142" text-anchor="middle" font-size="15" font-weight="600" fill="#0b0b0b">2026 &#183; v3.7</text>
-  <text x="955" y="158" text-anchor="middle" font-size="13.5" fill="#52514e">current release</text>
+  <text x="955" y="158" text-anchor="middle" font-size="13.5" fill="#52514e">release, and</text>
+  <text x="955" y="173" text-anchor="middle" font-size="13.5" fill="#52514e">ongoing development</text>
 </svg>

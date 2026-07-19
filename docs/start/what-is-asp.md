@@ -4,9 +4,9 @@ The NASA Ames Stereo Pipeline (ASP) is open-source software that turns pairs (or
 
 ## A short history
 
-![Timeline of ASP milestones from mid-1990s rover work to the current release](figures/asp-timeline.svg)
+![Timeline of ASP milestones from mid-1990s rover work to ongoing development](figures/asp-timeline.svg)
 
-ASP grew out of stereo vision work for NASA rovers in the mid-1990s at NASA Ames Research Center, was adapted to orbital cameras, and was open-sourced in 2009 with a planetary focus (Mars and Moon cameras such as HiRISE, CTX, MOC, and Apollo Metric). Earth support followed: WorldView in 2012 and ASTER in 2016, the two sensors this guide's tutorials use. Development continues at NASA Ames, with recent releases adding Community Sensor Model ({term}`CSM`) cameras and {term}`jitter` correction. The software paper is [Beyer et al. (2018)](https://doi.org/10.1029/2018EA000409); releases live on the [ASP GitHub](https://github.com/NeoGeographyToolkit/StereoPipeline/releases).
+ASP has been developed at NASA Ames Research Center since the mid-1990s, beginning as stereo vision support for cameras on test rovers. Its first planetary use was the Mars Pathfinder lander's camera in 1997; in 2006 it was adapted to orbital cameras, and in 2009 it was open-sourced as version 1.0 with a planetary focus (Mars and Moon cameras such as HiRISE, CTX, MOC, and Apollo Metric). Earth support followed: WorldView in 2012 and ASTER in 2016, the two sensors this guide's tutorials use. Development continues at NASA Ames, with recent releases adding Community Sensor Model ({term}`CSM`) cameras and {term}`jitter` correction. The software paper is [Beyer et al. (2018)](https://doi.org/10.1029/2018EA000409); releases live on the [ASP GitHub](https://github.com/NeoGeographyToolkit/StereoPipeline/releases).
 
 ## A toolchain of modular executables
 
