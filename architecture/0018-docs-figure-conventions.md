@@ -1,8 +1,8 @@
-# 17. Docs figures: hand-authored SVGs on an opaque light surface; data figures from real runs
+# 18. Docs figures: hand-authored SVGs on an opaque light surface; data figures from real runs
 
 - **Date:** 2026-07-07
 - **Status:** Accepted
-- **Context doc:** `AGENTS.md` § Docs prose is a placeholder skeleton; PR #16
+- **Context doc:** `ARCHITECTURE.md` § Docs content state; PR #16
 
 ## Context
 Fleshing out the concept pages (issue #6) required two kinds of figures: conceptual diagrams (pipeline flows, stereo geometry cartoons, ICP before/after) and data-backed plots (bundle-adjust residuals, stereo-geometry skyplots). The site theme (`sphinx-book-theme`) has a light/dark toggle that stamps `data-theme` on the page root, but figures embed as `<img>`, so neither page CSS nor the toggle can restyle their contents; a `prefers-color-scheme` rule inside an SVG follows the OS setting, not the in-page toggle. Diagrams therefore need to be legible on both themes as-is. For the data plots, the guide teaches `asp_plot` as the visualization layer, so mocked or hand-drawn "data" would undercut the material.

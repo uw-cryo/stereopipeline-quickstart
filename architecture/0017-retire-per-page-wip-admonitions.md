@@ -1,8 +1,8 @@
-# 16. Per-page WIP admonitions retired; FIGURE IDEA comments are the per-page WIP marker
+# 17. Per-page WIP admonitions retired; FIGURE IDEA comments are the per-page WIP marker
 
 - **Date:** 2026-07-07
 - **Status:** Accepted; amends [ADR-0004](0004-docs-wip-skeleton.md)
-- **Context doc:** `AGENTS.md` § Docs prose is a placeholder skeleton; PR #16
+- **Context doc:** `ARCHITECTURE.md` § Docs content state; PR #16
 
 ## Context
 ADR-0004 shipped the concept/intro pages as a WIP skeleton with three signals: a site-wide banner, a per-page "Placeholder content. Being rewritten with figures." admonition, and `<!-- FIGURE IDEA: ... -->` comments. PR #16 (issue #6) fleshed out every skeleton page with full prose and figures, leaving only a handful of figures that need complete processing runs to produce. The per-page admonitions were now inaccurate: the pages are no longer placeholders, and a banner-plus-admonition on every page overstated how unfinished the site is.

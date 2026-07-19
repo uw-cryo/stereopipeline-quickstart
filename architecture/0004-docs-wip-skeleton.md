@@ -1,7 +1,7 @@
 # 4. Docs prose ships as a WIP skeleton; content lands via per-concept PRs
 
 - **Date:** 2026-05-07
-- **Status:** Accepted; amended by [ADR-0016](0016-retire-per-page-wip-admonitions.md) (per-page admonitions retired once the pages were authored)
+- **Status:** Accepted; amended by [ADR-0017](0017-retire-per-page-wip-admonitions.md) (per-page admonitions retired once the pages were authored)
 - **Context doc:** `AGENTS.md` § Docs prose is a placeholder skeleton; commit 9cde15e
 
 ## Context

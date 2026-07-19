@@ -22,3 +22,6 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0014 — Automated ASP-version tracking via PR-based bumps, not auto-merge](0014-asp-version-tracking.md)
 - [0015 — Contributor docs as AGENTS.md + ADRs; retire CLAUDE.md and the CHANGELOG](0015-agents-md-and-adrs.md)
 - [0016 — Move the codemap to ARCHITECTURE.md; slim AGENTS.md](0016-architecture-md-codemap.md) — *amends 0015*
+- [0017 — Per-page WIP admonitions retired; FIGURE IDEA comments are the per-page WIP marker](0017-retire-per-page-wip-admonitions.md) — *amends 0004*
+- [0018 — Docs figures: hand-authored SVGs on an opaque light surface; data figures from real runs](0018-docs-figure-conventions.md)
+- [0019 — Glossary term links with hover previews via sphinx-tippy](0019-glossary-term-hover-previews.md)

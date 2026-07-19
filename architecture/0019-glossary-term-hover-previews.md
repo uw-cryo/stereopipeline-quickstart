@@ -1,4 +1,4 @@
-# 18. Glossary term links with hover previews via sphinx-tippy
+# 19. Glossary term links with hover previews via sphinx-tippy
 
 - **Date:** 2026-07-08
 - **Status:** Accepted
