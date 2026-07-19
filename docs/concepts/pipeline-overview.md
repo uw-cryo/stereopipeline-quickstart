@@ -16,7 +16,7 @@ Vendor-specific tools (`aster2asp`, `wv_correct`, `cam2map`, `dg_mosaic`) conver
 
 ## Stage 2: Bundle adjustment
 
-`bundle_adjust` refines the vendor camera models by minimizing reprojection errors of features matched between the input images. See [Bundle adjustment](bundle-adjustment.md).
+`bundle_adjust` refines the vendor {term}`camera models <camera model>` by minimizing reprojection errors of features matched between the input images. See [Bundle adjustment](bundle-adjustment.md).
 
 ## Stage 3: Orthorectification
 

@@ -1,6 +1,6 @@
 # Bundle adjustment
 
-The vendor's camera models are slightly inaccurate; bundle adjustment refines them by minimizing {term}`reprojection errors <reprojection error>` of features matched between the input images.
+The vendor's {term}`camera models <camera model>` are slightly inaccurate; bundle adjustment refines them by minimizing {term}`reprojection errors <reprojection error>` of features matched between the input images.
 
 ## What the optimizer does
 

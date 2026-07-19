@@ -19,6 +19,9 @@ base-to-height ratio (B/H)
 bundle adjustment
   Joint optimization of camera parameters and 3D tie-point positions to minimize reprojection error. ASP tool: `bundle_adjust`. See [Bundle adjustment](../concepts/bundle-adjustment.md).
 
+camera model
+  The mapping between image pixels and ground coordinates: where the sensor was, how it was oriented, and how its optics project the scene onto the detector. Supplied with the imagery (as RPC or a rigorous sensor model) and refined by bundle adjustment. See [Stereo photogrammetry](../concepts/stereo-photogrammetry.md).
+
 CCD artifact
   Sub-pixel discontinuity at the boundary between adjacent CCD chips on push-broom sensors. WorldView-1 and -2 exhibit this; corrected by `wv_correct`. WorldView-3 does not.
 
@@ -29,7 +32,7 @@ Copernicus DEM (COP30)
   Globally-available 30 m DEM, openly distributed on [AWS Open Data](https://registry.opendata.aws/copernicus-dem/). Default reference DEM for Earth tutorials.
 
 CSM
-  Community Sensor Model. A pluggable camera-model standard ASP can use as an alternative to RPC for some sensors. Used in jitter-correction workflows.
+  Community Sensor Model. A standard interface for rigorous sensor models; ASP ships the open USGS implementation (usgscsm). CSM state files expose the sensor's trajectory and orientation over time, which is what lets `jitter_solve` correct jitter. See [Stereo photogrammetry](../concepts/stereo-photogrammetry.md).
 
 disparity map
   Per-pixel (x, y) shift between matched pixels in a stereo pair. ASP file: `*-F.tif`.
@@ -110,7 +113,7 @@ residual
   Per-tie-point reprojection error. `asp_plot.bundle_adjust` plots these before and after bundle adjustment.
 
 RPC
-  Rational Polynomial Coefficients. Compact parametric camera model used by most commercial Earth-observation satellites.
+  Rational Polynomial Coefficients. A camera model that replaces the vendor's rigorous sensor model with fitted ratios of polynomials mapping longitude, latitude, and height to pixels. Compact and sensor-agnostic, and it keeps the physical camera details private; standard for commercial Earth-observation imagery. See [Stereo photogrammetry](../concepts/stereo-photogrammetry.md).
 
 SfM
   Structure from Motion. The general algorithmic family that bundle adjustment + stereo belongs to.
@@ -134,6 +137,6 @@ tie point
   A single 3D ground point observed (and matched) in two or more images. Bundle adjustment optimizes camera parameters using tie-point reprojection errors.
 
 WorldView
-  DigitalGlobe / Vantor high-resolution Earth-observation satellite series (WV1, WV2, WV3, WV4). All push-broom; all use RPC camera models.
+  DigitalGlobe / Vantor high-resolution Earth-observation satellite series (WV1, WV2, WV3, WV4). All push-broom; the vendor XML carries both an exact linescan camera model and an RPC fit.
 
 ```
