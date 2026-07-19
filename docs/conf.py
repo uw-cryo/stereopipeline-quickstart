@@ -25,7 +25,10 @@ extensions = [
 
 # Hover previews for {term} glossary references (sphinx-tippy). Tip content is
 # generated statically at build time. The skip regex limits tips to glossary
-# term links, so other internal links stay plain.
+# term links, so other internal links stay plain. tippy.js and popper are
+# vendored in _static/js (tippy 6.3.7, popper 2.11.8) instead of the
+# extension's unpkg CDN default, so tooltips work offline and behind blockers.
+tippy_js = ("js/popper.min.js", "js/tippy-bundle.umd.min.js")
 tippy_skip_urls = [r"^(?!.*glossary\.html#term-).*"]
 tippy_enable_wikitips = False
 tippy_enable_doitips = False
