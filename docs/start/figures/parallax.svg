@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 396" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Two satellites viewing the same summit from different angles; the summit lands at different pixel positions in each image">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 502" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Two satellites viewing the same summit from different angles; the summit lands at different pixel positions in each image, and overlaying the two images shows the shift between them, the parallax">
   <!-- figure surface -->
-  <rect x="0.5" y="0.5" width="759" height="395" rx="10" fill="#fcfcfb" stroke="#0b0b0b" stroke-opacity="0.1"/>
+  <rect x="0.5" y="0.5" width="759" height="501" rx="10" fill="#fcfcfb" stroke="#0b0b0b" stroke-opacity="0.1"/>
 
   <!-- rays to summit (behind satellites and mountain) -->
   <line x1="170" y1="72" x2="380" y2="150" stroke="#2a78d6" stroke-width="1.8"/>
@@ -33,21 +33,41 @@
   <!-- height reference -->
   <line x1="380" y1="150" x2="380" y2="280" stroke="#898781" stroke-width="1.2" stroke-dasharray="4 4"/>
   <text x="368" y="222" text-anchor="end" font-size="12" fill="#52514e">height</text>
+  <circle cx="380" cy="280" r="3.5" fill="#898781"/>
+  <text x="380" y="298" text-anchor="middle" font-size="12" fill="#52514e">base</text>
 
-  <!-- image strips -->
+  <!-- image strips: where base and summit land in each 1D image -->
   <g>
     <rect x="120" y="318" width="200" height="40" rx="6" fill="#fcfcfb" stroke="#898781"/>
-    <line x1="220" y1="322" x2="220" y2="354" stroke="#c3c2b7" stroke-width="1.5"/>
+    <line x1="220" y1="322" x2="220" y2="354" stroke="#898781" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <text x="216" y="332" text-anchor="end" font-size="10.5" fill="#898781">base</text>
     <line x1="262" y1="322" x2="262" y2="354" stroke="#2a78d6" stroke-width="2.5"/>
-    <line x1="224" y1="338" x2="256" y2="338" stroke="#52514e" stroke-width="1.2" marker-end="url(#tick-arrow)"/>
-    <text x="220" y="376" text-anchor="middle" font-size="11" fill="#898781">image from view 1</text>
+    <text x="266" y="332" text-anchor="start" font-size="10.5" fill="#2a78d6">summit</text>
+    <line x1="224" y1="344" x2="256" y2="344" stroke="#52514e" stroke-width="1.2" marker-end="url(#tick-arrow)"/>
+    <text x="220" y="376" text-anchor="middle" font-size="11" fill="#898781">top-down image view from 1</text>
   </g>
   <g>
     <rect x="440" y="318" width="200" height="40" rx="6" fill="#fcfcfb" stroke="#898781"/>
-    <line x1="540" y1="322" x2="540" y2="354" stroke="#c3c2b7" stroke-width="1.5"/>
+    <line x1="540" y1="322" x2="540" y2="354" stroke="#898781" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <text x="544" y="332" text-anchor="start" font-size="10.5" fill="#898781">base</text>
     <line x1="498" y1="322" x2="498" y2="354" stroke="#2a78d6" stroke-width="2.5"/>
-    <line x1="536" y1="338" x2="504" y2="338" stroke="#52514e" stroke-width="1.2" marker-end="url(#tick-arrow)"/>
-    <text x="540" y="376" text-anchor="middle" font-size="11" fill="#898781">image from view 2</text>
+    <text x="494" y="332" text-anchor="end" font-size="10.5" fill="#2a78d6">summit</text>
+    <line x1="536" y1="344" x2="504" y2="344" stroke="#52514e" stroke-width="1.2" marker-end="url(#tick-arrow)"/>
+    <text x="540" y="376" text-anchor="middle" font-size="11" fill="#898781">top-down image view from 2</text>
+  </g>
+
+  <!-- overlay strip: the between-image shift is the parallax -->
+  <g>
+    <rect x="240" y="402" width="280" height="40" rx="6" fill="#fcfcfb" stroke="#898781"/>
+    <line x1="380" y1="406" x2="380" y2="438" stroke="#898781" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <text x="384" y="416" text-anchor="start" font-size="10.5" fill="#898781">base</text>
+    <line x1="338" y1="406" x2="338" y2="438" stroke="#2a78d6" stroke-width="2.5"/>
+    <text x="334" y="416" text-anchor="end" font-size="10.5" fill="#2a78d6">summit in 2</text>
+    <line x1="422" y1="406" x2="422" y2="438" stroke="#2a78d6" stroke-width="2.5"/>
+    <text x="426" y="416" text-anchor="start" font-size="10.5" fill="#2a78d6">summit in 1</text>
+    <line x1="343" y1="430" x2="417" y2="430" stroke="#52514e" stroke-width="1.2" marker-start="url(#tick-arrow)" marker-end="url(#tick-arrow)"/>
+    <text x="380" y="464" text-anchor="middle" font-size="12" font-weight="600" fill="#0b0b0b">parallax</text>
+    <text x="380" y="482" text-anchor="middle" font-size="11" fill="#898781">both images overlaid: the summit shift grows with height</text>
   </g>
   <defs>
     <marker id="tick-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">

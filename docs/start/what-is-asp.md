@@ -26,7 +26,7 @@ This guide runs everything as commands in notebooks: a browser Codespace has no 
 
 A single satellite image cannot recover height, for the same reason one eye judges depth poorly: depth comes from comparing two views. A second image from a different viewpoint adds the missing information: the same feature lands at different pixel positions in the two images, and that offset ({term}`parallax`) grows with the feature's height. Stereo matching finds the offset for every pixel; triangulation converts offsets into heights. The rest of the pipeline exists to make the matching easier and the heights more accurate.
 
-![Two satellites view the same summit; it lands at different pixel positions in each image](figures/parallax.svg)
+![Two satellites view the same summit; it lands at different pixel positions in each image, and the shift between the overlaid images is the parallax](figures/parallax.svg)
 
 See [Stereo photogrammetry](../concepts/stereo-photogrammetry.md) for how matching and triangulation work.
 
