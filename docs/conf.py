@@ -60,9 +60,9 @@ html_theme = "sphinx_book_theme"
 html_title = "stereopipeline-quickstart"
 html_theme_options = {
     "announcement": (
-        "⚠️ Work in progress. Codespace notebooks are functional. "
-        '<a href="https://github.com/uw-cryo/stereopipeline-quickstart/issues" '
-        'target="_blank" rel="noopener noreferrer">Please report issues!</a>'
+        "In development, but ready for usage. Please report issues "
+        '<a href="https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml" '
+        'target="_blank" rel="noopener noreferrer">here</a>.'
     ),
     "repository_url": "https://github.com/uw-cryo/stereopipeline-quickstart",
     "use_repository_button": True,

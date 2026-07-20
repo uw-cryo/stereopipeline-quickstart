@@ -1,7 +1,7 @@
 # 17. Per-page WIP admonitions retired; FIGURE IDEA comments are the per-page WIP marker
 
 - **Date:** 2026-07-07
-- **Status:** Accepted; amends [ADR-0004](0004-docs-wip-skeleton.md)
+- **Status:** Accepted; amends [ADR-0004](0004-docs-wip-skeleton.md); amended by [ADR-0020](0020-soften-banner-issue-form.md) (banner wording softened at merge)
 - **Context doc:** `ARCHITECTURE.md` § Docs content state; PR #16
 
 ## Context

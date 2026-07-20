@@ -55,3 +55,5 @@ The WorldView tutorial then adds cropping and a finer resolution, higher accurac
 ## Beyond the tutorials
 
 The [`asp-plot` example notebooks](https://asp-plot.readthedocs.io/en/latest/examples/index.html) cover jitter correction, planetary missions (LRO NAC, Mars MOC NA, CTX), variants that skip orthorectification, and scene selection.
+
+If a notebook fails or a step is unclear, [open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml).
