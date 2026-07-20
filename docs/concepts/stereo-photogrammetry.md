@@ -4,7 +4,7 @@ Two views of the same patch of ground from different angles produce {term}`paral
 
 ## What ASP actually computes
 
-For every pixel in the left image, `parallel_stereo` searches the right image for the best-matching pixel. The result is a {term}`disparity map`: a per-pixel shift between the two images. Triangulation then combines each matched pair with the {term}`camera models <camera model>`: the two viewing rays are intersected in space, and the intersection is a 3D ground point.
+For every pixel in the left image, `parallel_stereo` searches the right image for the best-matching pixel. The result is a {term}`disparity map`: a per-pixel shift between the two images. ASP computes it in stages, writing each to disk: an initial whole-pixel disparity (`run-D.tif`), a subpixel refinement (`run-RD.tif`), and a filtered final version (`run-F.tif`). Triangulation then combines each matched pair with the {term}`camera models <camera model>`: the two viewing rays are intersected in space, and the intersection is a 3D ground point.
 
 ![Rays from matched pixels in two images intersect at the triangulated ground point](figures/stereo-triangulation.svg)
 

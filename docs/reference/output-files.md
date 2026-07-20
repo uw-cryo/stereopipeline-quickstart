@@ -1,6 +1,6 @@
 # ASP output files
 
-What key files in an ASP run directory means. Most are named with a `RUN_PREFIX-` followed by a fixed suffix. This is not every file, just those we are most interested in.
+What the key files in an ASP run directory mean. Most are named with a `RUN_PREFIX-` followed by a fixed suffix. This is not every file, just those we are most interested in; the [ASP output files docs](https://stereopipeline.readthedocs.io/en/latest/outputfiles.html) describe everything.
 
 ## After `bundle_adjust -o ba/run`
 
@@ -22,15 +22,17 @@ What key files in an ASP run directory means. Most are named with a `RUN_PREFIX-
 
 | File | Contents |
 |---|---|
-| `stereo/run-PC.tif` | Point cloud (4-band: x, y, z, intersection error) |
-| `stereo/run-F.tif` | Final disparity map (after subpixel refinement) |
-| `stereo/run-D.tif` | Integer disparity (preprocessing step output) |
-| `stereo/run-RD.tif` | Subpixel-refined disparity |
 | `stereo/run-L.tif`, `run-R.tif` | Preprocessed left/right images |
 | `stereo/run-lMask.tif`, `run-rMask.tif` | Per-image masks |
-| `stereo/run-GoodPixelMap.tif` | Where matching succeeded (1) vs failed (0) |
+| `stereo/run-D.tif` | Initial disparity from correlation, in whole-pixel shifts |
+| `stereo/run-RD.tif` | Disparity after subpixel refinement |
+| `stereo/run-F.tif` | Final disparity after outlier filtering; the input to triangulation |
+| `stereo/run-GoodPixelMap.tif` | Gray where the correlator matched, red where it failed |
+| `stereo/run-PC.tif` | Point cloud (4 bands: x, y, z as offsets from a local origin, and ray intersection error) |
 | `stereo/run-stereo.default` | Snapshot of stereo parameters used |
 | `stereo/log-stereo-*.txt` | Per-stage log files |
+
+`run-D.tif`, `run-RD.tif`, and `run-F.tif` are successive versions of the same disparity map, all in one format: three bands holding the horizontal shift, the vertical shift, and a good-pixel mask. A run leaves further intermediates in the same format, such as `run-D_sub.tif` (the low-resolution disparity that seeds `run-D.tif`) and `run-B.tif` (`run-D.tif` blended across processing tiles).
 
 ## After `point2dem`
 

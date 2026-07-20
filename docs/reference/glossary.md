@@ -35,7 +35,7 @@ CSM
   Community Sensor Model. A standard interface for rigorous sensor models; ASP ships the open USGS implementation (usgscsm). CSM state files expose the sensor's trajectory and orientation over time, which is what lets `jitter_solve` correct jitter. See [Stereo photogrammetry](../concepts/stereo-photogrammetry.md).
 
 disparity map
-  Per-pixel (x, y) shift between matched pixels in a stereo pair. ASP file: `*-F.tif`.
+  Per-pixel (x, y) shift between matched pixels in a stereo pair. ASP writes it in stages: `*-D.tif` (initial), `*-RD.tif` (subpixel-refined), and `*-F.tif` (filtered, final — the input to triangulation).
 
 DEM
   Digital Elevation Model. A regular grid of heights — the final product of an ASP run. ASP file: `*-DEM.tif`. The umbrella term covering both DSM and DTM.
