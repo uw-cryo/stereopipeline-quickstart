@@ -19,8 +19,20 @@ extensions = [
     "myst_nb",
     "sphinx_design",
     "sphinx_copybutton",
+    "sphinx_tippy",
     "sphinx.ext.intersphinx",
 ]
+
+# Hover previews for {term} glossary references (sphinx-tippy). Tip content is
+# generated statically at build time. The skip regex limits tips to glossary
+# term links, so other internal links stay plain. tippy.js and popper are
+# vendored in _static/js (tippy 6.3.7, popper 2.11.8) instead of the
+# extension's unpkg CDN default, so tooltips work offline and behind blockers.
+tippy_js = ("js/popper.min.js", "js/tippy-bundle.umd.min.js")
+tippy_skip_urls = [r"^(?!.*glossary\.html#term-).*"]
+tippy_enable_wikitips = False
+tippy_enable_doitips = False
+tippy_anchor_parent_selector = "article.bd-article"
 
 source_suffix = {
     ".md": "myst-nb",
@@ -48,8 +60,9 @@ html_theme = "sphinx_book_theme"
 html_title = "stereopipeline-quickstart"
 html_theme_options = {
     "announcement": (
-        "⚠️ Work in progress — content is being rewritten. "
-        "Codespace notebooks are functional."
+        "In development, but ready for usage. Please report issues "
+        '<a href="https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml" '
+        'target="_blank" rel="noopener noreferrer">here</a>.'
     ),
     "repository_url": "https://github.com/uw-cryo/stereopipeline-quickstart",
     "use_repository_button": True,
@@ -66,6 +79,7 @@ html_theme_options = {
 
 html_static_path = ["_static"]
 html_css_files = ["css/custom.css"]
+html_js_files = ["js/external-links.js"]
 
 # -- Cross-references --------------------------------------------------------
 intersphinx_mapping = {

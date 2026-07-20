@@ -1,29 +1,34 @@
 # What is the Ames Stereo Pipeline?
 
-```{admonition} Work in progress
-:class: warning
-Placeholder content. Being rewritten with figures.
-```
-
-The NASA Ames Stereo Pipeline (ASP) is open-source software that turns pairs (or sets) of overlapping satellite or planetary images into digital elevation models (DEMs).
+The NASA Ames Stereo Pipeline (ASP) is open-source software that turns pairs (or sets) of overlapping satellite or planetary images into digital elevation models ({term}`DEMs <DEM>`).
 
 ## A short history
 
-<!-- FIGURE IDEA: timeline graphic — ASP releases vs major sensor-support milestones (HiRISE, MOC, WorldView, ASTER, CSM/jitter). Could be a horizontal timeline with sensor icons. -->
+![Timeline of ASP milestones from mid-1990s rover work to ongoing development](figures/asp-timeline.svg)
 
-ASP began at NASA Ames in the late 2000s for planetary stereo (Mars, Moon) and grew to support Earth-observation sensors; it remains actively developed at NASA Ames Research Center.
+ASP has been developed at NASA Ames Research Center since the mid-1990s, beginning as stereo vision support for cameras on test rovers. Its first planetary use was the Mars Pathfinder lander's camera in 1997; in 2006 it was adapted to orbital cameras, and in 2009 it was open-sourced as version 1.0 with a planetary focus (Mars and Moon cameras such as HiRISE, CTX, MOC, and Apollo Metric). Earth support followed: WorldView in 2012 and ASTER in 2016, the two sensors this guide's tutorials use. Development continues at NASA Ames, with recent releases adding Community Sensor Model ({term}`CSM`) cameras and {term}`jitter` correction. The software paper is [Beyer et al. (2018)](https://doi.org/10.1029/2018EA000409); releases live on the [ASP GitHub](https://github.com/NeoGeographyToolkit/StereoPipeline/releases).
 
 ## A toolchain of modular executables
 
-<!-- FIGURE IDEA: block diagram of the ASP binaries with arrows showing data flow (raw imagery → aster2asp/wv_correct → bundle_adjust → mapproject → parallel_stereo → point2dem → pc_align → DEM). Each block labeled with the CLI tool name; arrows annotated with the file types passed between. -->
+ASP is not one program. A release ships roughly 80 single-purpose command-line tools that read and write ordinary files: GeoTIFF images, camera-model XML, CSV point lists. Each tool does one job and its output feeds the next, so a full workflow is a short sequence of commands. The diagram shows the seven tools these tutorials use; the [ASP tools chapter](https://stereopipeline.readthedocs.io/en/latest/tools.html) lists the rest.
 
-ASP is not one program but dozens of single-purpose command-line binaries (`bundle_adjust`, `mapproject`, `parallel_stereo`, `point2dem`, `pc_align`, ...) that pipe outputs into each other. This UNIX-style modularity is powerful but means the workflow is expressed as a sequence of CLI invocations.
+![The ASP toolchain from raw vendor data to an aligned DEM](figures/asp-toolchain.svg)
+
+Every intermediate product lands on disk, so you can inspect each step's output and re-run any single step without redoing the others.
+
+## Command line or GUI?
+
+ASP is driven from the terminal; the one graphical tool is [`stereo_gui`](https://stereopipeline.readthedocs.io/en/latest/tools/stereo_gui.html), an image viewer and front-end to `parallel_stereo`. It can display large images, interest-point matches, and disparities, and can test-run stereo on a small selected clip before you commit to a full scene (it prints the equivalent command when you do).
+
+This guide runs everything as commands in notebooks: a browser Codespace has no desktop to show a GUI window, and the command sequence is the thing worth learning, since it is what you will script when you move to your own data. The inspection role is covered by `asp-plot` figures inline in the notebooks.
 
 ## Why "stereo"?
 
-<!-- FIGURE IDEA: classic two-camera parallax diagram — a tall feature (mountain or building) seen from two satellite positions, with rays from each camera converging on the feature. Pixel positions on each sensor offset by an amount proportional to height. Caption emphasizes "parallax encodes height". -->
+A single satellite image cannot recover height, for the same reason one eye judges depth poorly: depth comes from comparing two views. A second image from a different viewpoint adds the missing information: the same feature lands at different pixel positions in the two images, and that offset ({term}`parallax`) grows with the feature's height. Stereo matching finds the offset for every pixel; triangulation converts offsets into heights. The rest of the pipeline exists to make the matching easier and the heights more accurate.
 
-A single satellite image cannot recover height; two images of the same ground from different angles produce parallax, which encodes height.
+![Two satellites view the same summit; it lands at different pixel positions in each image, and the shift between the overlaid images is the parallax](figures/parallax.svg)
+
+See [Stereo photogrammetry](../concepts/stereo-photogrammetry.md) for how matching and triangulation work.
 
 ## Where `asp-plot` fits
 

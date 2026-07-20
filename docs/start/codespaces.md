@@ -42,6 +42,8 @@ Open one of the notebooks under `notebooks/`:
 
 Each notebook has a "Run All" button at the top. Cells are small enough to run them step by step.
 
+If a cell fails, [open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml) with the error output.
+
 ## Persistence and storage
 
 - Files in your Codespace persist between sessions as long as the Codespace exists.

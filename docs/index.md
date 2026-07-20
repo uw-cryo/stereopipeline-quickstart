@@ -42,7 +42,7 @@ Two walkthroughs: ASTER (medium-res) and WorldView-3 (high-res). Both fully open
 :::{grid-item-card} Need to look something up?
 :link: reference/glossary
 :link-type: doc
-Glossary, ASP output-file naming, parameter cheat sheet, links to the canonical ASP docs.
+Glossary, ASP output-file naming, the local install guide, and further reading.
 :::
 
 :::{grid-item-card} Want pretty plots from your run?
@@ -61,6 +61,10 @@ The same WorldView-3 pair run through three open-source stereo pipelines, side b
 ## What this is not
 
 A replacement for the [official ASP documentation](https://stereopipeline.readthedocs.io/). ASP has hundreds of options for dozens of sensors. This guide covers the path of least resistance: two openly-available datasets, a small set of parameters, and explanations of why each step exists. The official docs are the authoritative reference.
+
+## Reporting problems
+
+The point of contact for this guide is the repo's [issue board](https://github.com/uw-cryo/stereopipeline-quickstart/issues). For anything broken, wrong, or unclear, [open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml); the form asks for the few details needed to follow up. Questions about ASP itself belong on the [ASP support forum](https://groups.google.com/g/ames-stereo-pipeline-support).
 
 ## Contents
 

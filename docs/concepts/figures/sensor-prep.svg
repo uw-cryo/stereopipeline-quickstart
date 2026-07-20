@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 250" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Per-sensor tools convert raw vendor formats into the image plus camera model pair ASP expects">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#898781"/>
+    </marker>
+  </defs>
+
+  <!-- figure surface -->
+  <rect x="0.5" y="0.5" width="799" height="249" rx="10" fill="#fcfcfb" stroke="#0b0b0b" stroke-opacity="0.1"/>
+
+  <!-- vendor chips -->
+  <rect x="40" y="40" width="200" height="40" rx="8" fill="#f0efec" stroke="#c3c2b7"/>
+  <text x="140" y="64" text-anchor="middle" font-size="12.5" fill="#0b0b0b">ASTER L1A HDF</text>
+
+  <rect x="40" y="105" width="200" height="40" rx="8" fill="#f0efec" stroke="#c3c2b7"/>
+  <text x="140" y="129" text-anchor="middle" font-size="12.5" fill="#0b0b0b">WorldView NTF + XML</text>
+
+  <rect x="40" y="170" width="200" height="40" rx="8" fill="#f0efec" stroke="#c3c2b7"/>
+  <text x="140" y="194" text-anchor="middle" font-size="12.5" fill="#0b0b0b">ISIS cube (planetary)</text>
+
+  <!-- per-sensor tools -->
+  <line x1="240" y1="60" x2="306" y2="60" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="310" y="40" width="140" height="40" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="380" y="64" text-anchor="middle" font-size="12.5" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">aster2asp</text>
+
+  <line x1="240" y1="125" x2="306" y2="125" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="310" y="105" width="140" height="40" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="380" y="129" text-anchor="middle" font-size="12.5" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">wv_correct</text>
+
+  <line x1="240" y1="190" x2="306" y2="190" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="310" y="170" width="140" height="40" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="380" y="194" text-anchor="middle" font-size="12.5" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">cam2map</text>
+
+  <!-- converge -->
+  <path d="M 450 60 L 500 60 L 530 118" fill="none" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="450" y1="125" x2="536" y2="125" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M 450 190 L 500 190 L 530 132" fill="none" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- canonical pair -->
+  <rect x="540" y="99" width="220" height="52" rx="8" fill="#f0efec" stroke="#c3c2b7"/>
+  <text x="650" y="121" text-anchor="middle" font-size="13" fill="#0b0b0b">image + camera model</text>
+  <text x="650" y="139" text-anchor="middle" font-size="11" fill="#898781">what every later stage expects</text>
+</svg>

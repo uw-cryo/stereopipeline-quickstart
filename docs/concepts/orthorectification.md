@@ -1,10 +1,5 @@
 # Orthorectification
 
-```{admonition} Work in progress
-:class: warning
-Placeholder content. Being rewritten with figures.
-```
-
 ```{note}
 ASP calls this step "mapprojection" in its toolchain (the binary is `mapproject`, the bundle-adjust flag is `--mapproj-dem`). This guide uses "orthorectification" — the more standard photogrammetry term — for the concept while keeping ASP's tool names verbatim.
 ```
@@ -13,25 +8,42 @@ Resampling each input image onto a reference DEM grid before stereo turns a wide
 
 ## The intuition
 
-<!-- FIGURE IDEA: two-panel disparity-range diagram. Left: raw stereo, large search box per pixel. Right: post-orthorectification, tiny search box per pixel. Overlay the actual disparity histogram from the WV3 tutorial showing the dramatic reduction in spread. -->
+Raw images of the same terrain from two viewpoints differ a lot: the satellite geometry shifts every pixel, and relief shifts them further. To find a pixel's match, the correlator has to search a wide range, which is slow and error-prone. Orthorectifying both images onto the same reference DEM removes most of that geometric difference up front, so the correlator only searches a small range around each pixel.
 
-After orthorectification, residual disparity is dominated by error in the reference DEM (small) rather than satellite geometry (large), making stereo matching far easier.
+![Orthorectification shrinks the search range stereo matching must cover](figures/ortho-search-range.svg)
+
+Measured on the ASTER tutorial pair, run both ways: the {term}`disparity <disparity map>` spread the correlator has to cover collapses from tens of pixels to about one.
+
+![Disparity histograms for the same ASTER pair, raw vs orthorectified](figures/aster-disparity-hist.png)
+
+After orthorectification, the residual disparity is dominated by error in the reference DEM (small) rather than satellite geometry (large).
 
 ## When you can skip it
 
-Very flat terrain, missing reference DEMs, or quick first passes can use ASP's `--alignment-method affineepipolar` instead.
+Very flat terrain, missing reference DEMs, or quick first passes can use ASP's `--alignment-method affineepipolar` instead, which aligns the images with a single image-wide transformation rather than a per-pixel one. The ASTER tutorial's first pass runs this way.
 
 ## What reference DEM to use
 
-<!-- FIGURE IDEA: world map shaded by reference-DEM coverage and resolution: COP30 globally, 3DEP / ArcticDEM / REMA highlighted regions. Companion to the table the rewrite will eventually re-introduce. -->
+| Reference | Coverage | Notes |
+|---|---|---|
+| [Copernicus GLO-30](https://registry.opendata.aws/copernicus-dem/) | global | free on AWS Open Data; what the tutorials fetch |
+| [USGS 3DEP](https://www.usgs.gov/3d-elevation-program) | United States | lidar-derived, high resolution |
+| [ArcticDEM](https://www.pgc.umn.edu/data/arcticdem/) | Arctic | WorldView-derived strips and mosaics |
+| [REMA](https://www.pgc.umn.edu/data/rema/) | Antarctica | WorldView-derived strips and mosaics |
+| MOLA | Mars | mission altimetry |
+| LOLA | Moon | mission altimetry |
 
-For Earth, Copernicus GLO-30 (free, on AWS Open Data) is the default; planetary bodies have their own canonical DEMs (MOLA, LOLA, etc.).
+One pitfall: ASP expects DEM heights above the {term}`ellipsoid`, but many products (including COP30) ship heights above a {term}`geoid`. Feeding a geoid-referenced DEM to `mapproject` injects a vertical bias of tens of meters. The tutorials' `fetch_cop_dem.py` script applies the geoid-to-ellipsoid shift for you; if you bring your own reference DEM, check its vertical datum first.
 
 ## The two-pass trick
 
-<!-- FIGURE IDEA: flow diagram of the two-pass recipe used in the ASTER tutorial — pass 1 (raw imagery → coarse DEM) feeds into pass 2 (orthorectified imagery → refined DEM). Pair with hillshades of pass-1 vs pass-2 outputs from the actual tutorial run to show the quality gain. -->
+When you have no good reference DEM, make your own: run a coarse first stereo pass on the raw imagery, then orthorectify against that DEM and re-run stereo. Your own first-pass DEM is more locally accurate than a global reference.
 
-Run a coarse first stereo pass on raw imagery, downsample its DEM, orthorectify against that DEM, and re-run stereo — your own DEM is more locally accurate than a global reference.
+![Two-pass recipe: a coarse first DEM feeds orthorectification for a refined second pass](figures/two-pass-flow.svg)
+
+The [ASTER tutorial](../tutorials/01_aster_rainier.ipynb) runs this pattern with COP30 as the second-pass surface, producing a report for each pass so you can compare them. The {term}`hillshades <hillshade>` below are the two passes over the Mount Rainier massif: the raw pass loses the snow-covered upper mountain and smears the valleys; the orthorectified pass recovers both.
+
+![Hillshades of the ASTER tutorial's pass-1 and pass-2 DEMs over Mount Rainier](figures/aster-two-pass-hillshade.png)
 
 ## Where to read more
 

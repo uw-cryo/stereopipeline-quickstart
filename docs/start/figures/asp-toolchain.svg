@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 660" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Flow diagram of the ASP toolchain from raw vendor data to an aligned DEM">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#898781"/>
+    </marker>
+  </defs>
+
+  <!-- figure surface -->
+  <rect x="0.5" y="0.5" width="699" height="659" rx="10" fill="#fcfcfb" stroke="#0b0b0b" stroke-opacity="0.1"/>
+
+  <!-- input chip -->
+  <rect x="90" y="30" width="280" height="46" rx="8" fill="#f0efec" stroke="#c3c2b7"/>
+  <text x="230" y="49" text-anchor="middle" font-size="13.5" fill="#0b0b0b">raw vendor data</text>
+  <text x="230" y="66" text-anchor="middle" font-size="11" fill="#898781">ASTER HDF &#183; WorldView NTF + XML &#183; ISIS cube</text>
+
+  <line x1="230" y1="76" x2="230" y2="104" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- sensor prep -->
+  <rect x="120" y="108" width="220" height="44" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="230" y="135" text-anchor="middle" font-size="13.5" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">aster2asp &#183; wv_correct</text>
+  <text x="356" y="135" font-size="12.5" fill="#52514e">convert vendor formats</text>
+
+  <line x1="230" y1="152" x2="230" y2="182" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="242" y="171" font-size="11" fill="#898781">image + camera model</text>
+
+  <!-- bundle_adjust -->
+  <rect x="120" y="186" width="220" height="44" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="230" y="213" text-anchor="middle" font-size="13.5" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">bundle_adjust</text>
+  <text x="356" y="213" font-size="12.5" fill="#52514e">refine camera models (optional)</text>
+
+  <line x1="230" y1="230" x2="230" y2="260" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="242" y="249" font-size="11" fill="#898781">adjusted cameras</text>
+
+  <!-- mapproject -->
+  <rect x="120" y="264" width="220" height="44" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="230" y="291" text-anchor="middle" font-size="13.5" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">mapproject</text>
+  <text x="356" y="291" font-size="12.5" fill="#52514e">orthorectify the images (optional)</text>
+
+  <line x1="230" y1="308" x2="230" y2="338" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="242" y="327" font-size="11" fill="#898781">orthorectified images</text>
+
+  <!-- parallel_stereo -->
+  <rect x="120" y="342" width="220" height="44" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="230" y="369" text-anchor="middle" font-size="13.5" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">parallel_stereo</text>
+  <text x="356" y="369" font-size="12.5" fill="#52514e">match pixels, triangulate</text>
+
+  <line x1="230" y1="386" x2="230" y2="416" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="242" y="405" font-size="11" fill="#898781">point cloud (PC.tif)</text>
+
+  <!-- point2dem -->
+  <rect x="120" y="420" width="220" height="44" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="230" y="447" text-anchor="middle" font-size="13.5" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">point2dem</text>
+  <text x="356" y="447" font-size="12.5" fill="#52514e">grid into an elevation model</text>
+
+  <line x1="230" y1="464" x2="230" y2="494" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="242" y="483" font-size="11" fill="#898781">DEM (DEM.tif)</text>
+
+  <!-- pc_align -->
+  <rect x="120" y="498" width="220" height="44" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="230" y="525" text-anchor="middle" font-size="13.5" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">pc_align</text>
+  <text x="356" y="525" font-size="12.5" fill="#52514e">register to a reference (optional)</text>
+
+  <line x1="230" y1="542" x2="230" y2="572" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- output chip -->
+  <rect x="90" y="576" width="280" height="46" rx="8" fill="#f0efec" stroke="#c3c2b7"/>
+  <text x="230" y="595" text-anchor="middle" font-size="13.5" fill="#0b0b0b">aligned DEM</text>
+  <text x="230" y="612" text-anchor="middle" font-size="11" fill="#898781">+ hillshade, orthoimage, diagnostics</text>
+
+  <!-- legend -->
+  <text x="24" y="642" font-size="11" fill="#898781">dashed = optional step</text>
+</svg>

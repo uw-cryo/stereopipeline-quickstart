@@ -7,11 +7,11 @@ Compare DEMs produced by ASP and CARS on the same WorldView-3 stereo pair:
 
 ## About CARS
 
-CARS is an open-source Python tool developed by CNES (French Space Agency) for producing DSMs from satellite stereo imagery. Key features:
+CARS is an open-source Python tool developed by CNES (French Space Agency) for producing {term}`DSMs <DSM>` from satellite stereo imagery. Key features:
 
-- **Dense matching**: Uses [Pandora](https://github.com/CNES/Pandora) (Census cost + SGM) with multiple presets for urban, mountain, vegetation.
+- **Dense matching**: Uses [Pandora](https://github.com/CNES/Pandora) (Census cost + {term}`SGM <SGM / MGM>`) with multiple presets for urban, mountain, vegetation.
 - **Multi-resolution**: Coarse-to-fine processing (default 16x → 4x → 1x) progressively narrows disparity search range.
-- **Geometry**: Uses [Shareloc](https://github.com/CNES/shareloc) for RPC handling — reads RPCs directly from GeoTIFF metadata.
+- **Geometry**: Uses [Shareloc](https://github.com/CNES/shareloc) for {term}`RPC` handling — reads RPCs directly from GeoTIFF metadata.
 - **Tiled architecture**: Processes data in tiles with configurable parallelism and per-worker memory limits.
 - **No bundle adjustment** in the standard pipeline. Instead, CARS corrects epipolar grids using sparse SIFT tie points. Separate `cars-bundleadjustment` tool available as an optional extra.
 
@@ -152,5 +152,6 @@ CARS resolves the urban structure cleanly — buildings, streets, the I-5 freewa
 
 - [CARS repository](https://github.com/CNES/cars)
 - [CARS documentation](https://cars.readthedocs.io)
+- [CARS technical foundations](https://cars.readthedocs.io/en/stable/technical_foundations/index.html) — the concepts behind the pipeline
 - [Pandora dense matching engine](https://github.com/CNES/Pandora)
 - [Shareloc geometry library](https://github.com/CNES/shareloc)

@@ -19,6 +19,9 @@ base-to-height ratio (B/H)
 bundle adjustment
   Joint optimization of camera parameters and 3D tie-point positions to minimize reprojection error. ASP tool: `bundle_adjust`. See [Bundle adjustment](../concepts/bundle-adjustment.md).
 
+camera model
+  The mapping between image pixels and ground coordinates: where the sensor was, how it was oriented, and how its optics project the scene onto the detector. Supplied with the imagery (as RPC or a rigorous sensor model) and refined by bundle adjustment. See [Stereo photogrammetry](../concepts/stereo-photogrammetry.md).
+
 CCD artifact
   Sub-pixel discontinuity at the boundary between adjacent CCD chips on push-broom sensors. WorldView-1 and -2 exhibit this; corrected by `wv_correct`. WorldView-3 does not.
 
@@ -29,25 +32,43 @@ Copernicus DEM (COP30)
   Globally-available 30 m DEM, openly distributed on [AWS Open Data](https://registry.opendata.aws/copernicus-dem/). Default reference DEM for Earth tutorials.
 
 CSM
-  Community Sensor Model. A pluggable camera-model standard ASP can use as an alternative to RPC for some sensors. Used in jitter-correction workflows.
+  Community Sensor Model. A standard interface for rigorous sensor models; ASP ships the open USGS implementation (usgscsm). CSM state files expose the sensor's trajectory and orientation over time, which is what lets `jitter_solve` correct jitter. See [Stereo photogrammetry](../concepts/stereo-photogrammetry.md).
 
 disparity map
-  Per-pixel (x, y) shift between matched pixels in a stereo pair. ASP file: `*-F.tif`.
+  Per-pixel (x, y) shift between matched pixels in a stereo pair. ASP writes it in stages: `*-D.tif` (initial), `*-RD.tif` (subpixel-refined), and `*-F.tif` (filtered, final — the input to triangulation).
 
 DEM
-  Digital Elevation Model. A regular grid of heights — the final product of an ASP run. ASP file: `*-DEM.tif`.
+  Digital Elevation Model. A regular grid of heights — the final product of an ASP run. ASP file: `*-DEM.tif`. The umbrella term covering both DSM and DTM.
 
 dh
   "Difference in height". Pixel-wise difference between two DEMs (or between a DEM and altimetry).
 
+DSM
+  Digital Surface Model. A DEM whose heights are of the first surface the sensor sees: rooftops, tree canopy, snow. Stereo DEMs, ASP's included, are surface models.
+
+DTM
+  Digital Terrain Model. A DEM whose heights are of the bare ground, with buildings and vegetation removed. Deriving one from a stereo DSM requires additional filtering.
+
+ellipsoid
+  Smooth mathematical model of a planet's shape (WGS84 for Earth). ASP heights are relative to the ellipsoid unless you convert them.
+
 geodiff
   ASP tool that computes the difference between two DEMs and reports statistics.
+
+geoid
+  Equipotential surface approximating mean sea level (EGM96 or EGM2008 for Earth). Geoid and ellipsoid heights differ by tens of meters depending on location; mixing the two is a classic source of vertical bias. See [Orthorectification](../concepts/orthorectification.md).
 
 ground sample distance (GSD)
   Pixel size of imagery on the ground, in meters. WV3 pan-sharp GSD ≈ 0.30 m; ASTER GSD ≈ 15 m.
 
+hillshade
+  Shaded-relief rendering of a DEM under a synthetic light source. The standard way to inspect DEM quality by eye; produced by `gdaldem hillshade` or `asp-plot`.
+
 ICESat-2
   NASA's Ice, Cloud, and Land Elevation Satellite 2. Provides global laser altimetry used for DEM alignment.
+
+ICP
+  Iterative Closest Point. Registration algorithm that alternates pairing each point with its nearest reference neighbor and solving the rigid move that best fits the pairs. What `pc_align` runs. See [Alignment](../concepts/alignment.md).
 
 interest point (IP)
   Distinctive corner or blob detected in an image, used as a candidate feature for matching across images.
@@ -92,7 +113,7 @@ residual
   Per-tie-point reprojection error. `asp_plot.bundle_adjust` plots these before and after bundle adjustment.
 
 RPC
-  Rational Polynomial Coefficients. Compact parametric camera model used by most commercial Earth-observation satellites.
+  Rational Polynomial Coefficients. A camera model that replaces the vendor's rigorous sensor model with fitted ratios of polynomials mapping longitude, latitude, and height to pixels. Compact and sensor-agnostic, and it keeps the physical camera details private; standard for commercial Earth-observation imagery. See [Stereo photogrammetry](../concepts/stereo-photogrammetry.md).
 
 SfM
   Structure from Motion. The general algorithmic family that bundle adjustment + stereo belongs to.
@@ -116,6 +137,6 @@ tie point
   A single 3D ground point observed (and matched) in two or more images. Bundle adjustment optimizes camera parameters using tie-point reprojection errors.
 
 WorldView
-  DigitalGlobe / Vantor high-resolution Earth-observation satellite series (WV1, WV2, WV3, WV4). All push-broom; all use RPC camera models.
+  DigitalGlobe / Vantor high-resolution Earth-observation satellite series (WV1, WV2, WV3, WV4). All push-broom; the vendor XML carries both an exact linescan camera model and an RPC fit.
 
 ```

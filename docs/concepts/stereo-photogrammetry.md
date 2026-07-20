@@ -1,36 +1,49 @@
 # Stereo photogrammetry
 
-```{admonition} Work in progress
-:class: warning
-Placeholder content. Being rewritten with figures.
-```
-
-Two views of the same patch of ground from different angles produce parallax — a pixel shift between images that encodes ground height.
+Two views of the same patch of ground from different angles produce {term}`parallax`: a pixel shift between images that encodes ground height.
 
 ## What ASP actually computes
 
-<!-- FIGURE IDEA: stereo-pair geometry diagram — two camera positions, a ground point, rays from each camera to the same point, and the disparity (delta-x, delta-y) shown on the image planes. Triangulation arrow showing how rays + cameras yield the 3D point. -->
+For every pixel in the left image, `parallel_stereo` searches the right image for the best-matching pixel. The result is a {term}`disparity map`: a per-pixel shift between the two images. ASP computes it in stages, writing each to disk: an initial whole-pixel disparity (`run-D.tif`), a subpixel refinement (`run-RD.tif`), and a filtered final version (`run-F.tif`). Triangulation then combines each matched pair with the {term}`camera models <camera model>`: the two viewing rays are intersected in space, and the intersection is a 3D ground point.
 
-For every pixel in the left image, ASP finds its match in the right image; the resulting disparity vectors plus the camera models triangulate to 3D ground coordinates.
+![Rays from matched pixels in two images intersect at the triangulated ground point](figures/stereo-triangulation.svg)
+
+The triangulated points land in a {term}`point cloud` (`run-PC.tif`), which `point2dem` grids into a DEM. See [Pipeline overview](pipeline-overview.md) for where this sits in the full flow.
+
+## Camera models
+
+Triangulation works because each camera model can turn a pixel into a viewing ray. A camera model is the mapping between image pixels and ground coordinates; it encodes where the satellite was, how it was oriented, and how its optics project the scene onto the detector. Orbital imagers are push-broom sensors that acquire one image row at a time as the satellite moves, so position and orientation are functions of time across the image.
+
+Vendors describe that geometry in two main forms. {term}`RPC` replaces the vendor's rigorous physical model with fitted ratios of polynomials that map longitude, latitude, and height to the matching pixel. The coefficients are compact, sensor-agnostic, and fast to evaluate, and they keep the physical details (orbit, pointing, optics) private; the cost is a black box that can only answer where a ground point lands in the image. Most commercial Earth imagery ships with RPC. The WorldView XMLs in this guide carry both an exact linescan model and an RPC fit; ASP detects the exact one and uses it by default.
+
+The Community Sensor Model ({term}`CSM`) is the other direction: a community standard interface for rigorous models, not an approximation. ASP ships the open USGS implementation ([usgscsm](https://github.com/DOI-USGS/usgscsm)), whose state files spell out the sensor's trajectory, orientation over time, and optics. Because those physical parameters are exposed, ASP can adjust them; that is what makes {term}`jitter` correction possible, and `jitter_solve` works only with CSM cameras.
 
 ## Knobs that matter
 
-<!-- FIGURE IDEA: 2x2 hillshade comparison from the same input pair — asp_bm vs asp_mgm across the columns, subpixel-mode 1 vs 9 down the rows. Shows visually how much each knob affects the output. -->
+The matcher (`--stereo-algorithm`) and the subpixel refiner (`--subpixel-mode`) are the two parameters that most affect quality and runtime. The same 800 m crop of the WorldView tutorial pair, run four ways (`asp_bm` does not support subpixel mode 9, so its quality mode here is 2):
 
-The matcher (`--stereo-algorithm`) and the subpixel refiner (`--subpixel-mode`) are the two parameters that most affect quality and runtime.
+![The same WorldView crop run with two matchers and two subpixel modes](figures/wv3-stereo-knobs.png) `asp_bm` is ASP's classic block matcher, fast and effective on well-textured images; `asp_mgm` costs more compute and memory and does better where texture is poor or repetitive. The tutorials pair `asp_bm` with `--subpixel-mode 1` for the quick first ASTER pass and `asp_mgm` with `--subpixel-mode 9` everywhere else; the [ASP correlation docs](https://stereopipeline.readthedocs.io/en/latest/correlation.html) describe the full menu.
 
 ## Geometry that matters
 
-<!-- FIGURE IDEA: skyplot from asp_plot.stereo_geometry showing the two satellite positions and convergence angle for the WV3 tutorial pair. Pair with a text inset citing the convergence angle and B/H ratio. -->
+Height precision is set before you run anything, by the viewing geometry: the {term}`convergence angle` (the angle between the two viewing rays) and the {term}`base-to-height ratio <base-to-height ratio (B/H)>`. Too little convergence and the rays intersect at a shallow angle, so small matching errors become large height errors; too much and the two images look so different that matching degrades.
 
-Convergence angle and base-to-height ratio set the height precision achievable; both come from the satellite metadata and you can plot them with `asp_plot.stereo_geometry.StereoGeometryPlotter`.
+Both quantities come from the vendor metadata. `asp_plot.stereo_geometry.StereoGeometryPlotter` reads the camera XMLs and plots them, as run in [the WorldView tutorial](../tutorials/02_worldview_ucsd.ipynb) for its stereo pair:
+
+![Skyplot and footprint map for the WorldView tutorial pair, from StereoGeometryPlotter](figures/wv3-stereo-geometry.png)
+
+The skyplot (left) shows where each satellite sat in the sky when it imaged the ground; the map (right) shows the ground tracks and the shared footprint. The header lists the derived quantities, including the convergence angle and base-to-height ratio.
 
 ## Where matching fails
 
-<!-- FIGURE IDEA: panel of GoodPixelMap (run-GoodPixelMap.tif) crops over each failure mode — water, snow, dense canopy, sharp shadow boundary, building facade occlusion. Red/green pixels make the failures legible at a glance. -->
+Featureless surfaces (open water, fresh snow, sand), repetitive texture, occlusion (one camera sees a slope face the other cannot), clouds, and illumination differences between acquisitions all break the matcher. Failures show up as red in `run-GoodPixelMap.tif` (successful matches are gray) and as voids in the DEM. The maps below are from the two tutorials' raw first runs:
 
-Featureless terrain, repetitive textures, occlusion, and strong illumination differences all break the matcher; `run-GoodPixelMap.tif` flags where matching succeeded.
+![GoodPixelMaps from the two tutorials: snow and shadow failures at Rainier, ocean and occlusion failures at UCSD](figures/goodpixelmap-failures.png)
+
+Voids in reasonable places are normal; voids everywhere usually mean a geometry or preprocessing problem, not a matching problem.
 
 ## Where to read more
 
 - [ASP stereo correlation docs](https://stereopipeline.readthedocs.io/en/latest/correlation.html)
+- [ASP triangulation docs](https://stereopipeline.readthedocs.io/en/latest/tools/parallel_stereo.html)
+- [ASP RPC docs](https://stereopipeline.readthedocs.io/en/latest/examples/rpc.html) and [ASP CSM docs](https://stereopipeline.readthedocs.io/en/latest/examples/csm.html)

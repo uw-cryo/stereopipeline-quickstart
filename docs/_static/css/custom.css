@@ -6,6 +6,13 @@
   border-left-color: #e5a50a;
 }
 
+/* Announcement-banner links inherit the theme link color, which is
+   unreadable on the dark banner background; keep them white. */
+.bd-header-announcement a {
+  color: #fff !important;
+  text-decoration: underline;
+}
+
 /* Make the "Open in Codespaces" badge pop on the landing page. */
 .codespace-cta {
   display: inline-block;
@@ -19,6 +26,32 @@
 }
 .codespace-cta:hover {
   background: #1158c7;
+}
+
+/* Glossary term links ({term} role): dotted underline marks "hover for the
+   definition" (sphinx-tippy) while staying a normal link to the glossary. */
+a.reference span.std-term {
+  font-style: normal;
+  border-bottom: 1px dotted currentColor;
+}
+
+/* sphinx-tippy tooltips: follow the theme's light/dark surface colors instead
+   of tippy.js's fixed dark box, so definitions stay readable in both modes. */
+.tippy-box {
+  background-color: var(--pst-color-surface, #fff);
+  color: var(--pst-color-text-base, #333);
+  border: 1px solid var(--pst-color-border, #ccc);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 0.9rem;
+}
+.tippy-box .tippy-arrow {
+  color: var(--pst-color-surface, #fff);
+}
+.tippy-box dt {
+  font-weight: 600;
+}
+.tippy-box dd {
+  margin: 0.25em 0 0;
 }
 
 /* "Open at full resolution" buttons under the hillshade comparison grids. */

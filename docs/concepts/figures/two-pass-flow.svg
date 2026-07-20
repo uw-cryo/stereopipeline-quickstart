@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 290" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="Two-pass recipe: a coarse first DEM feeds orthorectification for a refined second pass">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#898781"/>
+    </marker>
+  </defs>
+
+  <!-- figure surface -->
+  <rect x="0.5" y="0.5" width="799" height="289" rx="10" fill="#fcfcfb" stroke="#0b0b0b" stroke-opacity="0.1"/>
+
+  <!-- pass 1 -->
+  <text x="40" y="46" font-size="11.5" fill="#898781">pass 1</text>
+  <rect x="40" y="60" width="140" height="40" rx="8" fill="#f0efec" stroke="#c3c2b7"/>
+  <text x="110" y="84" text-anchor="middle" font-size="13" fill="#0b0b0b">raw stereo pair</text>
+
+  <line x1="180" y1="80" x2="226" y2="80" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="230" y="60" width="150" height="40" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="305" y="84" text-anchor="middle" font-size="13" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">parallel_stereo</text>
+
+  <line x1="380" y1="80" x2="426" y2="80" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="430" y="60" width="120" height="40" rx="8" fill="#f0efec" stroke="#c3c2b7"/>
+  <text x="490" y="84" text-anchor="middle" font-size="13" fill="#0b0b0b">coarse DEM</text>
+
+  <!-- elbow: coarse DEM feeds pass-2 mapproject -->
+  <path d="M 490 100 L 490 135 L 140 135 L 140 166" fill="none" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- raw pair feeds pass-2 mapproject -->
+  <path d="M 100 100 L 100 166" fill="none" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- pass 2 -->
+  <text x="40" y="158" font-size="11.5" fill="#898781">pass 2</text>
+  <rect x="46" y="170" width="130" height="40" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="111" y="194" text-anchor="middle" font-size="13" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">mapproject</text>
+
+  <line x1="176" y1="190" x2="222" y2="190" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="226" y="170" width="150" height="40" rx="8" fill="#f0efec" stroke="#c3c2b7"/>
+  <text x="301" y="194" text-anchor="middle" font-size="13" fill="#0b0b0b">orthorectified pair</text>
+
+  <line x1="376" y1="190" x2="422" y2="190" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="426" y="170" width="150" height="40" rx="8" fill="#e3eefb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="501" y="194" text-anchor="middle" font-size="13" fill="#0b0b0b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">parallel_stereo</text>
+
+  <line x1="576" y1="190" x2="622" y2="190" stroke="#898781" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="626" y="170" width="130" height="40" rx="8" fill="#f0efec" stroke="#c3c2b7"/>
+  <text x="691" y="194" text-anchor="middle" font-size="13" fill="#0b0b0b">refined DEM</text>
+
+  <text x="40" y="256" font-size="11.5" fill="#898781">the coarse DEM from pass 1 (or a global reference like COP30) is the orthorectification surface for pass 2</text>
+</svg>

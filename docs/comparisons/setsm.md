@@ -5,7 +5,7 @@ Compare DEMs produced by two open-source stereo photogrammetry pipelines on the 
 - **ASP** (NASA Ames Stereo Pipeline) — processed in the [UCSD notebook](https://asp-plot.readthedocs.io/en/latest/examples/notebooks/worldview_spacenet_ucsd_stereo.html)
 - **[SETSM](https://github.com/setsmdeveloper/SETSM)** (Surface Extraction with TIN-based Search-space Minimization) — Ohio State / Polar Geospatial Center
 
-Both pipelines accept raw satellite imagery with RPC camera models and produce gridded DSMs.
+Both pipelines accept raw satellite imagery with {term}`RPC` camera models and produce gridded {term}`DSMs <DSM>`.
 
 ## Source Data
 

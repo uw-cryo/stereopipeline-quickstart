@@ -25,6 +25,9 @@ stereopipeline-quickstart/
 │   ├── postCreate.sh                  # ASP/asp_plot health check + ASTER pre-fetch
 │   └── postStart.sh                   # (stashed; not active)
 ├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── problem-report.yml         # reader problem-report form (linked from docs)
+│   │   └── config.yml                 # routes ASP-itself questions upstream
 │   └── workflows/
 │       ├── build-image.yml            # GHCR build & push, monthly cron
 │       └── asp-version-check.yml      # monthly ASP-release auto-bump PR
@@ -32,12 +35,15 @@ stereopipeline-quickstart/
 │   ├── conf.py
 │   ├── requirements.txt               # RTD-only deps
 │   ├── _static/css/custom.css
+│   ├── _static/js/external-links.js   # external links open in a new tab
 │   ├── index.md
 │   ├── start/
-│   │   ├── what-is-asp.md
-│   │   └── codespaces.md
+│   │   ├── what-is-asp.md             # fully authored; history/toolchain/CLI-vs-GUI framing
+│   │   ├── codespaces.md
+│   │   └── figures/                   # authored SVG diagrams (asp-timeline, asp-toolchain, parallax)
 │   ├── concepts/
 │   │   ├── pipeline-overview.md
+│   │   ├── figures/                   # authored SVG diagrams + data-figure PNGs from real runs
 │   │   ├── stereo-photogrammetry.md
 │   │   ├── bundle-adjustment.md
 │   │   ├── orthorectification.md      # was mapprojection.md; renamed for the concept
@@ -82,9 +88,13 @@ Site is live at https://stereopipeline-quickstart.readthedocs.io/. RTD installs 
 
 Import gotcha: RTD's auto-detect can flag a public repo as "private" when its cached view of the GitHub OAuth grant is stale. Fix is to **Sync** the GitHub connection under RTD account settings, or use **Import Manually** (paste URL) which skips the API visibility check.
 
-### WIP skeleton state
+### Docs content state
 
-See [ADR-0004](architecture/0004-docs-wip-skeleton.md). The concept/intro pages ship as a WIP skeleton: a site-wide "Work in progress" banner (`sphinx-book-theme` `announcement`), per-page WIP admonitions, one-sentence section stubs, and an HTML comment `<!-- FIGURE IDEA: ... -->` per section. Content is fleshed out iteratively in follow-up PRs.
+See [ADR-0004](architecture/0004-docs-wip-skeleton.md) (skeleton phase), [ADR-0017](architecture/0017-retire-per-page-wip-admonitions.md) (admonitions retired), and [ADR-0020](architecture/0020-soften-banner-issue-form.md) (banner softened). The concept/intro pages shipped as a WIP skeleton and have since been fleshed out with prose and figures (issue #6); the site-wide banner (`announcement` in `docs/conf.py`) now reads "In development, but ready for usage" rather than flagging a WIP. Reader contact is the GitHub issue form (`.github/ISSUE_TEMPLATE/problem-report.yml`), linked from the banner, the landing page's "Reporting problems" section, the Codespace page, and the tutorials index. Figures that still need full processing runs are marked by the remaining HTML comments `<!-- FIGURE IDEA: ... -->`.
+
+Figure conventions are in [ADR-0018](architecture/0018-docs-figure-conventions.md): conceptual diagrams are hand-written SVGs in a `figures/` dir next to the page, drawn on an opaque light surface so one file reads on both themes; data-backed figures are matplotlib/asp_plot PNGs from real runs, with provenance stated in the page prose. The BA residual figures come from a `bundle_adjust` run matching the tutorial-3 config (`--ip-per-tile 10`); the remaining `concepts/figures/*.png` come from full local runs of the tutorial-1 (ASTER two-pass) and tutorial-2 (WV3) configurations, plus two extras kept under `data/ucsd_stereo_21deg_12d/`: `stereo_knobs/` (an 800 m crop run with `asp_bm`/`asp_mgm` × subpixel 1/2/9 for the knobs figure) and `align_demo/` (a DEM-vs-COP30 `pc_align` run quoted on the alignment page).
+
+Glossary linking is in [ADR-0019](architecture/0019-glossary-term-hover-previews.md): jargon links to `docs/reference/glossary.md` with the MyST `{term}` role at its first occurrence on a page, prose only. `sphinx-tippy` (in `docs/requirements.txt`) turns those links into hover previews, scoped to glossary anchors by `tippy_skip_urls` in `docs/conf.py`; term links get a dotted underline and the tooltip box follows the theme via `--pst-*` variables in `custom.css`. tippy.js and popper are vendored as pinned copies in `docs/_static/js/` (`tippy_js` in `conf.py`), so no CDN is involved.
 
 ### `docs/comparisons/` section
 
