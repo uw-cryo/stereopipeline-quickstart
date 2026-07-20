@@ -26,10 +26,6 @@ The same residuals in map view over the scene footprint (initial values above 10
 
 Both figures come from the residual point maps `bundle_adjust` writes (`*-initial_residuals_pointmap.csv`, `*-final_residuals_pointmap.csv`), read with `asp_plot.bundle_adjust.PlotBundleAdjustFiles`. Look for two things: the residual hump moving toward zero, and no strong spatial pattern left in the final map.
 
-## Common knobs
-
-Interest-point density (`--ip-per-image`, `--ip-per-tile`), tie-point penalty (`--tri-weight`, `--tri-robust-threshold`), and camera-anchor weight (`--camera-weight`) are the parameters most often tuned.
-
 ## Where to read more
 
 - [ASP bundle_adjust docs](https://stereopipeline.readthedocs.io/en/latest/tools/bundle_adjust.html)
