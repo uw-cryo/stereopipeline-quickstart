@@ -86,6 +86,11 @@ Same stack as `asp_plot`; see [ADR-0003](architecture/0003-sphinx-myst-nb-docs.m
 
 Site is live at https://stereopipeline-quickstart.readthedocs.io/. RTD installs a GitHub webhook on import; pushes to `main` auto-rebuild.
 
+Two RTD build constraints, both learned the hard way:
+
+- `docs/requirements.txt` pins exact versions. An unpinned build resolved sphinx-book-theme 1.4 / pydata-sphinx-theme 0.20, which renders a header navbar whose search button duplicates the sidebar search field.
+- `.readthedocs.yaml` overrides `build.jobs.build.html` to run sphinx **without `-j auto`** (RTD's default adds it). sphinx-tippy is not parallel-safe: pages rendered in worker processes embed references to per-page tip files that the main process never writes, so every hover preview 404s on the deployed site while working fine in a serial local build.
+
 Import gotcha: RTD's auto-detect can flag a public repo as "private" when its cached view of the GitHub OAuth grant is stale. Fix is to **Sync** the GitHub connection under RTD account settings, or use **Import Manually** (paste URL) which skips the API visibility check.
 
 ### Docs content state
