@@ -18,7 +18,7 @@ This site is the static companion to the [GitHub repo](https://github.com/uw-cry
 :::{grid-item-card} New to stereo photogrammetry?
 :link: start/what-is-asp
 :link-type: doc
-What ASP does, what a "stereo pipeline" is, and where the moving parts fit. Read this first if you're not sure why bundle adjustment exists.
+What ASP does, what a stereo pipeline is, and how the tools fit together. Start here if you are new to stereo photogrammetry.
 :::
 
 :::{grid-item-card} Ready to run something?
@@ -30,7 +30,7 @@ Launch the Codespace, open a notebook, hit Run All.
 :::{grid-item-card} Want a deeper concept primer?
 :link: concepts/pipeline-overview
 :link-type: doc
-The end-to-end mental model: from raw imagery to aligned DEM. With diagrams.
+The end-to-end flow from raw imagery to aligned DEM, with diagrams.
 :::
 
 :::{grid-item-card} Want to run the tutorials?
@@ -45,13 +45,13 @@ Two walkthroughs: ASTER (medium-res) and WorldView-3 (high-res). Both fully open
 Glossary, ASP output-file naming, the local install guide, and further reading.
 :::
 
-:::{grid-item-card} Want pretty plots from your run?
+:::{grid-item-card} Want diagnostic plots from your run?
 :link: concepts/visualization
 :link-type: doc
 How `asp-plot` produces diagnostic figures, PDF reports, and ICESat-2 comparisons.
 :::
 
-:::{grid-item-card} Curious about alternative open-source stereo pipelines?
+:::{grid-item-card} Other open-source stereo pipelines?
 :link: comparisons/index
 :link-type: doc
 The same WorldView-3 pair run through three open-source stereo pipelines, side by side.
@@ -60,7 +60,7 @@ The same WorldView-3 pair run through three open-source stereo pipelines, side b
 
 ## What this is not
 
-A replacement for the [official ASP documentation](https://stereopipeline.readthedocs.io/). ASP has hundreds of options for dozens of sensors. This guide covers the path of least resistance: two openly-available datasets, a small set of parameters, and explanations of why each step exists. The official docs are the authoritative reference.
+A replacement for the [official ASP documentation](https://stereopipeline.readthedocs.io/). ASP has hundreds of options for dozens of sensors. This guide covers one straightforward path: two openly available datasets, a small set of parameters, and explanations of why each step exists. The official docs are the authoritative reference.
 
 ## Reporting problems
 

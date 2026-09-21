@@ -17,5 +17,5 @@ Run `asp-version-check.yml` monthly (plus manual trigger). It polls NeoGeography
 - **−** The bump is not applied until someone merges the PR (by design).
 
 ## Alternatives considered
-- **Auto-merge version bumps** — rejected: ASP releases can change CLI behavior; an unattended merge could silently break the tutorials.
+- **Auto-merge version bumps** — rejected: ASP releases can change CLI behavior; an unattended merge could break the tutorials.
 - **Manual bumps only** — rejected: easy to forget and to apply inconsistently across the four pinned locations.

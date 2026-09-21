@@ -6,13 +6,13 @@ ASP calls this step "mapprojection" in its toolchain (the binary is `mapproject`
 
 Resampling each input image onto a reference DEM grid before stereo turns a wide-search-range matching problem into a small-disparity one.
 
-## The intuition
+## Why it helps
 
 Raw images of the same terrain from two viewpoints differ a lot: the satellite geometry shifts every pixel, and relief shifts them further. To find a pixel's match, the correlator has to search a wide range, which is slow and error-prone. Orthorectifying both images onto the same reference DEM removes most of that geometric difference up front, so the correlator only searches a small range around each pixel.
 
 ![Orthorectification shrinks the search range stereo matching must cover](figures/ortho-search-range.svg)
 
-Measured on the ASTER tutorial pair, run both ways: the {term}`disparity <disparity map>` spread the correlator has to cover collapses from tens of pixels to about one.
+Measured on the ASTER tutorial pair, run both ways: the {term}`disparity <disparity map>` spread the correlator has to cover drops from tens of pixels to about one.
 
 ![Disparity histograms for the same ASTER pair, raw vs orthorectified](figures/aster-disparity-hist.png)
 
@@ -33,11 +33,11 @@ Very flat terrain, missing reference DEMs, or quick first passes can use ASP's `
 | MOLA | Mars | mission altimetry |
 | LOLA | Moon | mission altimetry |
 
-One pitfall: ASP expects DEM heights above the {term}`ellipsoid`, but many products (including COP30) ship heights above a {term}`geoid`. Feeding a geoid-referenced DEM to `mapproject` injects a vertical bias of tens of meters. The tutorials' `fetch_cop_dem.py` script applies the geoid-to-ellipsoid shift for you; if you bring your own reference DEM, check its vertical datum first.
+ASP expects DEM heights above the {term}`ellipsoid`, but many products (including COP30) ship heights above a {term}`geoid`. Feeding a geoid-referenced DEM to `mapproject` introduces a vertical bias of tens of meters. The tutorials' `fetch_cop_dem.py` script applies the geoid-to-ellipsoid shift for you; if you bring your own reference DEM, check its vertical datum first.
 
-## The two-pass trick
+## Two-pass processing
 
-When you have no good reference DEM, make your own: run a coarse first stereo pass on the raw imagery, then orthorectify against that DEM and re-run stereo. Your own first-pass DEM is more locally accurate than a global reference.
+When you have no good reference DEM, produce one: run a coarse first stereo pass on the raw imagery, then orthorectify against that DEM and re-run stereo. Your own first-pass DEM is more locally accurate than a global reference.
 
 ![Two-pass recipe: a coarse first DEM feeds orthorectification for a refined second pass](figures/two-pass-flow.svg)
 

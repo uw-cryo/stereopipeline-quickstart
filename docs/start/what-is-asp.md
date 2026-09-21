@@ -20,7 +20,7 @@ Every intermediate product lands on disk, so you can inspect each step's output 
 
 ASP is driven from the terminal; the one graphical tool is [`stereo_gui`](https://stereopipeline.readthedocs.io/en/latest/tools/stereo_gui.html), an image viewer and front-end to `parallel_stereo`. It can display large images, interest-point matches, and disparities, and can test-run stereo on a small selected clip before you commit to a full scene (it prints the equivalent command when you do).
 
-This guide runs everything as commands in notebooks: a browser Codespace has no desktop to show a GUI window, and the command sequence is the thing worth learning, since it is what you will script when you move to your own data. The inspection role is covered by `asp-plot` figures inline in the notebooks.
+This guide runs everything as commands in notebooks: a browser Codespace has no desktop to show a GUI window, and the command sequence is what you will script when you move to your own data. The inspection role is covered by `asp-plot` figures inline in the notebooks.
 
 ## Why "stereo"?
 
@@ -38,4 +38,4 @@ See [Stereo photogrammetry](../concepts/stereo-photogrammetry.md) for how matchi
 
 - [Pipeline overview](../concepts/pipeline-overview.md) — the full flow.
 - [Open the Codespace](codespaces.md) — run a real pipeline.
-- [ASTER tutorial](../tutorials/01_aster_rainier.ipynb) — gentlest end-to-end notebook.
+- [ASTER tutorial](../tutorials/01_aster_rainier.ipynb) — the simplest end-to-end notebook.

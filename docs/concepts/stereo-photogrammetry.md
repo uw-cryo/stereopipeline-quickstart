@@ -2,7 +2,7 @@
 
 Two views of the same patch of ground from different angles produce {term}`parallax`: a pixel shift between images that encodes ground height.
 
-## What ASP actually computes
+## What ASP computes
 
 For every pixel in the left image, `parallel_stereo` searches the right image for the best-matching pixel. The result is a {term}`disparity map`: a per-pixel shift between the two images. ASP computes it in stages, writing each to disk: an initial whole-pixel disparity (`run-D.tif`), a subpixel refinement (`run-RD.tif`), and a filtered final version (`run-F.tif`). Triangulation then combines each matched pair with the {term}`camera models <camera model>`: the two viewing rays are intersected in space, and the intersection is a 3D ground point.
 
@@ -14,19 +14,19 @@ The triangulated points land in a {term}`point cloud` (`run-PC.tif`), which `poi
 
 Triangulation works because each camera model can turn a pixel into a viewing ray. A camera model is the mapping between image pixels and ground coordinates; it encodes where the satellite was, how it was oriented, and how its optics project the scene onto the detector. Orbital imagers are push-broom sensors that acquire one image row at a time as the satellite moves, so position and orientation are functions of time across the image.
 
-Vendors describe that geometry in two main forms. {term}`RPC` replaces the vendor's rigorous physical model with fitted ratios of polynomials that map longitude, latitude, and height to the matching pixel. The coefficients are compact, sensor-agnostic, and fast to evaluate, and they keep the physical details (orbit, pointing, optics) private; the cost is a black box that can only answer where a ground point lands in the image. Most commercial Earth imagery ships with RPC. The WorldView XMLs in this guide carry both an exact linescan model and an RPC fit; ASP detects the exact one and uses it by default.
+Vendors describe that geometry in two main forms. {term}`RPC` replaces the vendor's rigorous physical model with fitted ratios of polynomials that map longitude, latitude, and height to the matching pixel. The coefficients are compact, sensor-agnostic, and fast to evaluate, and they keep the physical details (orbit, pointing, optics) private; the tradeoff is that the model is a black box that can only report where a ground point lands in the image. Most commercial Earth imagery ships with RPC. The WorldView XMLs in this guide carry both an exact linescan model and an RPC fit; ASP detects the exact one and uses it by default.
 
-The Community Sensor Model ({term}`CSM`) is the other direction: a community standard interface for rigorous models, not an approximation. ASP ships the open USGS implementation ([usgscsm](https://github.com/DOI-USGS/usgscsm)), whose state files spell out the sensor's trajectory, orientation over time, and optics. Because those physical parameters are exposed, ASP can adjust them; that is what makes {term}`jitter` correction possible, and `jitter_solve` works only with CSM cameras.
+The Community Sensor Model ({term}`CSM`) is a community standard interface for rigorous models rather than an approximation. ASP ships the open USGS implementation ([usgscsm](https://github.com/DOI-USGS/usgscsm)), whose state files spell out the sensor's trajectory, orientation over time, and optics. Because those physical parameters are exposed, ASP can adjust them; that is what makes {term}`jitter` correction possible, and `jitter_solve` works only with CSM cameras.
 
-## Knobs that matter
+## Matcher and subpixel mode
 
 The matcher (`--stereo-algorithm`) and the subpixel refiner (`--subpixel-mode`) are the two parameters that most affect quality and runtime. The same 800 m crop of the WorldView tutorial pair, run four ways (`asp_bm` does not support subpixel mode 9, so its quality mode here is 2):
 
 ![The same WorldView crop run with two matchers and two subpixel modes](figures/wv3-stereo-knobs.png) `asp_bm` is ASP's classic block matcher, fast and effective on well-textured images; `asp_mgm` costs more compute and memory and does better where texture is poor or repetitive. The tutorials pair `asp_bm` with `--subpixel-mode 1` for the quick first ASTER pass and `asp_mgm` with `--subpixel-mode 9` everywhere else; the [ASP correlation docs](https://stereopipeline.readthedocs.io/en/latest/correlation.html) describe the full menu.
 
-## Geometry that matters
+## Viewing geometry
 
-Height precision is set before you run anything, by the viewing geometry: the {term}`convergence angle` (the angle between the two viewing rays) and the {term}`base-to-height ratio <base-to-height ratio (B/H)>`. Too little convergence and the rays intersect at a shallow angle, so small matching errors become large height errors; too much and the two images look so different that matching degrades.
+Height precision is determined by the viewing geometry before any processing runs: the {term}`convergence angle` (the angle between the two viewing rays) and the {term}`base-to-height ratio <base-to-height ratio (B/H)>`. Too little convergence and the rays intersect at a shallow angle, so small matching errors become large height errors; too much and the two images look so different that matching degrades.
 
 Both quantities come from the vendor metadata. `asp_plot.stereo_geometry.StereoGeometryPlotter` reads the camera XMLs and plots them, as run in [the WorldView tutorial](../tutorials/02_worldview_ucsd.ipynb) for its stereo pair:
 

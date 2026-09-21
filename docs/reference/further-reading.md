@@ -2,16 +2,16 @@
 
 ## ASP itself
 
-- **[ASP documentation](https://stereopipeline.readthedocs.io/)** — the canonical reference. Hundreds of pages, very thorough.
+- **[ASP documentation](https://stereopipeline.readthedocs.io/)** — the canonical reference.
 - **[ASP examples](https://stereopipeline.readthedocs.io/en/latest/examples.html)** — per-sensor recipes (DigitalGlobe, ASTER, HiRISE, CTX, MOC, LRO NAC, Pleiades, SPOT, Cassini, …). When you need to process a sensor we don't cover, start here.
 - **[ASP GitHub](https://github.com/NeoGeographyToolkit/StereoPipeline)** — source, releases, issues.
-- **[ASP support group](https://groups.google.com/g/ames-stereo-pipeline-support)** — best place to ask sensor-specific questions. 
+- **[ASP support group](https://groups.google.com/g/ames-stereo-pipeline-support)** — the place to ask sensor-specific questions.
 
 ## Stereo concepts, explained elsewhere
 
-- **[CARS technical foundations](https://cars.readthedocs.io/en/stable/technical_foundations/index.html)** — CNES's illustrated walk from a stereo pair to a DSM. A good second telling of the story this guide's [concept pages](../concepts/pipeline-overview.md) tell.
+- **[CARS technical foundations](https://cars.readthedocs.io/en/stable/technical_foundations/index.html)** — CNES's illustrated walkthrough from a stereo pair to a DSM. Covers the same material as this guide's [concept pages](../concepts/pipeline-overview.md) from a different angle.
 - **[PGC introduction to stereoscopic imagery](https://www.pgc.umn.edu/guides/stereo-derived-elevation-models/introduction-to-stereoscopic-imagery/)** — how in-track and cross-track stereo collection works, from the group behind ArcticDEM.
-- **[UP42 on DEMs, DSMs, and DTMs](https://up42.com/blog/everything-you-need-to-know-about-digital-elevation-models-dem-digital)** — the elevation-model vocabulary sorted out.
+- **[UP42 on DEMs, DSMs, and DTMs](https://up42.com/blog/everything-you-need-to-know-about-digital-elevation-models-dem-digital)** — defines the elevation-model vocabulary.
 
 ## Visualization and diagnostics
 

@@ -86,7 +86,7 @@ Same stack as `asp_plot`; see [ADR-0003](architecture/0003-sphinx-myst-nb-docs.m
 
 Site is live at https://stereopipeline-quickstart.readthedocs.io/. RTD installs a GitHub webhook on import; pushes to `main` auto-rebuild.
 
-Two RTD build constraints, both learned the hard way:
+Two RTD build constraints:
 
 - `docs/requirements.txt` pins exact versions. An unpinned build resolved sphinx-book-theme 1.4 / pydata-sphinx-theme 0.20, which renders a header navbar whose search button duplicates the sidebar search field.
 - `.readthedocs.yaml` overrides `build.jobs.build.html` to run sphinx **without `-j auto`** (RTD's default adds it). sphinx-tippy is not parallel-safe: pages rendered in worker processes embed references to per-page tip files that the main process never writes, so every hover preview 404s on the deployed site while working fine in a serial local build.
@@ -192,7 +192,7 @@ See [ADR-0007](architecture/0007-cop30-egm2008-shift.md). `scripts/fetch_cop_dem
 - Source: `EPSG:4326+EPSG:3855` (WGS84 lon/lat + EGM2008 geoid).
 - Target: `<t_srs>+EPSG:4979` (requested horizontal + WGS84 ellipsoid).
 
-`gdalwarp` applies the per-pixel shift via PROJ's bundled EGM2008 grid; `gdal_edit.py -a_srs` then re-asserts the compound CRS. ASP represents DEM heights above the datum ellipsoid (per its `dem_geoid` / `mapproject` docs), so skipping this shift feeds geoid heights into `mapproject` and injects a vertical datum-mismatch bias (tens of meters; ~−35 m at UCSD). If a Codespace can't find the EGM2008 grid, `gdalwarp` errors loudly ("Cannot find proj.db" / "egm08_25.gtx"); pre-caching the grid in the Dockerfile is a fallback.
+`gdalwarp` applies the per-pixel shift via PROJ's bundled EGM2008 grid; `gdal_edit.py -a_srs` then re-asserts the compound CRS. ASP represents DEM heights above the datum ellipsoid (per its `dem_geoid` / `mapproject` docs), so skipping this shift feeds geoid heights into `mapproject` and injects a vertical datum-mismatch bias (tens of meters; ~−35 m at UCSD). If a Codespace can't find the EGM2008 grid, `gdalwarp` errors ("Cannot find proj.db" / "egm08_25.gtx"); pre-caching the grid in the Dockerfile is a fallback.
 
 ### WV3 ROI and resolution
 

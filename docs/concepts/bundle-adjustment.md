@@ -6,15 +6,15 @@ The vendor's {term}`camera models <camera model>` are slightly inaccurate; bundl
 
 `bundle_adjust` detects {term}`interest points <interest point (IP)>` in each image, matches them across images into {term}`tie points <tie point>`, and then jointly varies the camera parameters and the tie point positions to shrink the reprojection errors: the distance between where each tie point actually appears in an image and where the camera model says it should appear.
 
-![Bundle adjustment nudges camera parameters and tie point positions to shrink reprojection errors](figures/bundle-adjust-schematic.svg)
+![Bundle adjustment adjusts camera parameters and tie point positions to shrink reprojection errors](figures/bundle-adjust-schematic.svg)
 
-## Why this matters for stereo
+## Effect on stereo
 
-With misaligned cameras, the two viewing rays for a matched pixel do not quite meet. Triangulation records that miss distance per point as the fourth band of `run-PC.tif` (`point2dem --errorimage` grids it into `run-IntersectionErr.tif`), and the misalignment surfaces in the DEM as bias and tilt. Bundle adjustment shrinks all of these.
+With misaligned cameras, the two viewing rays for a matched pixel do not quite meet. Triangulation records that miss distance per point as the fourth band of `run-PC.tif` (`point2dem --errorimage` grids it into `run-IntersectionErr.tif`), and the misalignment appears in the DEM as bias and tilt. Bundle adjustment shrinks all of these.
 
 ![Before bundle adjustment the rays miss each other; after, they intersect](figures/intersection-error.svg)
 
-## What it looks like on real data
+## Example on real data
 
 From a `bundle_adjust` run on the [WorldView tutorial's](../tutorials/03_worldview_ucsd_ba.ipynb) stereo pair, the per-tie-point reprojection {term}`residuals <residual>` before and after optimization:
 
@@ -24,13 +24,13 @@ The same residuals in map view over the scene footprint (initial values above 10
 
 ![Map view of initial and final bundle adjustment residuals](figures/wv3-ba-residuals-map.png)
 
-Both figures come from the residual point maps `bundle_adjust` writes (`*-initial_residuals_pointmap.csv`, `*-final_residuals_pointmap.csv`), read with `asp_plot.bundle_adjust.PlotBundleAdjustFiles`. Look for two things: the residual hump moving toward zero, and no strong spatial pattern left in the final map.
+Both figures come from the residual point maps `bundle_adjust` writes (`*-initial_residuals_pointmap.csv`, `*-final_residuals_pointmap.csv`), read with `asp_plot.bundle_adjust.PlotBundleAdjustFiles`. Two things to check: the residual distribution should move toward zero, and the final map should show no strong spatial pattern.
 
-## What bundle adjustment cannot fix: jitter
+## Jitter, which bundle adjustment cannot fix
 
 A linescan camera model already contains the sensor's full trajectory: a time-sampled sequence of positions and orientations, with each image line imaged from its own interpolated pose. `bundle_adjust` does not touch those samples individually. It solves for one translation and one rotation per camera and applies them to the whole trajectory as a rigid body. That corrects the bulk error in absolute position and pointing, but it has no degrees of freedom to change the trajectory's internal shape.
 
-{term}`Jitter` is the high-frequency error left behind. Vibrations during the scan make the pointing oscillate faster than the sampled trajectory captures, and those oscillations imprint a wavy pattern into the image and the DEM. ASP treats it as a separate problem: `jitter_solve` optimizes the pose samples individually, so it can bend the trajectory to remove the line-to-line perturbation.
+{term}`Jitter` is the high-frequency error that remains. Vibrations during the scan make the pointing oscillate faster than the sampled trajectory captures, and those oscillations imprint a wavy pattern into the image and the DEM. ASP treats it as a separate problem: `jitter_solve` optimizes the pose samples individually, so it can bend the trajectory to remove the line-to-line perturbation.
 
 ![bundle_adjust shifts the whole trajectory rigidly; jitter_solve corrects each pose sample's pointing individually](figures/bundle-adjust-vs-jitter.svg)
 

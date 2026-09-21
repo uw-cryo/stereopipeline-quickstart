@@ -95,7 +95,7 @@ The boundary defines a 3 km × 3 km UTM 11N area matching the ASP processing ext
 
 ### Hillshade Comparison
 
-SETSM resolves the same urban structure as ASP — buildings, streets, and the campus / valley and sea cliff topography are all clearly visible. Similar to CARS, SETSM does attempt to correlate more pixels, including over the ocean surface. Areas with more heavy vegetation are also correlated, whereas these are left as voids in the ASP DEM. Some of these correlated pixels appear to be blunders (pits and mounds) on close inspection. In general, ASP (with these [carefully selected processing parameters](https://asp-plot.readthedocs.io/en/latest/examples/notebooks/worldview_spacenet_ucsd_stereo.html)) appears to take a more conservative approach to correlation.
+SETSM resolves the same urban structure as ASP: buildings, streets, and the campus, valley, and sea cliff topography are all clearly visible. Similar to CARS, SETSM does attempt to correlate more pixels, including over the ocean surface. Areas with more heavy vegetation are also correlated, whereas these are left as voids in the ASP DEM. Some of these correlated pixels appear to be blunders (pits and mounds) on close inspection. In general, ASP (with the [processing parameters used in the ASP notebook](https://asp-plot.readthedocs.io/en/latest/examples/notebooks/worldview_spacenet_ucsd_stereo.html)) appears to take a more conservative approach to correlation.
 
 ::::{grid} 2
 :::{grid-item}

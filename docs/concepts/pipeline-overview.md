@@ -6,7 +6,7 @@ Every ASP run, regardless of sensor, follows the same five-stage pattern.
 
 ![The five ASP pipeline stages, from raw imagery to an aligned DEM](figures/pipeline-stages.svg)
 
-Sensor prep → bundle adjustment → orthorectification → stereo + DEM generation → alignment. The dashed stages are optional: the simplest possible run is `parallel_stereo` followed by `point2dem`, and each optional stage buys accuracy at the cost of another step. The tutorials show both: the ASTER notebook starts with the minimal run, then adds orthorectification; the WorldView notebooks add alignment and bundle adjustment.
+Sensor prep → bundle adjustment → orthorectification → stereo + DEM generation → alignment. The dashed stages are optional: the simplest possible run is `parallel_stereo` followed by `point2dem`, and each optional stage improves accuracy and adds a step. The tutorials show both: the ASTER notebook starts with the minimal run, then adds orthorectification; the WorldView notebooks add alignment and bundle adjustment.
 
 ## Stage 1: Sensor preparation
 

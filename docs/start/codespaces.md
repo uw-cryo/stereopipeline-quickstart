@@ -11,9 +11,9 @@
    Open in GitHub Codespaces
    ```
 
-2. GitHub pulls a pre-built container image from [GHCR](https://ghcr.io/bpurinton/stereopipeline-quickstart) — ASP binaries and the `asp-plot` conda env are already baked in. (If the image isn't accessible from your fork, the devcontainer.json includes a commented-out `build:` block you can flip on for a from-source build.)
+2. GitHub pulls a pre-built container image from [GHCR](https://ghcr.io/bpurinton/stereopipeline-quickstart). ASP binaries and the `asp-plot` conda env are already installed in it. (If the image isn't accessible from your fork, the devcontainer.json includes a commented-out `build:` block you can flip on for a from-source build.)
 
-3. When VS Code opens in your browser, the terminal will show a friendly banner:
+3. When VS Code opens in your browser, the terminal shows a banner:
 
    ```
    stereopipeline-quickstart
@@ -27,7 +27,7 @@
 The minimum Codespace machine type for this repo is 4-core / 16 GB / 32 GB storage (set in `.devcontainer/devcontainer.json`). 4-core is the floor every GitHub account can launch without extra billing setup. You can pick a larger machine at launch time via the "Create codespace with options" menu — stereo correlation is parallel and will be roughly 2× faster on 8 cores. Larger machines are billed at higher rates; see [Codespaces pricing](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces).
 
 ```{tip}
-If you select a machine larger than 4 cores, bump the `--processes` flag in the `parallel_stereo` calls (and `--threads` in `bundle_adjust` / `mapproject`) to match your core count for a real speedup.
+If you select a machine larger than 4 cores, bump the `--processes` flag in the `parallel_stereo` calls (and `--threads` in `bundle_adjust` / `mapproject`) to match your core count.
 ```
 
 ## Run a tutorial

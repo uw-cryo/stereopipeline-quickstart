@@ -11,7 +11,7 @@ The repo initially required an 8-core Codespace. Issue #3 found that a collabora
 Set `hostRequirements` to 4 cores / 16 GB / 32 GB storage. The 16 GB / 32 GB values match GitHub's 4-core tier; leaving them higher would force the machine back up to 8 cores. Retune the tutorials to run acceptably at this floor (see ADR-0011, ADR-0012). Larger machines still work by bumping the thread/process counts and `TR`.
 
 ## Consequences
-- **+** Newcomers whose personal accounts lack a Codespaces payment method can launch, which is the whole point of a learning resource.
+- **+** Newcomers whose personal accounts lack a Codespaces payment method can launch, which a learning resource requires.
 - **+** Removes an unpredictable "works for me, not for you" barrier rooted in billing/org policy.
 - **−** Stereo correlation is slower than on 8 cores; the tutorials had to be retuned (coarser resolution, skip BA by default) to fit, trading some output quality for runtime.
 - **−** Memory-heavy `asp_mgm` must run few-processes-many-threads on 16 GB (ADR-0011), not tile-parallel.

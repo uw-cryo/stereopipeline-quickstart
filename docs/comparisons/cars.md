@@ -121,11 +121,11 @@ Expected outputs in `results/`:
 | Output std dev (3 km comparison crop) | 48.7 m |
 | Convergence angle | 21.2° |
 
-CARS is slower than SETSM, primarily because Pandora's per-tile Census + SGM matching is done in pure Python multiprocessing with two workers at 1.5 GB each. The run reports `RAM available < 500 Mb` warnings during the final `texture / dsm / dsm_weights` passes but completes successfully. The raw DSM carries some edge blunders (min −321 m, max 1273 m) outside the canonical 3 km comparison area; inside the comparison crop the range collapses to approximately −200 m to +200 m with outliers concentrated at the seaward edge.
+CARS is slower than SETSM, primarily because Pandora's per-tile Census + SGM matching is done in pure Python multiprocessing with two workers at 1.5 GB each. The run reports `RAM available < 500 Mb` warnings during the final `texture / dsm / dsm_weights` passes but completes successfully. The raw DSM carries some edge blunders (min −321 m, max 1273 m) outside the canonical 3 km comparison area; inside the comparison crop the range narrows to approximately −200 m to +200 m with outliers concentrated at the seaward edge.
 
 ## Hillshade Comparison
 
-CARS resolves the urban structure cleanly — buildings, streets, the I-5 freeway on the east. Natural valleys and sea cliffs are also resolved — comparable to ASP in detail. CARS does attempt to correlate more pixels, including over the ocean surface. Areas with more heavy vegetation are also correlated, whereas these are left as voids in the ASP DEM. Some of these correlated pixels appear to be blunders (pits and mounds) on close inspection. In general, ASP (with these [carefully selected processing parameters](https://asp-plot.readthedocs.io/en/latest/examples/notebooks/worldview_spacenet_ucsd_stereo.html)) appears to take a more conservative approach to correlation.
+CARS resolves the urban structure cleanly: buildings, streets, and the I-5 freeway on the east. Natural valleys and sea cliffs are also resolved, comparable to ASP in detail. CARS does attempt to correlate more pixels, including over the ocean surface. Areas with more heavy vegetation are also correlated, whereas these are left as voids in the ASP DEM. Some of these correlated pixels appear to be blunders (pits and mounds) on close inspection. In general, ASP (with the [processing parameters used in the ASP notebook](https://asp-plot.readthedocs.io/en/latest/examples/notebooks/worldview_spacenet_ucsd_stereo.html)) appears to take a more conservative approach to correlation.
 
 ::::{grid} 2
 :::{grid-item}

@@ -1,6 +1,6 @@
 # ASP output files
 
-What the key files in an ASP run directory mean. Most are named with a `RUN_PREFIX-` followed by a fixed suffix. This is not every file, just those we are most interested in; the [ASP output files docs](https://stereopipeline.readthedocs.io/en/latest/outputfiles.html) describe everything.
+What the key files in an ASP run directory mean. Most are named with a `RUN_PREFIX-` followed by a fixed suffix. This is not every file, just those the tutorials use; the [ASP output files docs](https://stereopipeline.readthedocs.io/en/latest/outputfiles.html) describe everything.
 
 ## After `bundle_adjust -o ba/run`
 

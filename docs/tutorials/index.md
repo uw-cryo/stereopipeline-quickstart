@@ -14,7 +14,7 @@ The tutorial pages below are static renders of the notebooks in `notebooks/`, sh
 :link: 01_aster_rainier
 :link-type: doc
 
-Stereo from a single ASTER L1A scene. The gentlest end-to-end flow:
+Stereo from a single ASTER L1A scene. The simplest end-to-end flow:
 - `aster2asp` to extract nadir + back-looking views
 - `parallel_stereo` + `point2dem` on the raw imagery
 - COP-DEM clip from AWS Open Data
@@ -28,7 +28,7 @@ Output: two ~30 m DEMs of Mt. Rainier, raw and orthorectified.
 :link: 02_worldview_ucsd
 :link-type: doc
 
-Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly hosted on AWS). The full recipe:
+Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly hosted on AWS). Steps:
 - Stereo geometry analysis with `StereoGeometryPlotter`
 - COP-DEM clip from AWS Open Data
 - `mapproject` to the COP-DEM grid

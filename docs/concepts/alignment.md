@@ -31,9 +31,9 @@ Translation vector (North-East-Down, meters): Vector3(2.1610355,3.4450347,7.0166
 Translation vector magnitude (meters): 8.1100172
 ```
 
-Three things to read off:
+Three things to check:
 
-- The 50% lines are the headline metric: the median point-to-reference distance dropped from about 7 m to about 2 m.
+- The 50% lines are the main metric: the median point-to-reference distance dropped from about 7 m to about 2 m.
 - The translation vector says where the DEM moved: here mostly down by 7 m, with a couple of meters horizontally. It should be a plausible magnitude for your sensor.
 - A median that barely drops, or a huge translation, means the DEM and reference disagree in a way ICP cannot reconcile; check the vertical datums and the overlap area first.
 

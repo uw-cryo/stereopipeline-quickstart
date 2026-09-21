@@ -11,7 +11,7 @@ In these sections, we seek to:
 - briefly discuss some key differences,
 - and demonstrate reasonable, comparable results for the same stereo scenes from each tool.
 
-We encourage end users to make their own comparisons, with these notes providing promotion and helpful guidance for the tools.
+We encourage users to make their own comparisons; these notes document the setup for each tool.
 ```
 
 ::::{grid} 1

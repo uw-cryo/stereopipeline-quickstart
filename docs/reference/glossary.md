@@ -26,7 +26,7 @@ CCD artifact
   Sub-pixel discontinuity at the boundary between adjacent CCD chips on push-broom sensors. WorldView-1 and -2 exhibit this; corrected by `wv_correct`. WorldView-3 does not.
 
 convergence angle
-  Angle between the two viewing directions of a stereo pair at the ground point. Sweet spot for natural terrain: 15–30°.
+  Angle between the two viewing directions of a stereo pair at the ground point. Typical range for natural terrain: 15–30°.
 
 Copernicus DEM (COP30)
   Globally-available 30 m DEM, openly distributed on [AWS Open Data](https://registry.opendata.aws/copernicus-dem/). Default reference DEM for Earth tutorials.
@@ -56,7 +56,7 @@ geodiff
   ASP tool that computes the difference between two DEMs and reports statistics.
 
 geoid
-  Equipotential surface approximating mean sea level (EGM96 or EGM2008 for Earth). Geoid and ellipsoid heights differ by tens of meters depending on location; mixing the two is a classic source of vertical bias. See [Orthorectification](../concepts/orthorectification.md).
+  Equipotential surface approximating mean sea level (EGM96 or EGM2008 for Earth). Geoid and ellipsoid heights differ by tens of meters depending on location; mixing the two is a common source of vertical bias. See [Orthorectification](../concepts/orthorectification.md).
 
 ground sample distance (GSD)
   Pixel size of imagery on the ground, in meters. WV3 pan-sharp GSD ≈ 0.30 m; ASTER GSD ≈ 15 m.
@@ -92,7 +92,7 @@ NTF
   NITF (National Imagery Transmission Format). Image format used by some commercial sensors.
 
 orthorectification
-  Resampling input imagery onto a regular geographic grid using a coarse reference DEM. Makes stereo matching dramatically easier. ASP's tool for this is `mapproject`, and ASP docs call the step "mapprojection". See [Orthorectification](../concepts/orthorectification.md).
+  Resampling input imagery onto a regular geographic grid using a coarse reference DEM. Greatly reduces the disparity search range for stereo matching. ASP's tool for this is `mapproject`, and ASP docs call the step "mapprojection". See [Orthorectification](../concepts/orthorectification.md).
 
 parallax
   Apparent shift of a pixel between two images of the same ground point taken from different viewpoints. Encodes the height of the ground point.
@@ -128,7 +128,7 @@ SpaceNet
   Open dataset of high-resolution commercial satellite imagery, hosted on AWS. The UCSD WV3 scenes used in this guide come from the SpaceNet CORE3D collection.
 
 stereo
-  ASP's master command for stereo correlation + triangulation. The parallel version (`parallel_stereo`) is what tutorials actually use.
+  ASP's main command for stereo correlation + triangulation. The parallel version (`parallel_stereo`) is what tutorials actually use.
 
 subpixel mode
   Setting that controls how `parallel_stereo` refines integer-pixel matches; e.g. mode 9 (Bayes EM with MGM).
