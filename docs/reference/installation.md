@@ -47,13 +47,13 @@ mamba create -n asp -c conda-forge python=3.12 \
 
 mamba activate asp
 
-pip install asp-plot
+pip install "asp-plot>=3.4,<4"
 ```
 
 Or, if you prefer pure pip (and you already have the geospatial stack installed):
 
 ```bash
-pip install asp-plot jupyterlab boto3 s3fs contextily
+pip install "asp-plot>=3.4,<4" jupyterlab boto3 s3fs contextily
 ```
 
 ## Step 3 — Clone this repo and run a tutorial
@@ -73,7 +73,7 @@ jupyter lab notebooks/01_aster_rainier.ipynb
 ASP is on conda-forge, though typically a release or two behind:
 
 ```bash
-mamba create -n asp -c conda-forge stereo-pipeline asp-plot python=3.12
+mamba create -n asp -c conda-forge stereo-pipeline "asp-plot>=3.4,<4" python=3.12
 mamba activate asp
 ```
 

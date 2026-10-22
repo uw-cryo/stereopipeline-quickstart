@@ -26,3 +26,4 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0018 — Docs figures: hand-authored SVGs on an opaque light surface; data figures from real runs](0018-docs-figure-conventions.md)
 - [0019 — Glossary term links with hover previews via sphinx-tippy](0019-glossary-term-hover-previews.md)
 - [0020 — Soften the site-wide banner; reader reports via a GitHub issue form](0020-soften-banner-issue-form.md) — *amends 0017*
+- [0021 — Bound asp-plot to one major version](0021-asp-plot-major-version-bound.md)

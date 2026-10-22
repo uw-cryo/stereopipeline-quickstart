@@ -123,6 +123,10 @@ See [ADR-0010](architecture/0010-4-core-codespace-floor.md). `hostRequirements`:
 
 See [ADR-0013](architecture/0013-python-312-floor.md). The conda env is pinned to 3.12 in `environment.yml` (documented in `installation.md`) because `sliderule >= 5.3` (transitive via `asp_plot` 1.14) uses PEP 701 f-strings that only parse on 3.12+; on 3.11 `import asp_plot.altimetry` fails with a `SyntaxError`.
 
+### asp-plot: bounded to one major version
+
+See [ADR-0021](architecture/0021-asp-plot-major-version-bound.md). `requirements.txt`, `environment.yml`, and the install snippets in `installation.md` all require `asp-plot>=3.4,<4`. The notebooks call the `asp_report` CLI (hyphenated flags) and `StereoGeometryPlotter.stereo_geom_plot()`, both introduced in asp_plot 2.0/3.0. Moving to a new major version is a manual bump of all three files plus a notebook check.
+
 ### PATH plumbing for ASP in the container
 
 Two-pronged so ASP works from any shell context:
@@ -174,14 +178,14 @@ See [ADR-0008](architecture/0008-aster-cop30-two-reports.md). The ASTER notebook
 
 `asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4` for the 4-core floor.
 
-### `--reuse_selections` for comparable reports
+### `--reuse-selections` for comparable reports
 
 Both two-report comparisons replay the first run's figure selections so the PDFs line up panel-for-panel (same ICESat-2 points, profile track, hillshade crops) and only the processing change shows:
 
 - 01 ortho report reuses `stereo/rainier_aster_report_figure_selections.yml`.
 - 03 BA report reuses `stereo/ucsd_wv3_report_figure_selections.yml` (run 02 first).
 
-asp_plot ≥ 1.16.0 writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_plot --reuse_selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone. Pinned at `>=1.19.0` in both requirements.txt and environment.yml.
+asp_plot writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_report --reuse-selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone.
 
 As of asp_plot ≥ 1.18.0 the report's Processing Parameters page also renders the reconstructed `mapproject` command(s), rebuilt from the mapprojected output GeoTIFF metadata (ASP's `mapproject` writes no log to parse). No notebook change is needed to get this; `asp_plot` produces it. This surfaces the tool name `mapproject` in the reports, consistent with [ADR-0005](architecture/0005-orthorectification-vs-mapproject.md).
 

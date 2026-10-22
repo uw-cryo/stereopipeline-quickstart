@@ -26,5 +26,7 @@ dependencies:
   - seaborn
   - pip:
       # Pull asp_plot from PyPI; conda-forge package exists too but PyPI is
-      # always one step ahead during active development.
-      - asp-plot>=1.19.0
+      # always one step ahead during active development. Capped below the
+      # next major version, which may break the notebooks' asp_report calls
+      # (architecture/0021-asp-plot-major-version-bound.md).
+      - asp-plot>=3.4,<4

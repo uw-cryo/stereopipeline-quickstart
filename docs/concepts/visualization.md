@@ -4,7 +4,7 @@ ASP outputs are scattered across files in many formats; [`asp-plot`](https://asp
 
 ## Two ways to use it
 
-The CLI (`asp_plot --directory ... --report_filename ...`) generates a single PDF capturing the whole run: processing parameters, scene overviews, bundle-adjust {term}`residuals <residual>` when present, disparity and match quality, the DEM and its difference against a reference, and an {term}`ICESat-2` comparison. The tutorials end each processing pass with this command, so every run leaves a self-contained record. A few pages from the WorldView tutorial's report:
+The `asp_report` command (`asp_report --directory ... --report-filename ...`) generates a single PDF capturing the whole run: processing parameters, scene overviews, bundle-adjust {term}`residuals <residual>` when present, disparity and match quality, the DEM and its difference against a reference, and an {term}`ICESat-2` comparison. The tutorials end each processing pass with this command, so every run leaves a self-contained record. A few pages from the WorldView tutorial's report:
 
 ![Pages from the WorldView tutorial's asp_plot report: summary, scenes, DEM results, ICESat-2 histogram, alignment](figures/report-pages.png)
 
@@ -12,7 +12,7 @@ The Python API (`ScenePlotter`, `StereoPlotter`, `PlotBundleAdjustFiles`, `Altim
 
 ## Comparable reports across runs
 
-When two runs differ by one processing choice, their reports should differ only where the processing does. `asp_plot` writes its figure selections (which ICESat-2 points, which profile track, which hillshade crops) to a sidecar file next to each report, and `--reuse_selections` replays them, so the two PDFs line up panel for panel. The tutorials use this twice: the ASTER raw-vs-orthorectified pair of reports, and the WorldView with-and-without bundle adjustment pair.
+When two runs differ by one processing choice, their reports should differ only where the processing does. `asp_plot` writes its figure selections (which ICESat-2 points, which profile track, which hillshade crops) to a sidecar file next to each report, and `--reuse-selections` replays them, so the two PDFs line up panel for panel. The tutorials use this twice: the ASTER raw-vs-orthorectified pair of reports, and the WorldView with-and-without bundle adjustment pair.
 
 ## Where to read more
 

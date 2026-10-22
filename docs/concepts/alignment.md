@@ -39,7 +39,7 @@ Three things to check:
 
 ## Alignment inside `asp-plot`
 
-The `asp_plot` CLI runs `pc_align` by default (the `--pc_align` option, on unless altimetry plotting is disabled) against the appropriate altimetry reference for the body (ICESat-2 for Earth, MOLA for Mars, LOLA for the Moon) and appends alignment-report pages to the PDF. This is how the WorldView tutorial aligns its DEM: its report command runs `pc_align` without any extra flag.
+The `asp_report` command runs `pc_align` by default (`--no-pc-align` turns it off, and `--no-altimetry` skips it too) against the appropriate altimetry reference for the body (ICESat-2 for Earth, MOLA for Mars, LOLA for the Moon) and appends alignment-report pages to the PDF. This is how the WorldView tutorial aligns its DEM: its report command runs `pc_align` without any extra flag.
 
 ## Where to read more
 
