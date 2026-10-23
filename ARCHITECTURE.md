@@ -138,7 +138,9 @@ Two-pronged so ASP works from any shell context:
 
 ### Notebook kernel registration
 
-A system Jupyter kernel `asp` is registered in the Dockerfile via `python -m ipykernel install --name asp --display-name "Python (ASP)" --prefix /usr`. Both notebooks declare `kernelspec.name = "asp"` in their metadata, so VS Code resolves the kernel without prompting on first open.
+No Jupyter kernel is registered in the image. VS Code's Jupyter extension resolves the kernel from the Python environment rather than from registered kernelspecs, and `python.defaultInterpreterPath` in `devcontainer.json` points it at `/opt/conda/envs/asp/bin/python`. The notebooks' metadata matches what VS Code writes for that environment (`kernelspec: {display_name: "asp", language: "python", name: "python3"}` plus a full `language_info` block), so opening one produces no metadata diff. A registered `asp` kernel with `kernelspec.name = "asp"` was tried and dropped in d8b2ccf: VS Code rewrote the metadata to `python3` on first open.
+
+`customizations.codespaces.openFiles` in `devcontainer.json` opens `notebooks/01_aster_rainier.ipynb` when a Codespace starts, instead of the README.
 
 ### PDF viewer extension
 

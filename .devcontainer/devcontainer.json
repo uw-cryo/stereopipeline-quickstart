@@ -39,6 +39,11 @@
   },
 
   "customizations": {
+    // Open the first tutorial instead of the README, so a first-time user
+    // lands on the notebook they should run.
+    "codespaces": {
+      "openFiles": ["notebooks/01_aster_rainier.ipynb"]
+    },
     "vscode": {
       "extensions": [
         "ms-python.python",
