@@ -1,6 +1,6 @@
 # Tutorials
 
-Three end-to-end notebooks. All use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
+Four end-to-end notebooks, fastest first. All use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
 
 ```{admonition} To run these notebooks, launch the Codespace first
 :class: important
@@ -10,22 +10,33 @@ The tutorial pages below are static renders of the notebooks in `notebooks/`, sh
 ::::{grid} 1 1 2 2
 :gutter: 3
 
-:::{grid-item-card} 1. ASTER Mt. Rainier
+:::{grid-item-card} 1. ASTER Mt. Rainier, quick look
 :link: 01_aster_rainier
 :link-type: doc
 
-Stereo from a single ASTER L1A scene. The simplest end-to-end flow:
+Stereo from a single ASTER L1A scene with ASP's fastest settings. The simplest end-to-end flow:
 - `aster2asp` to extract nadir + back-looking views
-- `parallel_stereo` + `point2dem` on the raw imagery
-- COP-DEM clip from AWS Open Data
-- `mapproject` + `parallel_stereo` re-run on the orthorectified pair
-- `asp-plot` PDF report for each pass
+- `parallel_stereo` (`asp_bm`) + `point2dem` on the raw imagery
+- `asp-plot` PDF report
 
-Output: two ~30 m DEMs of Mt. Rainier, raw and orthorectified.
+Output: a ~30 m DEM of Mt. Rainier.
 :::
 
-:::{grid-item-card} 2. WorldView-3 UCSD
-:link: 02_worldview_ucsd
+:::{grid-item-card} 2. ASTER Mt. Rainier, orthorectified
+:link: 02_aster_rainier_ortho
+:link-type: doc
+
+The same scene, processed the slower, higher-quality way:
+- COP-DEM clip from AWS Open Data
+- `mapproject` both views onto it
+- `parallel_stereo` (`asp_mgm`, subpixel mode 9) on the orthorectified pair
+- `asp-plot` PDF report that lines up panel for panel with Tutorial 1's
+
+Output: an orthorectified ~30 m DEM of Mt. Rainier.
+:::
+
+:::{grid-item-card} 3. WorldView-3 UCSD
+:link: 03_worldview_ucsd
 :link-type: doc
 
 Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly hosted on AWS). Steps:
@@ -38,19 +49,19 @@ Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly
 Output: 4 m DEM of the UCSD campus and sea cliffs.
 :::
 
-:::{grid-item-card} 3. WorldView-3 UCSD with bundle adjustment
-:link: 03_worldview_ucsd_ba
+:::{grid-item-card} 4. WorldView-3 UCSD with bundle adjustment
+:link: 04_worldview_ucsd_ba
 :link-type: doc
 
-Variant of Tutorial 2 that adds `bundle_adjust` to refine the vendor RPC cameras before orthorectification. Outputs are suffixed `_ba`, so both runs share a data directory and the two `asp-plot` reports can be compared side by side.
+Variant of Tutorial 3 that adds `bundle_adjust` to refine the vendor RPC cameras before orthorectification. Outputs are suffixed `_ba`, so both runs share a data directory and the two `asp-plot` reports can be compared side by side.
 :::
 ::::
 
 ## Suggested order
 
-If you've never run ASP before, do the ASTER tutorial first. It has fewer parameters, and a coarser resolution.
+The tutorials are numbered from fastest to slowest. If you've never run ASP before, start with Tutorial 1, the ASTER quick look. It has the fewest parameters and the coarsest resolution.
 
-The WorldView tutorial then adds cropping and a finer resolution, higher accuracy result. The bundle-adjustment variant comes last: run it after Tutorial 2 and compare the reports to see what camera refinement adds.
+Tutorial 2 processes the same ASTER scene with orthorectification and a slower, higher-quality matcher; compare its report with Tutorial 1's. The WorldView tutorial then adds cropping and a finer resolution, higher accuracy result. The bundle-adjustment variant comes last: run it after Tutorial 3 and compare the reports to see what camera refinement adds.
 
 ## Beyond the tutorials
 

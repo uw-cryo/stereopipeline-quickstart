@@ -16,7 +16,7 @@ With misaligned cameras, the two viewing rays for a matched pixel do not quite m
 
 ## Example on real data
 
-From a `bundle_adjust` run on the [WorldView tutorial's](../tutorials/03_worldview_ucsd_ba.ipynb) stereo pair, the per-tie-point reprojection {term}`residuals <residual>` before and after optimization:
+From a `bundle_adjust` run on the [WorldView tutorial's](../tutorials/04_worldview_ucsd_ba.ipynb) stereo pair, the per-tie-point reprojection {term}`residuals <residual>` before and after optimization:
 
 ![Histograms of initial and final bundle adjustment residuals from the WorldView tutorial](figures/wv3-ba-residuals-hist.png)
 
