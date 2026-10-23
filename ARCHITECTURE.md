@@ -140,7 +140,9 @@ Two-pronged so ASP works from any shell context:
 
 No Jupyter kernel is registered in the image. VS Code's Jupyter extension resolves the kernel from the Python environment rather than from registered kernelspecs, and `python.defaultInterpreterPath` in `devcontainer.json` points it at `/opt/conda/envs/asp/bin/python`. The notebooks' metadata matches what VS Code writes for that environment (`kernelspec: {display_name: "asp", language: "python", name: "python3"}` plus a full `language_info` block), so opening one produces no metadata diff. A registered `asp` kernel with `kernelspec.name = "asp"` was tried and dropped in d8b2ccf: VS Code rewrote the metadata to `python3` on first open.
 
-`customizations.codespaces.openFiles` in `devcontainer.json` opens `notebooks/01_aster_rainier.ipynb` when a Codespace starts, instead of the README.
+VS Code does not auto-select a kernel for a notebook it hasn't opened before; it only reselects the one last used with that notebook. So the first Run All in a new Codespace opens the kernel picker (Python Environments… → `asp`). Re-registering an `asp` kernel with matching notebook metadata was tested in a Codespace on 2026-10-23 and did not change this. Instead, `jupyter.kernels.excludePythonEnvironments` in `devcontainer.json` hides the other Pythons in the image (`/opt/conda/bin/python`, `/opt/StereoPipeline/bin/python`, `/usr/bin/python3`), so `asp` is the only environment listed.
+
+`customizations.codespaces.openFiles` in `devcontainer.json` opens `notebooks/01_aster_rainier.ipynb` when a Codespace starts, instead of the README. `workbench.editorAssociations` maps `*.ipynb` to the notebook editor, because without it `openFiles` opened the notebook as raw JSON on a fresh Codespace. The same settings block turns off launch pop-ups a learner doesn't need: the YAML extension's telemetry prompt, extension recommendations, and the `git fetch` prompt.
 
 ### PDF viewer extension
 

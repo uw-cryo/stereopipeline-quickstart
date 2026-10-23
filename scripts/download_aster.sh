@@ -21,7 +21,7 @@ URL="https://zenodo.org/record/7972223/files/${ARCHIVE}"
 if [[ -f "${DEST}/${ARCHIVE}" ]]; then
     echo "Archive already present at ${DEST}/${ARCHIVE} — skipping download."
 else
-    echo "Downloading ${ARCHIVE} from Zenodo (~80 MB)..."
+    echo "Downloading ${ARCHIVE} from Zenodo (~45 MB)..."
     curl -fL -o "${DEST}/${ARCHIVE}" "${URL}"
 fi
 

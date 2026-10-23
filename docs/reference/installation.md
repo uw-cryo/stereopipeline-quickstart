@@ -62,7 +62,7 @@ pip install "asp-plot>=3.4,<4" jupyterlab boto3 s3fs contextily
 git clone https://github.com/uw-cryo/stereopipeline-quickstart.git
 cd stereopipeline-quickstart
 
-# Optional: pre-fetch the ASTER demo data and its ICESat-2 data (~100 MB)
+# Optional: pre-fetch the ASTER demo data and its ICESat-2 data (~65 MB)
 bash scripts/download_aster.sh
 
 jupyter lab notebooks/01_aster_rainier.ipynb
