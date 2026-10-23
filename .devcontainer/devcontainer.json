@@ -68,8 +68,6 @@
         "redhat.telemetry.enabled": false,
         "extensions.ignoreRecommendations": true,
         "terminal.integrated.defaultProfile.linux": "bash",
-        // Start with the terminal panel closed; the notebooks don't need it.
-        "terminal.integrated.hideOnStartup": "always",
         "files.watcherExclude": {
           "**/data/**": true,
           "**/.ipynb_checkpoints/**": true
