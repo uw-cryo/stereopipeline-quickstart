@@ -17,16 +17,16 @@ The companion package [`asp-plot`](https://github.com/uw-cryo/asp_plot) handles 
 
 Click "Open in GitHub Codespaces" above. The Codespace pulls a pre-built container image with ASP and `asp-plot` already installed, then opens VS Code in your browser. Open a notebook under `notebooks/` and run cells top-to-bottom.
 
-New to ASP? Start with `01_aster_rainier.ipynb`, the ASTER quick look. It is the fastest of the tutorials: raw satellite images to a DEM and a PDF report.
+New to ASP? Start with `01_aster_rainier.ipynb`, the ASTER quick look. In about 6 minutes it goes from raw satellite images to a DEM and a PDF report.
 
-The tutorials go from fastest to slowest, and use openly available data; no API keys, no Earthdata login required:
+The tutorials use openly available data; no API keys, no Earthdata login required. Run times are for the default 4-core Codespace:
 
-| Tutorial | Sensor | Region | Data source |
-|---|---|---|---|
-| `01_aster_rainier.ipynb` | ASTER L1A | Mt. Rainier, WA | Zenodo (10.5281/zenodo.7972223) |
-| `02_aster_rainier_ortho.ipynb` | ASTER L1A | Mt. Rainier, WA | Zenodo (10.5281/zenodo.7972223) |
-| `03_worldview_ucsd.ipynb` | WorldView-3 | UCSD, San Diego | SpaceNet CORE3D (AWS S3) |
-| `04_worldview_ucsd_ba.ipynb` | WorldView-3 | UCSD, San Diego | SpaceNet CORE3D (AWS S3) |
+| Tutorial | Sensor | Region | Data source | Run time |
+|---|---|---|---|---|
+| `01_aster_rainier.ipynb` | ASTER L1A | Mt. Rainier, WA | Zenodo (10.5281/zenodo.7972223) | ~6 min |
+| `02_aster_rainier_ortho.ipynb` | ASTER L1A | Mt. Rainier, WA | Zenodo (10.5281/zenodo.7972223) | ~20 min |
+| `03_worldview_ucsd.ipynb` | WorldView-3 | UCSD, San Diego | SpaceNet CORE3D (AWS S3) | ~6 min |
+| `04_worldview_ucsd_ba.ipynb` | WorldView-3 | UCSD, San Diego | SpaceNet CORE3D (AWS S3) | ~20 min |
 
 ## Read the static docs
 

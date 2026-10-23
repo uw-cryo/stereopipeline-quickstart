@@ -18,7 +18,7 @@ This site is the static companion to the [GitHub repo](https://github.com/uw-cry
 :::{grid-item-card} Just want to see ASP run?
 :link: tutorials/01_aster_rainier
 :link-type: doc
-Open the Codespace and run Tutorial 1, the ASTER quick look: the fastest path from raw satellite images to a DEM and a PDF report.
+Open the Codespace and run Tutorial 1, the ASTER quick look: about 6 minutes from raw satellite images to a DEM and a PDF report.
 :::
 
 :::{grid-item-card} New to stereo photogrammetry?
@@ -42,7 +42,7 @@ The end-to-end flow from raw imagery to aligned DEM, with diagrams.
 :::{grid-item-card} Want to run the tutorials?
 :link: tutorials/index
 :link-type: doc
-Four walkthroughs, fastest first: two on ASTER (medium-res), two on WorldView-3 (high-res). All fully open.
+Four walkthroughs, two on ASTER (medium-res) and two on WorldView-3 (high-res), 6 to 20 minutes each. All fully open.
 :::
 
 :::{grid-item-card} Need to look something up?

@@ -36,10 +36,10 @@ Open one of the notebooks under `notebooks/`:
 
 | File | What it does |
 |---|---|
-| `01_aster_rainier.ipynb` | ASTER L1A → 30 m DEM of Mt. Rainier, the fastest tutorial |
-| `02_aster_rainier_ortho.ipynb` | Tutorial 1 with orthorectification and a higher-quality matcher, for comparison |
-| `03_worldview_ucsd.ipynb` | WorldView-3 → 4 m DEM of UCSD |
-| `04_worldview_ucsd_ba.ipynb` | Tutorial 3 plus bundle adjustment, for comparison |
+| `01_aster_rainier.ipynb` | ASTER L1A → 30 m DEM of Mt. Rainier (~6 min) |
+| `02_aster_rainier_ortho.ipynb` | Tutorial 1 with orthorectification and a higher-quality matcher, for comparison (~20 min) |
+| `03_worldview_ucsd.ipynb` | WorldView-3 → 4 m DEM of UCSD (~6 min) |
+| `04_worldview_ucsd_ba.ipynb` | Tutorial 3 plus bundle adjustment, for comparison (~20 min) |
 
 Each notebook has a "Run All" button at the top. Cells are small enough to run them step by step.
 

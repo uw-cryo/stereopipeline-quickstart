@@ -1,6 +1,6 @@
 # Tutorials
 
-Four end-to-end notebooks, fastest first. All use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
+Four end-to-end notebooks, in two pairs: each second notebook adds a processing step to the first, and their reports line up for comparison. Run times are for the default 4-core Codespace. All use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
 
 ```{admonition} To run these notebooks, launch the Codespace first
 :class: important
@@ -19,7 +19,7 @@ Stereo from a single ASTER L1A scene with ASP's fastest settings. The simplest e
 - `parallel_stereo` (`asp_bm`) + `point2dem` on the raw imagery
 - `asp-plot` PDF report
 
-Output: a ~30 m DEM of Mt. Rainier.
+Output: a ~30 m DEM of Mt. Rainier. Run time: ~6 min.
 :::
 
 :::{grid-item-card} 2. ASTER Mt. Rainier, orthorectified
@@ -32,7 +32,7 @@ The same scene, processed the slower, higher-quality way:
 - `parallel_stereo` (`asp_mgm`, subpixel mode 9) on the orthorectified pair
 - `asp-plot` PDF report that lines up panel for panel with Tutorial 1's
 
-Output: an orthorectified ~30 m DEM of Mt. Rainier.
+Output: an orthorectified ~30 m DEM of Mt. Rainier. Run time: ~20 min.
 :::
 
 :::{grid-item-card} 3. WorldView-3 UCSD
@@ -46,20 +46,20 @@ Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly
 - `parallel_stereo` on the orthorectified pair
 - `asp_plot` PDF report with ICESat-2 alignment (`pc_align` runs by default)
 
-Output: 4 m DEM of the UCSD campus and sea cliffs.
+Output: 4 m DEM of the UCSD campus and sea cliffs. Run time: ~6 min.
 :::
 
 :::{grid-item-card} 4. WorldView-3 UCSD with bundle adjustment
 :link: 04_worldview_ucsd_ba
 :link-type: doc
 
-Variant of Tutorial 3 that adds `bundle_adjust` to refine the vendor RPC cameras before orthorectification. Outputs are suffixed `_ba`, so both runs share a data directory and the two `asp-plot` reports can be compared side by side.
+Variant of Tutorial 3 that adds `bundle_adjust` to refine the vendor RPC cameras before orthorectification. Outputs are suffixed `_ba`, so both runs share a data directory and the two `asp-plot` reports can be compared side by side. Run time: ~20 min, most of it bundle adjustment.
 :::
 ::::
 
 ## Suggested order
 
-The tutorials are numbered from fastest to slowest. If you've never run ASP before, start with Tutorial 1, the ASTER quick look. It has the fewest parameters and the coarsest resolution.
+If you've never run ASP before, start with Tutorial 1, the ASTER quick look. It has the fewest parameters and the coarsest resolution.
 
 Tutorial 2 processes the same ASTER scene with orthorectification and a slower, higher-quality matcher; compare its report with Tutorial 1's. The WorldView tutorial then adds cropping and a finer resolution, higher accuracy result. The bundle-adjustment variant comes last: run it after Tutorial 3 and compare the reports to see what camera refinement adds.
 
