@@ -1,0 +1,14 @@
+{
+  "name": "close-panel",
+  "displayName": "stereopipeline-quickstart: close panel on first launch",
+  "description": "Closes the terminal panel once, after a new Codespace opens Tutorial 1.",
+  "version": "0.0.1",
+  "publisher": "stereopipeline-quickstart",
+  "license": "BSD-3-Clause",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["*"],
+  "main": "./extension.js"
+}

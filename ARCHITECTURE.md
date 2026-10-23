@@ -23,7 +23,8 @@ stereopipeline-quickstart/
 │   ├── Dockerfile                     # ASP binaries + asp_plot conda env
 │   ├── environment.yml                # conda env spec (python 3.12)
 │   ├── onCreate.sh                    # ASP/asp_plot health check + download_aster.sh pre-fetch (runs in prebuilds)
-│   ├── postAttach.sh                  # opens Tutorial 1 once VS Code attaches (after the trust prompt)
+│   ├── postAttach.sh                  # opens Tutorial 1 once VS Code attaches (after the trust prompt), installs close-panel/
+│   ├── close-panel/                   # tiny VS Code extension: closes the terminal panel once on first launch
 │   └── postStart.sh                   # (stashed; not active)
 ├── .github/
 │   ├── ISSUE_TEMPLATE/
@@ -144,6 +145,8 @@ No Jupyter kernel is registered in the image. VS Code's Jupyter extension resolv
 With every Python in the image visible, VS Code does not pick a kernel for a notebook it hasn't opened before, so the first Run All opened the kernel picker, with "Create Python Environment" as the recommended choice. `jupyter.kernels.excludePythonEnvironments` in `devcontainer.json` hides the image's other Pythons (`/opt/conda/bin/python`, `/opt/StereoPipeline/bin/python`, `/usr/bin/python3`); with `asp` the only environment left, VS Code selects it on its own (tested in a fresh Codespace on 2026-10-23). Re-registering an `asp` kernel with matching notebook metadata was tested the same day and did not help.
 
 A new Codespace starts in Restricted Mode and asks "Do you trust the authors of the files in this folder?"; the lifecycle commands wait for that answer. `.devcontainer/postAttach.sh` (`postAttachCommand`) then opens `notebooks/01_aster_rainier.ipynb` with the remote `code` CLI, once per Codespace. It replaced `customizations.codespaces.openFiles`, which opened the notebook before the trust prompt, in Restricted Mode, as raw JSON. Lifecycle commands may not inherit `VSCODE_IPC_HOOK_CLI`, so the script falls back to the newest `/tmp/vscode-ipc-*.sock` and `/vscode/bin/*/*/bin/remote-cli/code`. `workbench.editorAssociations` maps `*.ipynb` to the notebook editor. The same settings block turns off the YAML extension's telemetry prompt and extension recommendations; the `git fetch` prompt and the PDF viewer's donation notice still appear.
+
+Codespaces runs the lifecycle commands in a terminal and opens the panel to show it. `terminal.integrated.hideOnStartup` doesn't stop that, and `devcontainer.json` can't run VS Code commands (GitHub staff, community discussion 43125), so `postAttach.sh` zips `.devcontainer/close-panel/` into a `.vsix` with Python's `zipfile` and installs it with `code --install-extension`. On activation the extension runs `workbench.action.closePanel` at 0.5, 2 and 5 s, then sets a `globalState` flag so it never closes the panel again. `sirmspencer.vscode-autohide` was considered: it only hides the panel when the user clicks into an editor, and its hide-on-open also hides the file explorer.
 
 ### PDF viewer extension
 
