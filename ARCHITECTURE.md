@@ -198,6 +198,10 @@ asp_plot writes the sidecar next to each report PDF (`<report_stem>_figure_selec
 
 As of asp_plot ≥ 1.18.0 the report's Processing Parameters page also renders the reconstructed `mapproject` command(s), rebuilt from the mapprojected output GeoTIFF metadata (ASP's `mapproject` writes no log to parse). No notebook change is needed to get this; `asp_plot` produces it. This surfaces the tool name `mapproject` in the reports, consistent with [ADR-0005](architecture/0005-orthorectification-vs-mapproject.md).
 
+### Report figures inline
+
+PDFs open poorly in the browser-based editor, so each report cell also shows three of the report's figures below it. `asp_report --figures-directory` (asp_plot ≥ 3.5.0) keeps a copy of each figure as `NN_<title>.png` in `<stereo dir>/report_figures/`, which asp_report otherwise deletes with its `tmp_asp_report_plots/` directory. `show_report_figures()` in `notebooks/utils.py` displays the ones named in `REPORT_FIGURES` (DEM results, detailed hillshade, ICESat-2 profile), picked by title because the number shifts when a section is skipped. They are scaled to 1400 px wide, about 2.6 MB of notebook output per report; the PDF keeps them at full resolution. Both reports of a pair show the same three figures, which line up because of `--reuse-selections`.
+
 ### COP30 reference DEM: AWS Open Data + local EGM2008 → ellipsoid shift
 
 See [ADR-0007](architecture/0007-cop30-egm2008-shift.md). `scripts/fetch_cop_dem.py` fetches Copernicus GLO-30 tiles from the public AWS bucket `copernicus-dem-30m` (no API key) and shifts them from EGM2008 geoid to WGS84 ellipsoid heights locally via `gdalwarp` with a compound CRS pair (mirrors `uw-cryo/fetch_dem`):
