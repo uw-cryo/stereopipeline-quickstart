@@ -22,7 +22,7 @@ stereopipeline-quickstart/
 │   ├── devcontainer.json              # pulls pre-built image; build: fallback
 │   ├── Dockerfile                     # ASP binaries + asp_plot conda env
 │   ├── environment.yml                # conda env spec (python 3.12)
-│   ├── postCreate.sh                  # ASP/asp_plot health check + download_aster.sh pre-fetch
+│   ├── onCreate.sh                    # ASP/asp_plot health check + download_aster.sh pre-fetch (runs in prebuilds)
 │   ├── postAttach.sh                  # opens Tutorial 1 once VS Code attaches (after the trust prompt)
 │   └── postStart.sh                   # (stashed; not active)
 ├── .github/
@@ -135,7 +135,7 @@ Two-pronged so ASP works from any shell context:
 
 1. Image ENV: `PATH=/opt/conda/envs/asp/bin:/opt/StereoPipeline/bin:...`. Conda env first so its `python` shadows ASP's bundled `/opt/StereoPipeline/bin/python` (which has none of the conda env's packages and would break `import asp_plot`).
 2. `/etc/profile.d/99-asp.sh` written in the Dockerfile, idempotently appends `/opt/StereoPipeline/bin` to PATH if it's not already there. Catches Codespaces' `loginInteractiveShell` env probe, which sources `~/.bashrc` (running `source activate asp`) and can rearrange PATH.
-3. `postCreate.sh` also explicitly exports `PATH=/opt/conda/envs/asp/bin:/opt/StereoPipeline/bin:$PATH` at the top, defensively, so it doesn't depend on shell-wrapping behavior.
+3. `onCreate.sh` also explicitly exports `PATH=/opt/conda/envs/asp/bin:/opt/StereoPipeline/bin:$PATH` at the top, defensively, so it doesn't depend on shell-wrapping behavior.
 
 ### Notebook kernel registration
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs when VS Code attaches to the Codespace, after postCreate.sh and after
+# Runs when VS Code attaches to the Codespace, after onCreate.sh and after
 # the user has trusted the folder. Opens Tutorial 1 in the notebook editor, so
 # a first-time user lands on the notebook they should run.
 #

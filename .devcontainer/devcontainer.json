@@ -68,6 +68,8 @@
         "redhat.telemetry.enabled": false,
         "extensions.ignoreRecommendations": true,
         "terminal.integrated.defaultProfile.linux": "bash",
+        // Start with the terminal panel closed; the notebooks don't need it.
+        "terminal.integrated.hideOnStartup": "always",
         "files.watcherExclude": {
           "**/data/**": true,
           "**/.ipynb_checkpoints/**": true
@@ -88,17 +90,21 @@
           "AGENTS.md": true,
           "ARCHITECTURE.md": true,
           "CLAUDE.md": true,
-          "LICENSE": true
+          "LICENSE": true,
+          // Written next to notebooks/utils.py when a notebook imports it.
+          "**/__pycache__": true
         }
       }
     }
   },
 
-  // Run a one-time setup the first time the container is created. This pre-fetches
+  // Run a one-time setup the first time the container is created. onCreateCommand,
+  // not postCreateCommand, because Codespaces prebuilds run only the former, so
+  // a prebuild includes these downloads. This pre-fetches
   // the ASTER Zenodo archive (~45 MB) and its shipped ICESat-2 data (~18 MB)
   // so the first notebook is instant.
   // The WorldView download is heavier and is deferred to the notebook itself.
-  "postCreateCommand": "bash .devcontainer/postCreate.sh",
+  "onCreateCommand": "bash .devcontainer/onCreate.sh",
 
   // Open Tutorial 1 once VS Code is attached and the folder is trusted.
   // customizations.codespaces.openFiles opened it before the trust prompt,

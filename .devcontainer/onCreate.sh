@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-# Runs once when the Codespace is created. Keep this fast — anything that takes
-# more than a minute or two should be done inside the notebook on demand.
+# Runs once when the Codespace is created (onCreateCommand). Codespaces
+# prebuilds run onCreateCommand but not postCreateCommand, so with a prebuild
+# the downloads below are already done when a user opens the Codespace.
+# Keep this fast — anything that takes more than a minute or two should be
+# done inside the notebook on demand.
 #
 # What we do here:
 #   1. Confirm ASP and the python env are healthy.
@@ -10,7 +13,7 @@
 
 set -euo pipefail
 
-# Codespaces invokes postCreateCommand through a login-interactive-shell env
+# Codespaces invokes onCreateCommand through a login-interactive-shell env
 # probe; conda's activation in ~/.bashrc can strip /opt/StereoPipeline/bin
 # from PATH even though the image-level ENV directive includes it. Make PATH
 # explicit here so this script doesn't depend on the shell wrapping.
@@ -21,7 +24,7 @@ set -euo pipefail
 # `python` and breaks the asp_plot import check below.
 export PATH="/opt/conda/envs/asp/bin:/opt/StereoPipeline/bin:${PATH:-/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin}"
 
-echo "==> stereopipeline-quickstart postCreate.sh"
+echo "==> stereopipeline-quickstart onCreate.sh"
 
 # ---- 1. Sanity check toolchain ----------------------------------------------
 echo "--> ASP version:"
