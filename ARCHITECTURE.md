@@ -23,6 +23,7 @@ stereopipeline-quickstart/
 │   ├── Dockerfile                     # ASP binaries + asp_plot conda env
 │   ├── environment.yml                # conda env spec (python 3.12)
 │   ├── postCreate.sh                  # ASP/asp_plot health check + download_aster.sh pre-fetch
+│   ├── postAttach.sh                  # opens Tutorial 1 once VS Code attaches (after the trust prompt)
 │   └── postStart.sh                   # (stashed; not active)
 ├── .github/
 │   ├── ISSUE_TEMPLATE/
@@ -140,9 +141,9 @@ Two-pronged so ASP works from any shell context:
 
 No Jupyter kernel is registered in the image. VS Code's Jupyter extension resolves the kernel from the Python environment rather than from registered kernelspecs, and `python.defaultInterpreterPath` in `devcontainer.json` points it at `/opt/conda/envs/asp/bin/python`. The notebooks' metadata matches what VS Code writes for that environment (`kernelspec: {display_name: "asp", language: "python", name: "python3"}` plus a full `language_info` block), so opening one produces no metadata diff. A registered `asp` kernel with `kernelspec.name = "asp"` was tried and dropped in d8b2ccf: VS Code rewrote the metadata to `python3` on first open.
 
-VS Code does not auto-select a kernel for a notebook it hasn't opened before; it only reselects the one last used with that notebook. So the first Run All in a new Codespace opens the kernel picker (Python Environments… → `asp`). Re-registering an `asp` kernel with matching notebook metadata was tested in a Codespace on 2026-10-23 and did not change this. Instead, `jupyter.kernels.excludePythonEnvironments` in `devcontainer.json` hides the other Pythons in the image (`/opt/conda/bin/python`, `/opt/StereoPipeline/bin/python`, `/usr/bin/python3`), so `asp` is the only environment listed.
+With every Python in the image visible, VS Code does not pick a kernel for a notebook it hasn't opened before, so the first Run All opened the kernel picker, with "Create Python Environment" as the recommended choice. `jupyter.kernels.excludePythonEnvironments` in `devcontainer.json` hides the image's other Pythons (`/opt/conda/bin/python`, `/opt/StereoPipeline/bin/python`, `/usr/bin/python3`); with `asp` the only environment left, VS Code selects it on its own (tested in a fresh Codespace on 2026-10-23). Re-registering an `asp` kernel with matching notebook metadata was tested the same day and did not help.
 
-`customizations.codespaces.openFiles` in `devcontainer.json` opens `notebooks/01_aster_rainier.ipynb` when a Codespace starts, instead of the README. `workbench.editorAssociations` maps `*.ipynb` to the notebook editor, because without it `openFiles` opened the notebook as raw JSON on a fresh Codespace. The same settings block turns off launch pop-ups a learner doesn't need: the YAML extension's telemetry prompt, extension recommendations, and the `git fetch` prompt.
+A new Codespace starts in Restricted Mode and asks "Do you trust the authors of the files in this folder?"; the lifecycle commands wait for that answer. `.devcontainer/postAttach.sh` (`postAttachCommand`) then opens `notebooks/01_aster_rainier.ipynb` with the remote `code` CLI, once per Codespace. It replaced `customizations.codespaces.openFiles`, which opened the notebook before the trust prompt, in Restricted Mode, as raw JSON. Lifecycle commands may not inherit `VSCODE_IPC_HOOK_CLI`, so the script falls back to the newest `/tmp/vscode-ipc-*.sock` and `/vscode/bin/*/*/bin/remote-cli/code`. `workbench.editorAssociations` maps `*.ipynb` to the notebook editor. The same settings block turns off the YAML extension's telemetry prompt and extension recommendations; the `git fetch` prompt and the PDF viewer's donation notice still appear.
 
 ### PDF viewer extension
 
