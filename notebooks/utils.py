@@ -41,3 +41,45 @@ def utm_epsg(bbox):
     lat = (minlat + maxlat) / 2
     zone = int((lon + 180) // 6) + 1
     return f"EPSG:{(32600 if lat >= 0 else 32700) + zone}"
+
+
+# Report figures shown below each report cell, by the title part of the file
+# names asp_report --figures-directory writes (NN_<title>.png). NN shifts when
+# a report section is skipped, so figures are picked by title.
+REPORT_FIGURES = {
+    "dem_results": "The DEM, its triangulation intersection error, and its difference from the reference DEM.",
+    "detailed_hillshade": "A hillshade of the DEM, with zoomed details.",
+    "icesat_2_atl06_sr_profile": "The DEM along one ICESat-2 track, and the difference between them.",
+}
+
+
+def show_report_figures(figures_dir, figures=REPORT_FIGURES, max_width=1400):
+    """Show a few figures of an asp_report run inline, under a caption each.
+
+    `figures_dir` is what was passed to `asp_report --figures-directory`.
+    Figures wider than `max_width` pixels are scaled down, which keeps the
+    notebook small; the PDF has them at full resolution.
+    """
+    from io import BytesIO
+    from pathlib import Path
+
+    from IPython.display import Image, Markdown, display
+    from PIL import Image as PILImage
+
+    figures_dir = Path(figures_dir)
+    shown = 0
+    for name, caption in figures.items():
+        matches = sorted(figures_dir.glob(f"[0-9][0-9]_{name}.png"))
+        if not matches:
+            continue
+        fig = matches[0]
+        with PILImage.open(fig) as im:
+            if im.width > max_width:
+                im = im.resize((max_width, round(im.height * max_width / im.width)))
+            buf = BytesIO()
+            im.save(buf, format="PNG")
+        display(Markdown(f"**Report figure {int(fig.name[:2])}.** {caption}"))
+        display(Image(data=buf.getvalue()))
+        shown += 1
+    if not shown:
+        print(f"No report figures in {figures_dir}. Delete the report PDF and rerun this cell to make them.")
