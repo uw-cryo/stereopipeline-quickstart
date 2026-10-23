@@ -29,4 +29,6 @@ dependencies:
       # always one step ahead during active development. Capped below the
       # next major version, which may break the notebooks' asp_report calls
       # (architecture/0021-asp-plot-major-version-bound.md).
-      - asp-plot>=3.4,<4
+      # 3.5 is the floor for asp_report --figures-directory, which the
+      # notebooks use to show report figures inline.
+      - asp-plot>=3.5,<4
