@@ -39,6 +39,22 @@ for stem in "${SCENES[@]}"; do
     done
 done
 
+# ICESat-2 ATL06-SR points and figure selections from a known-good report run,
+# attached to a release of this repo so the tutorial doesn't depend on SlideRule
+# being up. The sidecar's parquet_cache path is relative to notebooks/. Kept in
+# their own folder so a fresh SlideRule request can't overwrite them.
+ICESAT2_URL="https://github.com/uw-cryo/stereopipeline-quickstart/releases/download/icesat2-2026-10-23"
+ICESAT2_DIR="${DEST}/icesat2_shipped"
+mkdir -p "${ICESAT2_DIR}"
+for name in atl06sr_all.parquet figure_selections.yml; do
+    if [[ -f "${ICESAT2_DIR}/${name}" ]]; then
+        echo "Already have ICESat-2 ${name} — skipping."
+    else
+        echo "Downloading ICESat-2 ${name} from the icesat2-2026-10-23 release..."
+        curl -fL -o "${ICESAT2_DIR}/${name}" "${ICESAT2_URL}/ucsd_${name}"
+    fi
+done
+
 # Extract each tar (gives us the .IMD file with RPCs and the catalog .XML).
 echo "Extracting metadata tars..."
 cd "${IMAGES_DIR}"

@@ -28,7 +28,7 @@ The matcher (`--stereo-algorithm`) and the subpixel refiner (`--subpixel-mode`) 
 
 Height precision is determined by the viewing geometry before any processing runs: the {term}`convergence angle` (the angle between the two viewing rays) and the {term}`base-to-height ratio <base-to-height ratio (B/H)>`. Too little convergence and the rays intersect at a shallow angle, so small matching errors become large height errors; too much and the two images look so different that matching degrades.
 
-Both quantities come from the vendor metadata. `asp_plot.stereo_geometry.StereoGeometryPlotter` reads the camera XMLs and plots them, as run in [the WorldView tutorial](../tutorials/02_worldview_ucsd.ipynb) for its stereo pair:
+Both quantities come from the vendor metadata. `asp_plot.stereo_geometry.StereoGeometryPlotter` reads the camera XMLs and plots them, as run in [the WorldView tutorial](../tutorials/03_worldview_ucsd.ipynb) for its stereo pair:
 
 ![Skyplot and footprint map for the WorldView tutorial pair, from StereoGeometryPlotter](figures/wv3-stereo-geometry.png)
 

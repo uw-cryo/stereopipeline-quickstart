@@ -170,6 +170,6 @@ jobs:
 
             ### Before merging — quick checklist
             - [ ] Read the [ASP release notes](https://github.com/NeoGeographyToolkit/StereoPipeline/releases/tag/${{ steps.asp.outputs.version }}) for breaking changes that might affect the tutorial notebooks (CLI flag renames, new sensor-prep paths, output-file renames).
-            - [ ] Skim `notebooks/01_aster_rainier.ipynb` and `notebooks/02_worldview_ucsd.ipynb` for any flag this release changes.
+            - [ ] Skim the notebooks under `notebooks/` for any flag this release changes.
             - [ ] Close any older auto-bump PRs from this workflow that this one supersedes — the workflow doesn't do that for you.
             - [ ] Once merged, watch `Build & push container image` complete — the new image lands at `ghcr.io/bpurinton/stereopipeline-quickstart:asp-${{ steps.asp.outputs.version }}` and `:latest`.

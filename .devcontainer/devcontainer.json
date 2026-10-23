@@ -51,7 +51,25 @@
       "settings": {
         "python.defaultInterpreterPath": "/opt/conda/envs/asp/bin/python",
         "jupyter.jupyterServerType": "local",
+        // VS Code doesn't auto-select a kernel for a notebook it hasn't
+        // opened before, so the first Run All asks for one. Hide every
+        // Python but the asp env, so it is the only one to choose.
+        "jupyter.kernels.excludePythonEnvironments": [
+          "/opt/conda/bin/python",
+          "/opt/StereoPipeline/bin/python",
+          "/usr/bin/python3"
+        ],
+        // Always open notebooks in the notebook editor, including the one
+        // postAttach.sh opens.
+        "workbench.editorAssociations": {
+          "*.ipynb": "jupyter-notebook"
+        },
+        // Pop-ups a first-time learner doesn't need on launch.
+        "redhat.telemetry.enabled": false,
+        "extensions.ignoreRecommendations": true,
         "terminal.integrated.defaultProfile.linux": "bash",
+        // Start with the terminal panel closed; the notebooks don't need it.
+        "terminal.integrated.hideOnStartup": "always",
         "files.watcherExclude": {
           "**/data/**": true,
           "**/.ipynb_checkpoints/**": true
@@ -72,16 +90,26 @@
           "AGENTS.md": true,
           "ARCHITECTURE.md": true,
           "CLAUDE.md": true,
-          "LICENSE": true
+          "LICENSE": true,
+          // Written next to notebooks/utils.py when a notebook imports it.
+          "**/__pycache__": true
         }
       }
     }
   },
 
-  // Run a one-time setup the first time the container is created. This pre-fetches
-  // the ASTER Zenodo archive (small, ~80 MB) so the first notebook is instant.
+  // Run a one-time setup the first time the container is created. onCreateCommand,
+  // not postCreateCommand, because Codespaces prebuilds run only the former, so
+  // a prebuild includes these downloads. This pre-fetches
+  // the ASTER Zenodo archive (~45 MB) and its shipped ICESat-2 data (~18 MB)
+  // so the first notebook is instant.
   // The WorldView download is heavier and is deferred to the notebook itself.
-  "postCreateCommand": "bash .devcontainer/postCreate.sh",
+  "onCreateCommand": "bash .devcontainer/onCreate.sh",
+
+  // Open Tutorial 1 once VS Code is attached and the folder is trusted.
+  // customizations.codespaces.openFiles opened it before the trust prompt,
+  // in Restricted Mode, where it showed as raw JSON.
+  "postAttachCommand": "bash .devcontainer/postAttach.sh",
 
   "remoteUser": "vscode",
 
