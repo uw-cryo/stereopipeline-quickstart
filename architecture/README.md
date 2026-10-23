@@ -27,3 +27,4 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0019 — Glossary term links with hover previews via sphinx-tippy](0019-glossary-term-hover-previews.md)
 - [0020 — Soften the site-wide banner; reader reports via a GitHub issue form](0020-soften-banner-issue-form.md) — *amends 0017*
 - [0021 — Bound asp-plot to one major version](0021-asp-plot-major-version-bound.md)
+- [0022 — Ship the tutorials' ICESat-2 data as release assets](0022-ship-icesat2-data.md)

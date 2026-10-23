@@ -4,7 +4,8 @@
 #
 # What we do here:
 #   1. Confirm ASP and the python env are healthy.
-#   2. Pre-fetch the small ASTER Zenodo archive so notebook 01 is instant.
+#   2. Pre-fetch the small ASTER Zenodo archive and the shipped ICESat-2 data
+#      so notebook 01 is instant.
 #   3. Print a short "what now?" message into the terminal.
 
 set -euo pipefail
@@ -32,17 +33,10 @@ echo "--> asp_plot version:"
 /opt/conda/envs/asp/bin/python -c "import asp_plot; print(asp_plot.__version__)"
 
 # ---- 2. Pre-fetch ASTER demo data -------------------------------------------
-DATA_DIR="${PWD}/data/aster_rainier"
-mkdir -p "${DATA_DIR}"
-
-if [[ ! -f "${DATA_DIR}/AST_L1A_00307312017190728_20200218153629_19952.zip" ]]; then
-    echo "--> Pre-fetching ASTER Mt. Rainier scene from Zenodo..."
-    curl -fL -o "${DATA_DIR}/AST_L1A_00307312017190728_20200218153629_19952.zip" \
-        https://zenodo.org/record/7972223/files/AST_L1A_00307312017190728_20200218153629_19952.zip
-    echo "--> Done: $(du -h "${DATA_DIR}"/*.zip | cut -f1) downloaded"
-else
-    echo "--> ASTER scene already present, skipping download"
-fi
+# Same script notebook 01 runs, so the Zenodo scene and the shipped ICESat-2
+# data land where the notebook expects them.
+echo "--> Pre-fetching ASTER Mt. Rainier scene and ICESat-2 data..."
+bash scripts/download_aster.sh "${PWD}/data/aster_rainier"
 
 # ---- 3. Friendly hello -------------------------------------------------------
 cat <<'EOF'

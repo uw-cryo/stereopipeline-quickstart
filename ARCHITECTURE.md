@@ -22,7 +22,7 @@ stereopipeline-quickstart/
 │   ├── devcontainer.json              # pulls pre-built image; build: fallback
 │   ├── Dockerfile                     # ASP binaries + asp_plot conda env
 │   ├── environment.yml                # conda env spec (python 3.12)
-│   ├── postCreate.sh                  # ASP/asp_plot health check + ASTER pre-fetch
+│   ├── postCreate.sh                  # ASP/asp_plot health check + download_aster.sh pre-fetch
 │   └── postStart.sh                   # (stashed; not active)
 ├── .github/
 │   ├── ISSUE_TEMPLATE/
@@ -67,8 +67,8 @@ stereopipeline-quickstart/
 │   ├── 03_worldview_ucsd_ba.ipynb     # WV3 BA variant (adds bundle_adjust; _ba-suffixed outputs)
 │   └── utils.py                       # scene_bbox/utm_epsg via camera_footprint
 ├── scripts/
-│   ├── download_aster.sh              # Zenodo fetch + unzip
-│   ├── download_worldview_ucsd.sh     # SpaceNet S3 fetch + tar extract + rename
+│   ├── download_aster.sh              # Zenodo fetch + shipped ICESat-2 (release) + unzip
+│   ├── download_worldview_ucsd.sh     # SpaceNet S3 fetch + shipped ICESat-2 (release) + tar extract + rename
 │   └── fetch_cop_dem.py               # COP30 from AWS, local geoid→ellipsoid shift
 └── CLAUDE/                            # gitignored; local session/design scratch notes
 ```
@@ -182,10 +182,10 @@ See [ADR-0008](architecture/0008-aster-cop30-two-reports.md). The ASTER notebook
 
 Both two-report comparisons replay the first run's figure selections so the PDFs line up panel-for-panel (same ICESat-2 points, profile track, hillshade crops) and only the processing change shows:
 
-- 01 ortho report reuses `stereo/rainier_aster_report_figure_selections.yml`.
-- 03 BA report reuses `stereo/ucsd_wv3_report_figure_selections.yml` (run 02 first).
+- By default every report, the first of each pair included, replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both from the `icesat2-2026-10-23` release with `curl -f`. See [ADR-0022](architecture/0022-ship-icesat2-data.md).
+- With `FRESH_ICESAT2 = True` (first code cell of each notebook), the first report requests fresh data from SlideRule, and the second reuses the first's own sidecar: the 01 ortho report reuses `stereo/rainier_aster_report_figure_selections.yml`, and the 03 BA report reuses `stereo/ucsd_wv3_report_figure_selections.yml` (run 02 first).
 
-asp_plot writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_report --reuse-selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone.
+asp_plot writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_report --reuse-selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone. The sidecar's `parquet_cache` path is resolved from the working directory, so shipped sidecars are written relative to `notebooks/`.
 
 As of asp_plot ≥ 1.18.0 the report's Processing Parameters page also renders the reconstructed `mapproject` command(s), rebuilt from the mapprojected output GeoTIFF metadata (ASP's `mapproject` writes no log to parse). No notebook change is needed to get this; `asp_plot` produces it. This surfaces the tool name `mapproject` in the reports, consistent with [ADR-0005](architecture/0005-orthorectification-vs-mapproject.md).
 
