@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Runs when VS Code attaches to the Codespace, after onCreate.sh and after
 # the user has trusted the folder. Writes START_HERE.md, a start page whose one
-# link opens this Codespace in JupyterLab, and opens it in the Markdown preview
-# (devcontainer.json associates the file with the preview). The link needs the
-# Codespace's name, so it is built here, not in onCreate.sh: in a prebuild,
-# CODESPACE_NAME is the prebuild's. Without a name, it opens Tutorial 1 in the
-# notebook editor instead.
+# link opens Tutorial 1 in JupyterLab, served by postStart.sh on a forwarded
+# port, and opens it in the Markdown preview (devcontainer.json associates the
+# file with the preview). The link needs the Codespace's name, so it is built
+# here, not in onCreate.sh: in a prebuild, CODESPACE_NAME is the prebuild's.
+# Without a name, it opens Tutorial 1 in the VS Code notebook editor instead.
 #
 # This replaces customizations.codespaces.openFiles, which opened files
 # before the folder was trusted: in Restricted Mode a notebook came up as raw
@@ -23,6 +23,7 @@ set -uo pipefail
 
 NOTEBOOK="notebooks/01_aster_rainier.ipynb"
 START_PAGE="START_HERE.md"
+JUPYTER_PORT=8890  # postStart.sh serves JupyterLab here
 MARKER="${HOME}/.stereopipeline-quickstart-opened"
 EXT_SRC="$(dirname "$0")/close-panel"
 EXT_VSIX="/tmp/stereopipeline-quickstart-close-panel.vsix"
@@ -30,7 +31,7 @@ EXT_VSIX="/tmp/stereopipeline-quickstart-close-panel.vsix"
 OPEN="${NOTEBOOK}"
 if [[ -n "${CODESPACE_NAME:-}" ]]; then
     cat > "${START_PAGE}" <<EOF
-# [Click Here to Begin](${GITHUB_SERVER_URL:-https://github.com}/codespaces/${CODESPACE_NAME}?editor=jupyter)
+# [Click Here to Begin](https://${CODESPACE_NAME}-${JUPYTER_PORT}.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}/lab/tree/${NOTEBOOK})
 EOF
     OPEN="${START_PAGE}"
 fi

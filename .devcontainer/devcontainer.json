@@ -106,7 +106,10 @@
   // The WorldView download is heavier and is deferred to the notebook itself.
   "onCreateCommand": "bash .devcontainer/onCreate.sh",
 
-  // Open the start page, whose link opens this Codespace in JupyterLab, once
+  // Start the JupyterLab server the start page links to, on every start.
+  "postStartCommand": "bash .devcontainer/postStart.sh",
+
+  // Open the start page, whose link opens Tutorial 1 in that JupyterLab, once
   // VS Code is attached and the folder is trusted.
   // customizations.codespaces.openFiles opened it before the trust prompt,
   // in Restricted Mode, where it showed as raw JSON.
@@ -114,12 +117,12 @@
 
   "remoteUser": "vscode",
 
-  // Forward Jupyter port for users who launch a standalone Jupyter server.
-  "forwardPorts": [8888],
+  // Forward the JupyterLab server postStart.sh starts, without a pop-up.
+  "forwardPorts": [8890],
   "portsAttributes": {
-    "8888": {
-      "label": "Jupyter",
-      "onAutoForward": "ignore"
+    "8890": {
+      "label": "JupyterLab (tutorials)",
+      "onAutoForward": "silent"
     }
   }
 }
