@@ -67,6 +67,27 @@
         // Pop-ups a first-time learner doesn't need on launch.
         "redhat.telemetry.enabled": false,
         "extensions.ignoreRecommendations": true,
+        "workbench.startupEditor": "none",
+        "workbench.tips.enabled": false,
+        // The git extension asks "periodically run git fetch?" whenever
+        // git.autofetch is off, so turning that off doesn't silence it.
+        // Turning git off does, and also drops the source-control badges
+        // and the dimmed, gitignored data/ in the file explorer.
+        "git.enabled": false,
+        // Hide the parts of the window the tutorials don't use, so it is
+        // the file explorer and the notebook: no activity bar, status bar,
+        // layout or command-center controls, breadcrumbs, minimap, Chat,
+        // or "Open Editors" list, and one tab instead of a tab strip.
+        "workbench.activityBar.location": "hidden",
+        "workbench.statusBar.visible": false,
+        "workbench.layoutControl.enabled": false,
+        "window.commandCenter": false,
+        "workbench.secondarySideBar.defaultVisibility": "hidden",
+        "chat.disableAIFeatures": true,
+        "workbench.editor.showTabs": "single",
+        "breadcrumbs.enabled": false,
+        "editor.minimap.enabled": false,
+        "explorer.openEditors.visible": 0,
         "terminal.integrated.defaultProfile.linux": "bash",
         "files.watcherExclude": {
           "**/data/**": true,
@@ -89,6 +110,9 @@
           "ARCHITECTURE.md": true,
           "CLAUDE.md": true,
           "LICENSE": true,
+          "README.md": true,
+          // The notebooks run these; a learner doesn't need to open them.
+          "scripts": true,
           // Written next to notebooks/utils.py when a notebook imports it.
           "**/__pycache__": true
         }
@@ -110,6 +134,16 @@
   "postAttachCommand": "bash .devcontainer/postAttach.sh",
 
   "remoteUser": "vscode",
+
+  // VS Code takes its environment from a login shell, whose .bashrc runs
+  // `source activate asp`, so CONDA_PREFIX is set. The Python Environments
+  // extension then says "CONDA_PREFIX is set for this VS Code session.
+  // Selection saved for new terminals only." when the asp kernel is
+  // selected. Clearing it here silences that; terminals still run .bashrc
+  // and get the activated env, and the kernel gets its own activation.
+  "remoteEnv": {
+    "CONDA_PREFIX": ""
+  },
 
   // Forward Jupyter port for users who launch a standalone Jupyter server.
   "forwardPorts": [8888],

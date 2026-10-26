@@ -1,10 +1,14 @@
-// Closes the panel (terminal, output) once, on a new Codespace's first launch.
+// Closes the panel (terminal, output) and clears notifications once, on a new
+// Codespace's first launch.
 //
 // Codespaces runs the lifecycle commands in a terminal and opens the panel to
 // show it, and devcontainer.json can't run a VS Code command to close it.
-// postAttach.sh installs this extension right after it opens Tutorial 1; it
-// closes the panel a few times over the next seconds, in case the lifecycle
-// terminal reveals it again, and then never again (globalState flag).
+// The PDF viewer (mathematic.vscode-pdf) shows a one-time donation notice when
+// it starts, with no setting to turn it off. postAttach.sh installs this
+// extension right after it opens Tutorial 1; it closes the panel and clears
+// the notifications a few times over the next seconds, in case the lifecycle
+// terminal reveals the panel again or a notice arrives late, and then never
+// again (globalState flag).
 
 const vscode = require("vscode");
 
@@ -18,6 +22,7 @@ exports.activate = async function (context) {
     for (const ms of DELAYS_MS) {
         await new Promise((resolve) => setTimeout(resolve, ms));
         await vscode.commands.executeCommand("workbench.action.closePanel");
+        await vscode.commands.executeCommand("notifications.clearAll");
     }
     await context.globalState.update(DONE, true);
 };
