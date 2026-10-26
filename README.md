@@ -15,7 +15,7 @@ The companion package [`asp-plot`](https://github.com/uw-cryo/asp_plot) handles 
 
 ## Run in the browser (recommended for first-time users)
 
-Click "Open in GitHub Codespaces" above. The Codespace pulls a pre-built container image with ASP and `asp-plot` already installed, then opens VS Code in your browser with a start page: click "Click Here to Begin" to open the first notebook in JupyterLab, and run its cells top-to-bottom.
+Click "Open in GitHub Codespaces" above. The Codespace pulls a pre-built container image with ASP and `asp-plot` already installed, then opens VS Code in your browser. Open a notebook under `notebooks/` and run cells top-to-bottom.
 
 New to ASP? Start with `01_aster_rainier.ipynb`, the ASTER quick look. In about 6 minutes it goes from raw satellite images to a DEM and a PDF report.
 

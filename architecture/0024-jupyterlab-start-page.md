@@ -1,7 +1,7 @@
 # 24. Tutorials open in JupyterLab on a forwarded port, from a start page
 
 - **Date:** 2026-10-26
-- **Status:** Accepted
+- **Status:** Superseded by [0025](0025-back-to-vs-code.md): reverted after user testing. The code and the `ARCHITECTURE.md` section named below were removed; they are in commit `e066115`.
 - **Context doc:** `ARCHITECTURE.md` § Opening the tutorials
 
 ## Context

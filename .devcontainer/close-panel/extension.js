@@ -2,7 +2,7 @@
 //
 // Codespaces runs the lifecycle commands in a terminal and opens the panel to
 // show it, and devcontainer.json can't run a VS Code command to close it.
-// postAttach.sh installs this extension right after it opens the start page; it
+// postAttach.sh installs this extension right after it opens Tutorial 1; it
 // closes the panel a few times over the next seconds, in case the lifecycle
 // terminal reveals it again, and then never again (globalState flag).
 
