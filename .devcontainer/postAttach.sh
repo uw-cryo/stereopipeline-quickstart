@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 # Runs when VS Code attaches to the Codespace, after onCreate.sh and after
-# the user has trusted the folder. Opens Tutorial 1 in the notebook editor, so
-# a first-time user lands on the notebook they should run.
+# the user has trusted the folder. Writes START_HERE.md, a start page whose one
+# link opens this Codespace in JupyterLab, and opens it in the Markdown preview
+# (devcontainer.json associates the file with the preview). The link needs the
+# Codespace's name, so it is built here, not in onCreate.sh: in a prebuild,
+# CODESPACE_NAME is the prebuild's. Without a name, it opens Tutorial 1 in the
+# notebook editor instead.
 #
-# This replaces customizations.codespaces.openFiles, which opened the notebook
-# before the folder was trusted: in Restricted Mode it came up as raw JSON.
+# This replaces customizations.codespaces.openFiles, which opened files
+# before the folder was trusted: in Restricted Mode a notebook came up as raw
+# JSON.
 #
 # Then it installs .devcontainer/close-panel/, a tiny extension that closes the
 # terminal panel Codespaces opened to run this script. devcontainer.json can't
@@ -12,14 +17,23 @@
 # source, so no packaging tool or binary lives in the repo.
 #
 # Only on the first attach; a marker file keeps later reconnects from
-# reopening the tutorial over whatever the user has open.
+# reopening the start page over whatever the user has open.
 
 set -uo pipefail
 
 NOTEBOOK="notebooks/01_aster_rainier.ipynb"
+START_PAGE="START_HERE.md"
 MARKER="${HOME}/.stereopipeline-quickstart-opened"
 EXT_SRC="$(dirname "$0")/close-panel"
 EXT_VSIX="/tmp/stereopipeline-quickstart-close-panel.vsix"
+
+OPEN="${NOTEBOOK}"
+if [[ -n "${CODESPACE_NAME:-}" ]]; then
+    cat > "${START_PAGE}" <<EOF
+# [Click Here to Begin](${GITHUB_SERVER_URL:-https://github.com}/codespaces/${CODESPACE_NAME}?editor=jupyter)
+EOF
+    OPEN="${START_PAGE}"
+fi
 
 [[ -f "${MARKER}" ]] && exit 0
 
@@ -32,10 +46,10 @@ if [[ -z "${VSCODE_IPC_HOOK_CLI:-}" ]]; then
     export VSCODE_IPC_HOOK_CLI
 fi
 
-if [[ -n "${CODE_BIN}" && -n "${VSCODE_IPC_HOOK_CLI}" ]] && "${CODE_BIN}" "${NOTEBOOK}"; then
+if [[ -n "${CODE_BIN}" && -n "${VSCODE_IPC_HOOK_CLI}" ]] && "${CODE_BIN}" "${OPEN}"; then
     touch "${MARKER}"
 else
-    echo "Open ${NOTEBOOK} from the file explorer on the left to start."
+    echo "Open ${OPEN} from the file explorer on the left to start."
     exit 0
 fi
 

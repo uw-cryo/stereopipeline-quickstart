@@ -4,6 +4,10 @@ CLAUDE/
 # Local-only optimization experiments
 experiments/
 
+# Start page with this Codespace's JupyterLab link, written by
+# .devcontainer/postAttach.sh
+START_HERE.md
+
 # Tutorial data — populated at runtime, never committed
 data/
 notebooks/data/
