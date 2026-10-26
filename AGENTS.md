@@ -57,8 +57,6 @@ Output naming uses `_ortho` for the orthorectified products (not `_proj`/`_map`/
 
 Both notebooks declare `kernelspec.name = "asp"` in their metadata; keep it when editing notebook metadata.
 
-Cells whose ASP tools print long logs (`parallel_stereo`, `mapproject`, `bundle_adjust`) carry `"scrolled": true` in their cell metadata, so JupyterLab shows the output in a scroll box instead of thousands of lines ([ADR-0024](architecture/0024-jupyterlab-start-page.md)). Keep it, and add it to any new cell like them. Report cells don't carry it, so their inline figures stay fully visible.
-
 ## Markdown style conventions
 
 - Drop `**bold**` and `*italic*` in flowing prose. Keep them in tables / definition lists when structurally meaningful.

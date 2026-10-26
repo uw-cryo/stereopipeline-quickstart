@@ -59,12 +59,10 @@
           "/opt/StereoPipeline/bin/python",
           "/usr/bin/python3"
         ],
-        // Always open notebooks in the notebook editor, and the start page
-        // postAttach.sh writes in the Markdown preview, so its link shows as
-        // a large heading rather than as Markdown source.
+        // Always open notebooks in the notebook editor, including the one
+        // postAttach.sh opens.
         "workbench.editorAssociations": {
-          "*.ipynb": "jupyter-notebook",
-          "START_HERE.md": "vscode.markdown.preview.editor"
+          "*.ipynb": "jupyter-notebook"
         },
         // Pop-ups a first-time learner doesn't need on launch.
         "redhat.telemetry.enabled": false,
@@ -106,23 +104,19 @@
   // The WorldView download is heavier and is deferred to the notebook itself.
   "onCreateCommand": "bash .devcontainer/onCreate.sh",
 
-  // Start the JupyterLab server the start page links to, on every start.
-  "postStartCommand": "bash .devcontainer/postStart.sh",
-
-  // Open the start page, whose link opens Tutorial 1 in that JupyterLab, once
-  // VS Code is attached and the folder is trusted.
-  // customizations.codespaces.openFiles opened files before the trust prompt,
-  // in Restricted Mode, where a notebook showed as raw JSON.
+  // Open Tutorial 1 once VS Code is attached and the folder is trusted.
+  // customizations.codespaces.openFiles opened it before the trust prompt,
+  // in Restricted Mode, where it showed as raw JSON.
   "postAttachCommand": "bash .devcontainer/postAttach.sh",
 
   "remoteUser": "vscode",
 
-  // Forward the JupyterLab server postStart.sh starts, without a pop-up.
-  "forwardPorts": [8890],
+  // Forward Jupyter port for users who launch a standalone Jupyter server.
+  "forwardPorts": [8888],
   "portsAttributes": {
-    "8890": {
-      "label": "JupyterLab (tutorials)",
-      "onAutoForward": "silent"
+    "8888": {
+      "label": "Jupyter",
+      "onAutoForward": "ignore"
     }
   }
 }
