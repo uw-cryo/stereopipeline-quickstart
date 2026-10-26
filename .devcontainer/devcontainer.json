@@ -139,10 +139,14 @@
   // `source activate asp`, so CONDA_PREFIX is set. The Python Environments
   // extension then says "CONDA_PREFIX is set for this VS Code session.
   // Selection saved for new terminals only." when the asp kernel is
-  // selected. Clearing it here silences that; terminals still run .bashrc
-  // and get the activated env, and the kernel gets its own activation.
+  // selected. Clearing it here silences that. CONDA_SHLVL goes back to 0
+  // with it, or a terminal's `source activate asp` fails with "CONDA_SHLVL
+  // is 1 but CONDA_PREFIX is unset or empty"; with both, it activates the
+  // env from scratch. The kernel keeps the rest of the activated env
+  // (PATH, PROJ_DATA, GDAL_DATA).
   "remoteEnv": {
-    "CONDA_PREFIX": ""
+    "CONDA_PREFIX": "",
+    "CONDA_SHLVL": "0"
   },
 
   // Forward Jupyter port for users who launch a standalone Jupyter server.
