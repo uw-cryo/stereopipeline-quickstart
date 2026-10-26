@@ -50,7 +50,8 @@ stereopipeline-quickstart
 ASP + asp_plot, ready to go.
 
 Next steps:
-  1. Open notebooks/01_aster_rainier.ipynb and click "Run All".
+  1. On the START_HERE.md page, click "Click Here to Begin" to open
+     notebooks/01_aster_rainier.ipynb in JupyterLab.
      (Data is pre-fetched into data/aster_rainier/.)
   2. Or read docs/start/codespaces.md for an orientation tour.
 

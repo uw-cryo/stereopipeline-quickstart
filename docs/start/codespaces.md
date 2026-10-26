@@ -1,6 +1,6 @@
 # Run the tutorials in a Codespace
 
-[GitHub Codespaces](https://docs.github.com/en/codespaces) gives you a Linux VM with VS Code in your browser. The Codespace boots with ASP and [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) already installed.
+[GitHub Codespaces](https://docs.github.com/en/codespaces) gives you a Linux VM in your browser, with VS Code and JupyterLab. The Codespace boots with ASP and [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) already installed.
 
 ## Launch
 
@@ -13,14 +13,11 @@
 
 2. GitHub pulls a pre-built container image from [GHCR](https://ghcr.io/bpurinton/stereopipeline-quickstart). ASP binaries and the `asp-plot` conda env are already installed in it. (If the image isn't accessible from your fork, the devcontainer.json includes a commented-out `build:` block you can flip on for a from-source build.)
 
-3. When VS Code opens in your browser, the terminal shows a banner:
+3. VS Code opens in your browser and asks "Do you trust the authors of the files in this folder?". Click **Trust Folder & Continue**.
 
-   ```
-   stereopipeline-quickstart
-   ASP + asp-plot, ready to go.
-   Next steps:
-     1. Open notebooks/01_aster_rainier.ipynb and click "Run All".
-   ```
+4. A page with one link opens: click **Click Here to Begin**. Tutorial 1 opens in JupyterLab in a new browser tab.
+
+When you come back to a stopped Codespace later, VS Code opens without that page. Open `START_HERE.md` from the file explorer on the left to get back to JupyterLab.
 
 ## Machine size
 
@@ -41,7 +38,7 @@ Open one of the notebooks under `notebooks/`:
 | `03_worldview_ucsd.ipynb` | WorldView-3 → 4 m DEM of UCSD (~6 min) |
 | `04_worldview_ucsd_ba.ipynb` | Tutorial 3 plus bundle adjustment, for comparison (~20 min) |
 
-Each notebook has a "Run All" button at the top. Cells are small enough to run them step by step.
+To run a whole notebook, click the ⏩ button at the top of the notebook ("Restart the kernel and run all cells"), then **Restart**. Cells are small enough to run them step by step.
 
 If a cell fails, [open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml) with the error output.
 

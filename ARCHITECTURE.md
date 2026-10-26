@@ -23,9 +23,9 @@ stereopipeline-quickstart/
 │   ├── Dockerfile                     # ASP binaries + asp_plot conda env
 │   ├── environment.yml                # conda env spec (python 3.12)
 │   ├── onCreate.sh                    # ASP/asp_plot health check + download_aster.sh pre-fetch (runs in prebuilds)
-│   ├── postAttach.sh                  # opens Tutorial 1 once VS Code attaches (after the trust prompt), installs close-panel/
-│   ├── close-panel/                   # tiny VS Code extension: closes the terminal panel once on first launch
-│   └── postStart.sh                   # (stashed; not active)
+│   ├── postStart.sh                   # starts JupyterLab on port 8890 at every Codespace start
+│   ├── postAttach.sh                  # writes + opens START_HERE.md (link to Tutorial 1 in that JupyterLab) after the trust prompt, installs close-panel/
+│   └── close-panel/                   # tiny VS Code extension: closes the terminal panel once on first launch
 ├── .github/
 │   ├── ISSUE_TEMPLATE/
 │   │   ├── problem-report.yml         # reader problem-report form (linked from docs)
@@ -144,15 +144,23 @@ No Jupyter kernel is registered in the image. VS Code's Jupyter extension resolv
 
 With every Python in the image visible, VS Code does not pick a kernel for a notebook it hasn't opened before, so the first Run All opened the kernel picker, with "Create Python Environment" as the recommended choice. `jupyter.kernels.excludePythonEnvironments` in `devcontainer.json` hides the image's other Pythons (`/opt/conda/bin/python`, `/opt/StereoPipeline/bin/python`, `/usr/bin/python3`); with `asp` the only environment left, VS Code selects it on its own (tested in a fresh Codespace on 2026-10-23). Re-registering an `asp` kernel with matching notebook metadata was tested the same day and did not help.
 
-A new Codespace starts in Restricted Mode and asks "Do you trust the authors of the files in this folder?"; the lifecycle commands wait for that answer. `.devcontainer/postAttach.sh` (`postAttachCommand`) then opens `notebooks/01_aster_rainier.ipynb` with the remote `code` CLI, once per Codespace. It replaced `customizations.codespaces.openFiles`, which opened the notebook before the trust prompt, in Restricted Mode, as raw JSON. Lifecycle commands may not inherit `VSCODE_IPC_HOOK_CLI`, so the script falls back to the newest `/tmp/vscode-ipc-*.sock` and `/vscode/bin/*/*/bin/remote-cli/code`. `workbench.editorAssociations` maps `*.ipynb` to the notebook editor. The same settings block turns off the YAML extension's telemetry prompt and extension recommendations; the `git fetch` prompt and the PDF viewer's donation notice still appear.
+A new Codespace starts in Restricted Mode and asks "Do you trust the authors of the files in this folder?"; the lifecycle commands wait for that answer. `.devcontainer/postAttach.sh` (`postAttachCommand`) then opens the start page (§ Opening the tutorials) with the remote `code` CLI, once per Codespace, or `notebooks/01_aster_rainier.ipynb` when there is no Codespace name. It replaced `customizations.codespaces.openFiles`, which opened the notebook before the trust prompt, in Restricted Mode, as raw JSON. Lifecycle commands may not inherit `VSCODE_IPC_HOOK_CLI`, so the script falls back to the newest `/tmp/vscode-ipc-*.sock` and `/vscode/bin/*/*/bin/remote-cli/code`. `workbench.editorAssociations` maps `*.ipynb` to the notebook editor and `START_HERE.md` to the Markdown preview. The same settings block turns off the YAML extension's telemetry prompt and extension recommendations; the `git fetch` prompt and the PDF viewer's donation notice still appear in VS Code.
 
 Codespaces runs the lifecycle commands in a terminal and opens the panel to show it. `terminal.integrated.hideOnStartup` doesn't stop that, and `devcontainer.json` can't run VS Code commands (GitHub staff, community discussion 43125), so `postAttach.sh` zips `.devcontainer/close-panel/` into a `.vsix` with Python's `zipfile` and installs it with `code --install-extension`. On activation the extension runs `workbench.action.closePanel` at 0.5, 2 and 5 s, then sets a `globalState` flag so it never closes the panel again. `sirmspencer.vscode-autohide` was considered: it only hides the panel when the user clicks into an editor, and its hide-on-open also hides the file explorer.
 
-### PDF viewer extension
+### Opening the tutorials
 
-`AdamRaichu.pdf-viewer` (web-compatible) is in `devcontainer.json`'s `customizations.vscode.extensions`. The popular `tomoki1207.pdf` does NOT declare a `browser` entrypoint in its `package.json` and refuses to load in a browser-based Codespace. `AdamRaichu.pdf-viewer` does, and renders pages as images via pdf.js (no text-selection/search but renders cleanly).
+The tutorials run in JupyterLab, not VS Code's notebook editor ([ADR-0024](architecture/0024-jupyterlab-start-page.md)). `.devcontainer/postStart.sh` (`postStartCommand`, every start) starts `/opt/conda/envs/asp/bin/jupyter lab` on port 8890, rooted at the repo, with no token, and logs to `/tmp/stereopipeline-quickstart-jupyterlab.log`. A lifecycle command's background jobs are killed when it ends (a `setsid nohup ... &` left no server and no log), so the script uses `setsid -f` and waits until the port listens. It also writes a JupyterLab user setting that turns off the news pop-up and the update check, unless one exists. `devcontainer.json` forwards 8890 with `onAutoForward: silent`. The port is private, which is what stands in for the token: made public, it would expose a JupyterLab that runs code for anyone with the URL.
 
-A stash exists with an alternative approach: a `.devcontainer/postStart.sh` that launches `python -m http.server 8000`, plus a `pdf_link()` helper that prints a clickable forwarded-port URL to PDFs. Not active; kept in case the extension approach ever breaks.
+After the trust prompt, `postAttach.sh` writes the gitignored `START_HERE.md`, one heading link, "Click Here to Begin", to `https://${CODESPACE_NAME}-8890.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}/lab/tree/notebooks/01_aster_rainier.ipynb`. A private forwarded port signs the user in through a redirect when opened as a page; Codespaces' own `?editor=jupyter` page embeds it in a frame instead, and that fails on a first visit. JupyterLab's only kernel is the `asp` environment's `python3`, since the server runs from that environment. The `postAttach.sh` marker keeps the start page from reopening on later attaches; `START_HERE.md` stays in the file explorer.
+
+JupyterLab shows a cell's whole output. The `parallel_stereo`, `mapproject` and `bundle_adjust` cells carry `"scrolled": true` in their cell metadata, which JupyterLab renders as a fixed-height scroll box; VS Code ignores the key and keeps truncating long output itself.
+
+### PDFs
+
+In JupyterLab, a report link in a notebook opens the PDF in a JupyterLab tab, rendered by the browser's own PDF viewer.
+
+For VS Code, `mathematic.vscode-pdf` (web-compatible) is in `devcontainer.json`'s `customizations.vscode.extensions`. The popular `tomoki1207.pdf` does NOT declare a `browser` entrypoint in its `package.json` and refuses to load in a browser-based Codespace.
 
 ### Editor settings split: workspace-wide vs Codespace-only
 
