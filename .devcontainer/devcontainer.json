@@ -76,14 +76,13 @@
         "git.enabled": false,
         // Hide the parts of the window the tutorials don't use, so it is
         // the file explorer and the notebook: no activity bar, status bar,
-        // layout or command-center controls, breadcrumbs, minimap, Chat,
-        // or "Open Editors" list, and one tab instead of a tab strip.
+        // layout or command-center controls, breadcrumbs, minimap or
+        // "Open Editors" list, and one tab instead of a tab strip. Chat and
+        // the secondary sidebar are off in .vscode/settings.json.
         "workbench.activityBar.location": "hidden",
         "workbench.statusBar.visible": false,
         "workbench.layoutControl.enabled": false,
         "window.commandCenter": false,
-        "workbench.secondarySideBar.defaultVisibility": "hidden",
-        "chat.disableAIFeatures": true,
         "workbench.editor.showTabs": "single",
         "breadcrumbs.enabled": false,
         "editor.minimap.enabled": false,
