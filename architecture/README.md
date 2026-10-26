@@ -29,3 +29,4 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0021 — Bound asp-plot to one major version](0021-asp-plot-major-version-bound.md)
 - [0022 — Ship the tutorials' ICESat-2 data as release assets](0022-ship-icesat2-data.md)
 - [0023 — Split the ASTER tutorial: quick look first, orthorectified pass second](0023-split-aster-tutorial.md) — *amends 0008*
+- [0024 — Tutorials open in JupyterLab on a forwarded port, from a start page](0024-jupyterlab-start-page.md)
