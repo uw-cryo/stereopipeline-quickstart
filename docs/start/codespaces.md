@@ -17,6 +17,8 @@
 
 4. A page with one link opens: click **Click Here to Begin**. Tutorial 1 opens in JupyterLab in a new browser tab.
 
+When you come back to a stopped Codespace later, VS Code opens without that page. Open `START_HERE.md` from the file explorer on the left to get back to JupyterLab.
+
 ## Machine size
 
 The minimum Codespace machine type for this repo is 4-core / 16 GB / 32 GB storage (set in `.devcontainer/devcontainer.json`). 4-core is the floor every GitHub account can launch without extra billing setup. You can pick a larger machine at launch time via the "Create codespace with options" menu; stereo correlation is parallel and runs faster with more cores. Larger machines are billed at higher rates; see [Codespaces pricing](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces).
@@ -36,7 +38,7 @@ Open one of the notebooks under `notebooks/`:
 | `03_worldview_ucsd.ipynb` | WorldView-3 → 4 m DEM of UCSD (~6 min) |
 | `04_worldview_ucsd_ba.ipynb` | Tutorial 3 plus bundle adjustment, for comparison (~20 min) |
 
-To run a whole notebook in JupyterLab, click into the notebook, then choose **Run → Run All Cells**. Cells are small enough to run them step by step.
+To run a whole notebook, click the ⏩ button at the top of the notebook ("Restart the kernel and run all cells"), then **Restart**. Cells are small enough to run them step by step.
 
 If a cell fails, [open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml) with the error output.
 

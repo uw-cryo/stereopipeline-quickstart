@@ -111,8 +111,8 @@
 
   // Open the start page, whose link opens Tutorial 1 in that JupyterLab, once
   // VS Code is attached and the folder is trusted.
-  // customizations.codespaces.openFiles opened it before the trust prompt,
-  // in Restricted Mode, where it showed as raw JSON.
+  // customizations.codespaces.openFiles opened files before the trust prompt,
+  // in Restricted Mode, where a notebook showed as raw JSON.
   "postAttachCommand": "bash .devcontainer/postAttach.sh",
 
   "remoteUser": "vscode",

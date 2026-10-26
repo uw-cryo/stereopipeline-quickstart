@@ -17,17 +17,20 @@ The same forwarded port, opened as a page of its own, signs in through a redirec
 ## Decision
 Keep the Codespace opening in VS Code, and hand the user to a JupyterLab server of the repo's own:
 
-1. `postStart.sh` (`postStartCommand`, every start) starts JupyterLab from the `asp` environment on port 8890, rooted at the repo, with no token. A private forwarded port already requires the Codespace owner's GitHub sign-in. It also turns off JupyterLab's news pop-up. Port 8890 because Codespaces' own JupyterLab uses 8888.
+1. `postStart.sh` (`postStartCommand`, every start) starts JupyterLab from the `asp` environment on port 8890, rooted at the repo, with no token. A private forwarded port already requires the Codespace owner's GitHub sign-in. It also turns off JupyterLab's news pop-up and update check. Port 8890 because Codespaces' own JupyterLab uses 8888.
 2. `devcontainer.json` forwards 8890 without a notification.
 3. `postAttach.sh`, after the trust dialog, writes a gitignored `START_HERE.md` whose only content is a large "Click Here to Begin" link to `https://<CODESPACE_NAME>-8890.<forwarding domain>/lab/tree/notebooks/01_aster_rainier.ipynb`, and opens it in VS Code's Markdown preview. The link is built there, not in `onCreate.sh`, because in a prebuild `CODESPACE_NAME` is the prebuild's.
 4. Clicking it opens JupyterLab in a new browser tab, on Tutorial 1, with the `asp` environment as its only kernel. Without a Codespace name, `postAttach.sh` opens Tutorial 1 in VS Code instead, as before.
+5. JupyterLab shows a cell's whole output, where VS Code cut it down to its last lines, and the stereo log alone runs to thousands of lines. The cells that run `parallel_stereo`, `mapproject` and `bundle_adjust` carry `"scrolled": true` in their metadata, which JupyterLab shows as a fixed-height scroll box. The report cells don't, so their inline figures stay fully visible.
 
 ## Consequences
 - **+** One click from the start page to Tutorial 1 in JupyterLab: no kernel picker, no git-fetch prompt, no donation notice, no terminal panel.
-- **+** Cell output shows in full and scrolls with the notebook. PDFs open in a JupyterLab tab with the browser's own viewer.
+- **+** Long ASP logs sit in scroll boxes, and the rest of a cell's output shows in full. PDFs open in a JupyterLab tab with the browser's own viewer.
 - **+** A clicked link is a user action, so pop-up blockers don't stop it, as they could an automatically opened tab.
-- **−** VS Code and its trust dialog still come first, and the user ends up with two browser tabs.
-- **−** Run All is in the Run menu ("Run All Cells"), not a toolbar button, and it stays greyed out until the user clicks into the notebook once.
+- **−** VS Code and its trust dialog still come first, and the user ends up with two browser tabs. Reopening a stopped Codespace doesn't show the start page again; `START_HERE.md` stays in the file explorer.
+- **−** JupyterLab's toolbar has no plain Run All: its ⏩ button restarts the kernel and runs all cells, after a "Restart Kernel?" dialog. The Run menu's "Run All Cells" stays greyed out until the user clicks into the notebook once.
+- **−** Long-output cells need `"scrolled": true` kept in their metadata (`AGENTS.md` § Notebook conventions).
+- **−** No token means the port must stay private: a public port would expose a JupyterLab that runs code for anyone with the URL.
 - **−** VS Code's Codespace-only settings, such as hiding the repo's infrastructure files, don't apply in JupyterLab: going up from `notebooks/` shows every file. The JupyterLab terminal's PATH doesn't include the `asp` environment.
 - **−** A lifecycle command's background jobs are killed when it ends, so `postStart.sh` starts the server with `setsid -f` and waits until the port listens.
 

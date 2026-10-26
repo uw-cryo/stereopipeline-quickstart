@@ -10,8 +10,10 @@
 # cross-site frame. A forwarded port opened as a page of its own signs in.
 #
 # No token: a private forwarded port already requires the Codespace owner's
-# GitHub sign-in. The port is 8890 because Codespaces' own JupyterLab uses
-# 8888; postAttach.sh and devcontainer.json's forwardPorts use the same number.
+# GitHub sign-in. Making the port public would expose a JupyterLab that runs
+# code for anyone with the URL. The port is 8890 because Codespaces' own
+# JupyterLab uses 8888; postAttach.sh and devcontainer.json's forwardPorts use
+# the same number.
 #
 # Writes the server log to /tmp/stereopipeline-quickstart-jupyterlab.log.
 
@@ -27,11 +29,11 @@ if (echo > "/dev/tcp/127.0.0.1/${PORT}") 2>/dev/null; then
 fi
 
 # Turn off the "Would you like to get notified about official Jupyter news?"
-# pop-up, unless the user has set it themselves.
-NEWS_SETTINGS="${HOME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/notification.jupyterlab-settings"
-if [[ ! -f "${NEWS_SETTINGS}" ]]; then
-    mkdir -p "$(dirname "${NEWS_SETTINGS}")"
-    echo '{"fetchNews": "false"}' > "${NEWS_SETTINGS}"
+# pop-up and the new-version check, unless the user has set them themselves.
+NOTIFY_SETTINGS="${HOME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/notification.jupyterlab-settings"
+if [[ ! -f "${NOTIFY_SETTINGS}" ]]; then
+    mkdir -p "$(dirname "${NOTIFY_SETTINGS}")"
+    echo '{"fetchNews": "false", "checkForUpdates": false}' > "${NOTIFY_SETTINGS}"
 fi
 
 # setsid -f forks the server into its own session before this script exits,
