@@ -38,7 +38,7 @@ Open one of the notebooks under `notebooks/`:
 | `03_worldview_ucsd.ipynb` | WorldView-3 → 4 m DEM of UCSD (~6 min) |
 | `04_worldview_ucsd_ba.ipynb` | Tutorial 3 plus bundle adjustment, for comparison (~20 min) |
 
-To run a whole notebook, click the ⏩ button at the top of the notebook ("Restart the kernel and run all cells"), then **Restart**. Cells are small enough to run them step by step.
+To run a whole notebook, click the ⏩ button at the top of the notebook ("Restart the kernel and run all cells"). Cells are small enough to run them step by step.
 
 If a cell fails, [open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml) with the error output.
 

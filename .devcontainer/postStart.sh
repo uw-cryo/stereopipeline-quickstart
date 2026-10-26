@@ -28,13 +28,23 @@ if (echo > "/dev/tcp/127.0.0.1/${PORT}") 2>/dev/null; then
     exit 0
 fi
 
-# Turn off the "Would you like to get notified about official Jupyter news?"
-# pop-up and the new-version check, unless the user has set them themselves.
-NOTIFY_SETTINGS="${HOME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/notification.jupyterlab-settings"
-if [[ ! -f "${NOTIFY_SETTINGS}" ]]; then
-    mkdir -p "$(dirname "${NOTIFY_SETTINGS}")"
-    echo '{"fetchNews": "false", "checkForUpdates": false}' > "${NOTIFY_SETTINGS}"
-fi
+# JupyterLab defaults for a first-time user, each written only if the user
+# hasn't saved settings for that plugin themselves.
+default_settings() {
+    local file="${HOME}/.jupyter/lab/user-settings/@jupyterlab/$1.jupyterlab-settings"
+    [[ -f "${file}" ]] && return
+    mkdir -p "$(dirname "${file}")"
+    echo "$2" > "${file}"
+}
+# No "Would you like to get notified about official Jupyter news?" pop-up,
+# and no new-version check.
+default_settings apputils-extension/notification \
+    '{"fetchNews": "false", "checkForUpdates": false}'
+# No "Restart Kernel?" dialog, so the toolbar's ⏩ (restart the kernel and
+# run all cells) runs the notebook in one click. It's what the dialog's
+# "Do not ask me again" box sets.
+default_settings apputils-extension/sessionDialogs \
+    '{"skipKernelRestartDialog": true}'
 
 # setsid -f forks the server into its own session before this script exits,
 # so it outlives the lifecycle command. Backgrounding it with `&` didn't: the
