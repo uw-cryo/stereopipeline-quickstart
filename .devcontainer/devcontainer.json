@@ -74,15 +74,12 @@
         // Turning git off does, and also drops the source-control badges
         // and the dimmed, gitignored data/ in the file explorer.
         "git.enabled": false,
-        // Hide the parts of the window the tutorials don't use, so it is
-        // the menu bar, the file explorer and the notebooks in tabs: no
-        // activity bar, status bar, layout or command-center controls,
-        // breadcrumbs, minimap or "Open Editors" list. In the browser the
-        // menu lives in the activity bar by default ("compact"), so with
-        // that hidden, "classic" puts it across the top. Chat and the
-        // secondary sidebar are off in .vscode/settings.json.
-        "workbench.activityBar.location": "hidden",
-        "window.menuBarVisibility": "classic",
+        // Hide the parts of the window the tutorials don't use: no status
+        // bar, layout or command-center controls, breadcrumbs, minimap or
+        // "Open Editors" list. The activity bar stays, because in the
+        // browser it holds the menu (window.menuBarVisibility is an
+        // application setting, which a dev container can't change). Chat
+        // and the secondary sidebar are off in .vscode/settings.json.
         "workbench.statusBar.visible": false,
         "workbench.layoutControl.enabled": false,
         "window.commandCenter": false,
