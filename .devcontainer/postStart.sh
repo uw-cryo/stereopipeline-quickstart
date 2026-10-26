@@ -34,10 +34,21 @@ if [[ ! -f "${NEWS_SETTINGS}" ]]; then
     echo '{"fetchNews": "false"}' > "${NEWS_SETTINGS}"
 fi
 
-# setsid + nohup, so the server outlives this lifecycle command's terminal.
-setsid nohup /opt/conda/envs/asp/bin/jupyter lab \
+# setsid -f forks the server into its own session before this script exits,
+# so it outlives the lifecycle command. Backgrounding it with `&` didn't: the
+# creation log showed this script done in 0.08 s, and the background job was
+# gone before it had even opened its log.
+setsid -f /opt/conda/envs/asp/bin/jupyter lab \
     --no-browser \
     --port "${PORT}" \
     --IdentityProvider.token='' \
     --ServerApp.root_dir="${REPO}" \
-    > "${LOG}" 2>&1 < /dev/null &
+    > "${LOG}" 2>&1 < /dev/null
+
+# Stay until the server is listening, so the start page's link works as soon
+# as setup is done.
+for _ in $(seq 60); do
+    (echo > "/dev/tcp/127.0.0.1/${PORT}") 2>/dev/null && exit 0
+    sleep 1
+done
+echo "JupyterLab did not start on port ${PORT}; see ${LOG}"
