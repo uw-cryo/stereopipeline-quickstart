@@ -43,6 +43,44 @@ def utm_epsg(bbox):
     return f"EPSG:{(32600 if lat >= 0 else 32700) + zone}"
 
 
+def show_image_pair(left, right, titles, downsample=8):
+    """Show two images side by side in grayscale, downsampled for display.
+
+    Uses asp_plot's `Raster` to read each image and `Plotter.plot_array` to
+    draw it with a percentile contrast stretch.
+    """
+    import matplotlib.pyplot as plt
+    from asp_plot.utils import Plotter, Raster
+
+    plotter = Plotter()
+    fig, axes = plt.subplots(1, 2, figsize=(11, 5.5))
+    for ax, fn, title in zip(axes, (left, right), titles):
+        image = Raster(fn, downsample=downsample).read_array()
+        plotter.plot_array(ax, image, cmap="gray", add_cbar=False)
+        ax.set_title(title)
+        ax.set_axis_off()
+    plt.tight_layout()
+    plt.show()
+
+
+def show_dem_hillshade(dem_fn, title="Stereo DEM"):
+    """Show a DEM as a hillshade with elevation in color on top.
+
+    Uses asp_plot's `Raster.hillshade` and `Plotter.plot_array`.
+    """
+    import matplotlib.pyplot as plt
+    from asp_plot.utils import Plotter, Raster
+
+    dem = Raster(dem_fn)
+    plotter = Plotter()
+    fig, ax = plt.subplots(figsize=(8, 7))
+    plotter.plot_array(ax, dem.hillshade(), cmap="gray", add_cbar=False)
+    plotter.plot_array(ax, dem.read_array(), cmap="viridis", alpha=0.5, cbar_label="Elevation (m HAE)")
+    ax.set_title(title)
+    ax.set_axis_off()
+    plt.show()
+
+
 # Report figures shown below each report cell, by the title part of the file
 # names asp_report --figures-directory writes (NN_<title>.png). NN shifts when
 # a report section is skipped, so figures are picked by title.
