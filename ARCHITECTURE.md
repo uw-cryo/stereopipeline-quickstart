@@ -189,7 +189,7 @@ One-time setup: repo Settings → Actions → General → Workflow permissions, 
 
 See [ADR-0027](architecture/0027-single-aster-tutorial.md), which supersedes the two-notebook split of [ADR-0023](architecture/0023-split-aster-tutorial.md) and the two-report design of [ADR-0008](architecture/0008-aster-cop30-two-reports.md). One notebook, `01_aster_rainier.ipynb`, runs the standard workflow on a processing window around the summit and shows the data after each step with `asp-plot` calls in the cells:
 
-1. `download_aster.sh`: the L1A archive, the shipped ICESat-2 data, and the COP30 reference DEM (`ref/cop30_rainier.tif`, clipped to the window plus 2 km, fetched with `fetch_cop_dem.py`). `onCreate.sh` runs it, so a prebuilt Codespace has all three. Then `aster2asp`.
+1. `download_aster.sh`: the L1A archive from Zenodo, then the shipped ICESat-2 data and the COP30 reference DEM (`ref/cop30_rainier.tif`, the window plus 2 km, made once with `fetch_cop_dem.py`) from release `aster-rainier-2026-10-27`, so the tutorial makes no SlideRule request and no AWS fetch. `onCreate.sh` runs it, so a prebuilt Codespace has all of them. Then `aster2asp`.
 2. Stereo geometry: `StereoGeometryPlotter(inputs=[out-Band3N.xml, out-Band3B.xml]).stereo_geom_plot()` (skyplot + footprint map; the basemap needs internet).
 3. Raw images: `Raster(fn, downsample=8).read_array()` drawn with `Plotter().plot_array()`, through a small `show_pair()` defined in the cell.
 4. `mapproject` both views onto COP30 at 15 m with `--t_projwin 577305 5172975 615705 5209035` (`T_PROJWIN`, UTM 10N, about 38 × 36 km), one cell of its own.
@@ -203,7 +203,7 @@ See [ADR-0027](architecture/0027-single-aster-tutorial.md), which supersedes the
 
 Every report replays shipped figure selections, and the WorldView pair's second report replays the first's, so those two PDFs line up panel-for-panel (same ICESat-2 points, profile track, hillshade crops) and only the processing change shows:
 
-- By default every report replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both with `curl -f` from a dated release: `download_aster.sh` from `icesat2-2026-10-26` (regenerated for the processing window, [ADR-0027](architecture/0027-single-aster-tutorial.md)), `download_worldview_ucsd.sh` from `icesat2-2026-10-23`. See [ADR-0022](architecture/0022-ship-icesat2-data.md).
+- By default every report replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both with `curl -f` from a dated release: `download_aster.sh` from `aster-rainier-2026-10-27` (regenerated for the processing window, together with the COP30 reference DEM, [ADR-0027](architecture/0027-single-aster-tutorial.md)), `download_worldview_ucsd.sh` from `icesat2-2026-10-23`. `download_aster.sh` writes the tag to `data/aster_rainier/RELEASE` and replaces shipped files from any other release, so a Codespace prebuilt before a data change gets the new files. See [ADR-0022](architecture/0022-ship-icesat2-data.md).
 - With `FRESH_ICESAT2 = True` (first code cell of each notebook), the ASTER report and the first WorldView report request fresh data from SlideRule, and the 03 BA report reuses 02's own `stereo/ucsd_wv3_report_figure_selections.yml` (run 02 first).
 
 asp_plot writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_report --reuse-selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone. The sidecar's `parquet_cache` path is resolved from the working directory, so shipped sidecars are written relative to `notebooks/`.
@@ -216,7 +216,7 @@ PDFs open poorly in the browser-based editor, so each report cell also shows thr
 
 ### COP30 reference DEM: AWS Open Data + local EGM2008 → ellipsoid shift
 
-See [ADR-0007](architecture/0007-cop30-egm2008-shift.md). `scripts/fetch_cop_dem.py` fetches Copernicus GLO-30 tiles from the public AWS bucket `copernicus-dem-30m` (no API key) and shifts them from EGM2008 geoid to WGS84 ellipsoid heights locally via `gdalwarp` with a compound CRS pair (mirrors `uw-cryo/fetch_dem`):
+See [ADR-0007](architecture/0007-cop30-egm2008-shift.md). The WorldView tutorials run `scripts/fetch_cop_dem.py` themselves; the ASTER tutorial's clip was made with it once and ships on a release. It fetches Copernicus GLO-30 tiles from the public AWS bucket `copernicus-dem-30m` (no API key) and shifts them from EGM2008 geoid to WGS84 ellipsoid heights locally via `gdalwarp` with a compound CRS pair (mirrors `uw-cryo/fetch_dem`):
 
 - Source: `EPSG:4326+EPSG:3855` (WGS84 lon/lat + EGM2008 geoid).
 - Target: `<t_srs>+EPSG:4979` (requested horizontal + WGS84 ellipsoid).

@@ -19,7 +19,7 @@ With both tutorials on `asp_mgm` over the same window, Tutorial 2 took only abou
 ## Decision
 One ASTER tutorial, `01_aster_rainier.ipynb`, runs the standard workflow on a processing window around the summit (`T_PROJWIN`, about 38 × 36 km), and shows the data after each step with `asp-plot` calls written into the cells:
 
-1. Download and `aster2asp`; the download script also fetches the COP30 reference DEM for the window, so a prebuilt Codespace already has it.
+1. Download and `aster2asp`; the download script also fetches the COP30 reference DEM for the window from a release, so a prebuilt Codespace already has it.
 2. The stereo geometry (`StereoGeometryPlotter`).
 3. The raw images (`Raster`, `Plotter.plot_array`).
 4. `mapproject` both views onto COP30 over the window (`--t_projwin`).
@@ -27,7 +27,7 @@ One ASTER tutorial, `01_aster_rainier.ipynb`, runs the standard workflow on a pr
 6. `parallel_stereo` with `asp_mgm` and `--subpixel-mode 9`, `point2dem` at 30 m, and a hillshade.
 7. `asp_report`, now with the COP30 reference and the stereo geometry.
 
-`02_aster_rainier_ortho.ipynb` is removed. The shipped ICESat-2 points and figure selections ([ADR-0022](0022-ship-icesat2-data.md)) were regenerated for the window and published on release `icesat2-2026-10-26`.
+`02_aster_rainier_ortho.ipynb` is removed. The shipped ICESat-2 points and figure selections ([ADR-0022](0022-ship-icesat2-data.md)) were regenerated for the window. They ship on release `aster-rainier-2026-10-27` together with the COP30 clip (8.5 MB, made once with `fetch_cop_dem.py`), so the tutorial needs neither SlideRule nor AWS; fetching the clip from AWS on every run was slow wherever no prebuild had done it.
 
 ## Consequences
 - **+** The first DEM a new user sees has no stair-steps and no summit gap, in about 10 minutes.
