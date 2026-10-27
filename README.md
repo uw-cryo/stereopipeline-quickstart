@@ -23,9 +23,9 @@ The tutorials use openly available data; no API keys, no Earthdata login require
 
 | Tutorial | Sensor | Region | Data source | Run time |
 |---|---|---|---|---|
-| `01_aster_rainier.ipynb` | ASTER L1A | Mt. Rainier, WA | Zenodo (10.5281/zenodo.7972223) | ~10 min |
-| `02_worldview_ucsd.ipynb` | WorldView-3 | UCSD, San Diego | SpaceNet CORE3D (AWS S3) | ~6 min |
-| `03_worldview_ucsd_ba.ipynb` | WorldView-3 | UCSD, San Diego | SpaceNet CORE3D (AWS S3) | ~20 min |
+| `01_aster_rainier.ipynb` | ASTER L1A | Mt. Rainier, WA | Zenodo (10.5281/zenodo.7972223), via this repo's release | ~10 min |
+| `02_worldview_ucsd.ipynb` | WorldView-3 | UCSD, San Diego | IARPA CORE3D, on SpaceNet's AWS bucket | ~6 min |
+| `03_worldview_ucsd_ba.ipynb` | WorldView-3 | UCSD, San Diego | IARPA CORE3D, on SpaceNet's AWS bucket | ~20 min |
 
 ## Read the static docs
 
@@ -52,4 +52,4 @@ The reasoning behind the repo's design lives in architecture decision records un
 
 ## License
 
-BSD 3-Clause. See [LICENSE](LICENSE).
+BSD 3-Clause. See [LICENSE](LICENSE). The tutorial data have their own licences and credits, listed in the docs: [Data sources and licences](https://stereopipeline-quickstart.readthedocs.io/en/latest/reference/data.html).
