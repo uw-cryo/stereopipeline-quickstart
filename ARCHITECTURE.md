@@ -227,7 +227,7 @@ See [ADR-0007](architecture/0007-cop30-egm2008-shift.md). The WorldView tutorial
 - Source: `EPSG:4326+EPSG:3855` (WGS84 lon/lat + EGM2008 geoid).
 - Target: `<t_srs>+EPSG:4979` (requested horizontal + WGS84 ellipsoid).
 
-`gdalwarp` applies the per-pixel shift via PROJ's bundled EGM2008 grid; `gdal_edit.py -a_srs` then re-asserts the compound CRS. ASP represents DEM heights above the datum ellipsoid (per its `dem_geoid` / `mapproject` docs), so skipping this shift feeds geoid heights into `mapproject` and injects a vertical datum-mismatch bias (tens of meters; ~−35 m at UCSD). If a Codespace can't find the EGM2008 grid, `gdalwarp` errors ("Cannot find proj.db" / "egm08_25.gtx"); pre-caching the grid in the Dockerfile is a fallback.
+`gdalwarp` applies the per-pixel shift via PROJ's bundled EGM2008 grid; `gdal_edit.py -a_srs <t_srs>` then tags the output with the 2D horizontal SRS, and any `.aux.xml` is removed. Until 2026-10-27 it re-asserted the compound CRS instead, which a GeoTIFF can't store: GDAL kept it in an `.aux.xml` sidecar, and a copy of the `.tif` alone had no CRS (`mapproject` wrote all-nodata images, then stereo failed with "ERROR: Could not find interest points."). The heights are ellipsoidal either way, which ASP assumes. ASP represents DEM heights above the datum ellipsoid (per its `dem_geoid` / `mapproject` docs), so skipping this shift feeds geoid heights into `mapproject` and injects a vertical datum-mismatch bias (tens of meters; ~−35 m at UCSD). If a Codespace can't find the EGM2008 grid, `gdalwarp` errors ("Cannot find proj.db" / "egm08_25.gtx"); pre-caching the grid in the Dockerfile is a fallback.
 
 ### WV3 ROI and resolution
 
