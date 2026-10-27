@@ -17,14 +17,13 @@ The companion package [`asp-plot`](https://github.com/uw-cryo/asp_plot) handles 
 
 Click "Open in GitHub Codespaces" above. The Codespace pulls a pre-built container image with ASP and `asp-plot` already installed, then opens VS Code in your browser. Open a notebook under `notebooks/` and run cells top-to-bottom.
 
-New to ASP? Start with `01_aster_rainier.ipynb`, the ASTER quick look. In about 7 minutes it goes from raw satellite images to a DEM and a PDF report.
+New to ASP? Start with `01_aster_rainier.ipynb`, the ASTER tutorial. In about 10 minutes it goes from raw satellite images to a DEM and a PDF report, with a look at the data after each step.
 
 The tutorials use openly available data; no API keys, no Earthdata login required. Run times are for the default 4-core Codespace:
 
 | Tutorial | Sensor | Region | Data source | Run time |
 |---|---|---|---|---|
-| `01_aster_rainier.ipynb` | ASTER L1A | Mt. Rainier, WA | Zenodo (10.5281/zenodo.7972223) | ~6 min |
-| `02_aster_rainier_ortho.ipynb` | ASTER L1A | Mt. Rainier, WA | Zenodo (10.5281/zenodo.7972223) | ~20 min |
+| `01_aster_rainier.ipynb` | ASTER L1A | Mt. Rainier, WA | Zenodo (10.5281/zenodo.7972223) | ~10 min |
 | `03_worldview_ucsd.ipynb` | WorldView-3 | UCSD, San Diego | SpaceNet CORE3D (AWS S3) | ~6 min |
 | `04_worldview_ucsd_ba.ipynb` | WorldView-3 | UCSD, San Diego | SpaceNet CORE3D (AWS S3) | ~20 min |
 

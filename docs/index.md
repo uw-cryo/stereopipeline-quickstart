@@ -18,7 +18,7 @@ This site is the static companion to the [GitHub repo](https://github.com/uw-cry
 :::{grid-item-card} Just want to see ASP run?
 :link: tutorials/01_aster_rainier
 :link-type: doc
-Open the Codespace and run Tutorial 1, the ASTER quick look: about 7 minutes from raw satellite images to a DEM and a PDF report.
+Open the Codespace and run Tutorial 1, the ASTER tutorial: about 10 minutes from raw satellite images to a DEM and a PDF report.
 :::
 
 :::{grid-item-card} New to stereo photogrammetry?
@@ -100,7 +100,6 @@ concepts/visualization
 
 tutorials/index
 tutorials/01_aster_rainier
-tutorials/02_aster_rainier_ortho
 tutorials/03_worldview_ucsd
 tutorials/04_worldview_ucsd_ba
 ```

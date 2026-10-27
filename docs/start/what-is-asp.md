@@ -38,4 +38,4 @@ See [Stereo photogrammetry](../concepts/stereo-photogrammetry.md) for how matchi
 
 - [Pipeline overview](../concepts/pipeline-overview.md) — the full flow.
 - [Open the Codespace](codespaces.md) — run a real pipeline.
-- [ASTER quick look](../tutorials/01_aster_rainier.ipynb) — the simplest end-to-end notebook, about 7 minutes.
+- [ASTER tutorial](../tutorials/01_aster_rainier.ipynb) — the simplest end-to-end notebook, about 10 minutes.

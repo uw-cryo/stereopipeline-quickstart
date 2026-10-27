@@ -6,12 +6,16 @@
 # It pre-dates NASA's Dec-2025 transition to V004 HDF format and is preserved
 # on Zenodo for tutorials.
 #
+# Also fetches the shipped ICESat-2 data (from a release of this repo) and the
+# Copernicus reference DEM for the tutorial's processing window.
+#
 # Usage:
 #   bash scripts/download_aster.sh                  # → ./data/aster_rainier/
 #   bash scripts/download_aster.sh /custom/dir      # → /custom/dir/
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEST="${1:-data/aster_rainier}"
 mkdir -p "${DEST}"
 
@@ -47,6 +51,21 @@ for name in atl06sr_all.parquet figure_selections.yml; do
     fi
 done
 echo "${ICESAT2_TAG}" > "${ICESAT2_DIR}/RELEASE"
+
+# Copernicus GLO-30 reference DEM for orthorectification and the report's
+# difference map, clipped to the tutorial's processing window (T_PROJWIN in the
+# notebook) plus a 2 km margin, with ellipsoid heights. fetch_cop_dem.py reads
+# the tiles from AWS Open Data.
+REF_DEM="${DEST}/ref/cop30_rainier.tif"
+if [[ -f "${REF_DEM}" ]]; then
+    echo "Already have the reference DEM ${REF_DEM} — skipping."
+else
+    echo "Fetching the Copernicus reference DEM from AWS..."
+    "${PYTHON:-python}" "${SCRIPT_DIR}/fetch_cop_dem.py" \
+        --bbox -122.015 46.682 -121.451 47.049 \
+        --t-srs EPSG:32610 --tr 30 \
+        --out "${REF_DEM}"
+fi
 
 # Extract into a subdirectory so aster2asp has a clean target.
 EXTRACT_DIR="${DEST}/dataDir"

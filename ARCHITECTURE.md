@@ -64,8 +64,7 @@ stereopipeline-quickstart/
 │       ├── installation.md            # local-install guide; demoted from start/
 │       └── further-reading.md
 ├── notebooks/
-│   ├── 01_aster_rainier.ipynb         # ASTER quick look: L1A → raw 30 m DEM (asp_mgm, summit crop) + report
-│   ├── 02_aster_rainier_ortho.ipynb   # ASTER: COP30 fetch + mapproject + asp_mgm 30 m DEM + report reusing 01's selections
+│   ├── 01_aster_rainier.ipynb         # ASTER: L1A → skyplot → mapproject onto COP30 → asp_mgm 30 m DEM (summit window) + report
 │   ├── 03_worldview_ucsd.ipynb        # WV3 → 4 m DEM, no-BA canonical (mapproj + stereo + pc_align report)
 │   ├── 04_worldview_ucsd_ba.ipynb     # WV3 BA variant (adds bundle_adjust; _ba-suffixed outputs)
 │   └── utils.py                       # scene_bbox/utm_epsg via camera_footprint
@@ -186,21 +185,26 @@ One-time setup: repo Settings → Actions → General → Workflow permissions, 
 
 ## Tutorial pipeline design
 
-### ASTER two-report workflow
+### ASTER tutorial
 
-See [ADR-0008](architecture/0008-aster-cop30-two-reports.md), amended by [ADR-0023](architecture/0023-split-aster-tutorial.md). The two ASTER notebooks mirror the WV flow, producing two DEMs + two reports:
+See [ADR-0027](architecture/0027-single-aster-tutorial.md), which supersedes the two-notebook split of [ADR-0023](architecture/0023-split-aster-tutorial.md) and the two-report design of [ADR-0008](architecture/0008-aster-cop30-two-reports.md). One notebook, `01_aster_rainier.ipynb`, runs the standard workflow on a processing window around the summit and shows the data after each step with `asp-plot` calls in the cells:
 
-1. Raw pass (`01_aster_rainier.ipynb`, the quick look): `parallel_stereo` on the raw imagery (no BA, no ortho), cropped with `--left-image-crop-win 1800 2100 2100 2100` (a 2100 × 2100 px nadir-image window, about 31 km around the summit) → `stereo/run-DEM.tif` at 30 m → `stereo/rainier_aster_report.pdf`. Uses `--stereo-algorithm asp_mgm` + `--subpixel-mode 9`, ASP's own ASTER example settings.
-2. Ortho pass (`02_aster_rainier_ortho.ipynb`): fetch a COP30 DEM for the whole scene, `mapproject` both views onto it at 15 m with `--t_projwin 577305 5172975 615705 5209035` (`T_PROJWIN`: the UTM 10N extent of the raw pass's DEM), re-run stereo with the same settings → `stereo_ortho/run-DEM.tif` → `stereo_ortho/rainier_aster_ortho_report.pdf` (COP30 reference). Orthorectification is the only processing difference between the passes.
+1. `download_aster.sh`: the L1A archive, the shipped ICESat-2 data, and the COP30 reference DEM (`ref/cop30_rainier.tif`, clipped to the window plus 2 km, fetched with `fetch_cop_dem.py`). `onCreate.sh` runs it, so a prebuilt Codespace has all three. Then `aster2asp`.
+2. Stereo geometry: `StereoGeometryPlotter(inputs=[out-Band3N.xml, out-Band3B.xml]).stereo_geom_plot()` (skyplot + footprint map; the basemap needs internet).
+3. Raw images: `Raster(fn, downsample=8).read_array()` drawn with `Plotter().plot_array()`, through a small `show_pair()` defined in the cell.
+4. `mapproject` both views onto COP30 at 15 m with `--t_projwin 577305 5172975 615705 5209035` (`T_PROJWIN`, UTM 10N, about 38 × 36 km), one cell of its own.
+5. The orthorectified images, with the same `show_pair()`.
+6. `parallel_stereo -t aster --stereo-algorithm asp_mgm --subpixel-mode 9 --dem ref/cop30_rainier.tif` on the orthorectified pair, `point2dem --tr 30` → `stereo/run-DEM.tif`; then a hillshade from `Raster.hillshade()`.
+7. `asp_report` with `--reference-dem` (the DEM figure's third panel shows the COP30 difference) and without `--no-geometry` (asp-plot reads ASTER geometry from the `aster2asp` camera XML) → `stereo/rainier_aster_report.pdf`.
 
-`asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4` for the 4-core floor. Until 2026-10 the raw pass used `asp_bm` + `--subpixel-mode 1` on the whole scene; see [ADR-0027](architecture/0027-aster-quick-look-mgm-crop.md) for why it changed.
+`asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4` for the 4-core floor.
 
 ### `--reuse-selections` for comparable reports
 
-Both two-report comparisons replay the first run's figure selections so the PDFs line up panel-for-panel (same ICESat-2 points, profile track, hillshade crops) and only the processing change shows:
+Every report replays shipped figure selections, and the WorldView pair's second report replays the first's, so those two PDFs line up panel-for-panel (same ICESat-2 points, profile track, hillshade crops) and only the processing change shows:
 
-- By default every report, the first of each pair included, replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both with `curl -f` from a dated release: `download_aster.sh` from `icesat2-2026-10-26` (regenerated for the cropped quick look, [ADR-0027](architecture/0027-aster-quick-look-mgm-crop.md)), `download_worldview_ucsd.sh` from `icesat2-2026-10-23`. See [ADR-0022](architecture/0022-ship-icesat2-data.md).
-- With `FRESH_ICESAT2 = True` (first code cell of each notebook), the first report requests fresh data from SlideRule, and the second reuses the first's own sidecar: the 02 ortho report reuses 01's `stereo/rainier_aster_report_figure_selections.yml` (run 01 first), and the 04 BA report reuses 03's `stereo/ucsd_wv3_report_figure_selections.yml` (run 03 first).
+- By default every report replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both with `curl -f` from a dated release: `download_aster.sh` from `icesat2-2026-10-26` (regenerated for the processing window, [ADR-0027](architecture/0027-single-aster-tutorial.md)), `download_worldview_ucsd.sh` from `icesat2-2026-10-23`. See [ADR-0022](architecture/0022-ship-icesat2-data.md).
+- With `FRESH_ICESAT2 = True` (first code cell of each notebook), the ASTER report and the first WorldView report request fresh data from SlideRule, and the 04 BA report reuses 03's own `stereo/ucsd_wv3_report_figure_selections.yml` (run 03 first).
 
 asp_plot writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_report --reuse-selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone. The sidecar's `parquet_cache` path is resolved from the working directory, so shipped sidecars are written relative to `notebooks/`.
 
@@ -240,12 +244,12 @@ The no-chdir `DATA` pattern itself is an editing rule in `AGENTS.md`. Earlier it
 
 Each long-running notebook cell is wrapped in the idempotent skip pattern (see `AGENTS.md`). The sentinels:
 
-ASTER — 01_aster_rainier.ipynb runs raw-imagery stereo with its report; 02_aster_rainier_ortho.ipynb repeats the download and aster2asp steps (skipped if 01 ran) and adds an orthorectified pass against a fetched COP30 DEM, with its own report (see [ADR-0023](architecture/0023-split-aster-tutorial.md)):
+ASTER — 01_aster_rainier.ipynb (see [ADR-0027](architecture/0027-single-aster-tutorial.md)):
 - `out-Band3N.tif` (aster2asp)
-- `stereo/run-DEM.tif` + `stereo/rainier_aster_report.pdf` (raw pass)
-- `ref/cop30_rainier.tif` (COP30 fetch)
-- `out-Band3{N,B}_ortho.tif` (mapproject)
-- `stereo_ortho/run-DEM.tif` + `stereo_ortho/rainier_aster_ortho_report.pdf`
+- `out-Band3{N,B}_ortho.tif` (mapproject, one check per view)
+- `stereo/run-DEM.tif` (stereo + point2dem)
+- `stereo/rainier_aster_report.pdf` (report)
+- `ref/cop30_rainier.tif` is fetched by `download_aster.sh`, which handles its own idempotency
 
 WV3 — 03_worldview_ucsd.ipynb is the NO-BA canonical; the BA recipe is the variant 04_worldview_ucsd_ba.ipynb with `_ba`-suffixed outputs so both can run in one data dir (see [ADR-0012](architecture/0012-no-ba-canonical-wv.md)):
 - `ref/cop30_ucsd.tif` (COP30 fetch; shared)
