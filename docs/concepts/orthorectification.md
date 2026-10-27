@@ -41,7 +41,7 @@ When you have no good reference DEM, produce one: run a coarse first stereo pass
 
 ![Two-pass recipe: a coarse first DEM feeds orthorectification for a refined second pass](figures/two-pass-flow.svg)
 
-The ASTER tutorials run this pattern with COP30 as the second-pass surface: [Tutorial 1](../tutorials/01_aster_rainier.ipynb) is the raw pass and [Tutorial 2](../tutorials/02_aster_rainier_ortho.ipynb) the orthorectified one, each with a report so you can compare them. The {term}`hillshades <hillshade>` below are the two passes over the Mount Rainier massif: the raw pass loses the snow-covered upper mountain and smears the valleys; the orthorectified pass recovers both.
+The [ASTER tutorial](../tutorials/01_aster_rainier.ipynb) skips the first pass and orthorectifies straight onto COP30. The {term}`hillshades <hillshade>` below are two runs of the same ASTER scene over the Mount Rainier massif, without and with orthorectification: the raw run loses the snow-covered upper mountain and smears the valleys; the orthorectified run recovers both.
 
 ![Hillshades of the ASTER tutorial's pass-1 and pass-2 DEMs over Mount Rainier](figures/aster-two-pass-hillshade.png)
 

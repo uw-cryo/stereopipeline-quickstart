@@ -1,7 +1,7 @@
 # 8. ASTER tutorial restructured around a COP30 reference + two reports
 
 - **Date:** 2026-06-10
-- **Status:** Accepted (supersedes the earlier self-made downsample-reference workflow)
+- **Status:** Superseded by [0027](0027-single-aster-tutorial.md) for the two-report design; the COP30 reference stays. Superseded the earlier self-made downsample-reference workflow
 - **Context doc:** `AGENTS.md` § ASTER two-report workflow; commit 479c0fe
 
 ## Context

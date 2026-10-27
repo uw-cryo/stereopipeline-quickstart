@@ -1,7 +1,7 @@
 # 23. Split the ASTER tutorial: quick look first, orthorectified pass second
 
 - **Date:** 2026-10-23
-- **Status:** Accepted; amends [0008](0008-aster-cop30-two-reports.md)
+- **Status:** Superseded by [0027](0027-single-aster-tutorial.md): the two ASTER notebooks became one. Amended [0008](0008-aster-cop30-two-reports.md)
 - **Context doc:** `ARCHITECTURE.md` § Sentinel files per step
 
 ## Context

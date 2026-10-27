@@ -1,6 +1,6 @@
 # Tutorials
 
-Four end-to-end notebooks, in two pairs: each second notebook adds a processing step to the first, and their reports line up for comparison. Run times are for the default 4-core Codespace. All use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
+Three end-to-end notebooks: the ASTER tutorial, then a WorldView pair, where the second adds bundle adjustment and the two reports line up for comparison. Run times are for the default 4-core Codespace. All use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
 
 ```{admonition} To run these notebooks, launch the Codespace first
 :class: important
@@ -10,33 +10,21 @@ The tutorial pages below are static renders of the notebooks in `notebooks/`, sh
 ::::{grid} 1 1 2 2
 :gutter: 3
 
-:::{grid-item-card} 1. ASTER Mt. Rainier, quick look
+:::{grid-item-card} 1. ASTER Mt. Rainier
 :link: 01_aster_rainier
 :link-type: doc
 
-Stereo from a single ASTER L1A scene with ASP's fastest settings. The simplest end-to-end flow:
-- `aster2asp` to extract nadir + back-looking views
-- `parallel_stereo` (`asp_bm`) + `point2dem` on the raw imagery
+From a single ASTER L1A scene to a DEM, on a window around the summit, with `asp-plot` figures after each step:
+- `aster2asp` to extract nadir + back-looking views, and the stereo geometry
+- `mapproject` both views onto a COP30 reference DEM
+- `parallel_stereo` (`asp_mgm`, subpixel mode 9) + `point2dem`
 - `asp-plot` PDF report
 
-Output: a ~30 m DEM of Mt. Rainier. Run time: ~6 min.
+Output: a ~30 m DEM of Mt. Rainier. Run time: ~10 min.
 :::
 
-:::{grid-item-card} 2. ASTER Mt. Rainier, orthorectified
-:link: 02_aster_rainier_ortho
-:link-type: doc
-
-The same scene, processed the slower, higher-quality way:
-- COP-DEM clip from AWS Open Data
-- `mapproject` both views onto it
-- `parallel_stereo` (`asp_mgm`, subpixel mode 9) on the orthorectified pair
-- `asp-plot` PDF report that lines up panel for panel with Tutorial 1's
-
-Output: an orthorectified ~30 m DEM of Mt. Rainier. Run time: ~20 min.
-:::
-
-:::{grid-item-card} 3. WorldView-3 UCSD
-:link: 03_worldview_ucsd
+:::{grid-item-card} 2. WorldView-3 UCSD
+:link: 02_worldview_ucsd
 :link-type: doc
 
 Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly hosted on AWS). Steps:
@@ -49,19 +37,19 @@ Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly
 Output: 4 m DEM of the UCSD campus and sea cliffs. Run time: ~6 min.
 :::
 
-:::{grid-item-card} 4. WorldView-3 UCSD with bundle adjustment
-:link: 04_worldview_ucsd_ba
+:::{grid-item-card} 3. WorldView-3 UCSD with bundle adjustment
+:link: 03_worldview_ucsd_ba
 :link-type: doc
 
-Variant of Tutorial 3 that adds `bundle_adjust` to refine the vendor RPC cameras before orthorectification. Outputs are suffixed `_ba`, so both runs share a data directory and the two `asp-plot` reports can be compared side by side. Run time: ~20 min, most of it bundle adjustment.
+Variant of Tutorial 2 that adds `bundle_adjust` to refine the vendor RPC cameras before orthorectification. Outputs are suffixed `_ba`, so both runs share a data directory and the two `asp-plot` reports can be compared side by side. Run time: ~20 min, most of it bundle adjustment.
 :::
 ::::
 
 ## Suggested order
 
-If you've never run ASP before, start with Tutorial 1, the ASTER quick look. It has the fewest parameters and the coarsest resolution.
+If you've never run ASP before, start with Tutorial 1, the ASTER tutorial. It has the fewest parameters and the coarsest resolution.
 
-Tutorial 2 processes the same ASTER scene with orthorectification and a slower, higher-quality matcher; compare its report with Tutorial 1's. The WorldView tutorial then adds cropping and a finer resolution, higher accuracy result. The bundle-adjustment variant comes last: run it after Tutorial 3 and compare the reports to see what camera refinement adds.
+The WorldView tutorial then adds cropping and a finer resolution, higher accuracy result. The bundle-adjustment variant comes last: run it after Tutorial 2 and compare the reports to see what camera refinement adds.
 
 ## Beyond the tutorials
 
