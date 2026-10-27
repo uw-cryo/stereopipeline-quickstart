@@ -118,12 +118,11 @@
     }
   },
 
-  // Run a one-time setup the first time the container is created. onCreateCommand,
-  // not postCreateCommand, because Codespaces prebuilds run only the former, so
-  // a prebuild includes these downloads. This pre-fetches
-  // the ASTER Zenodo archive (~45 MB) and its shipped ICESat-2 data (~18 MB)
-  // so the first notebook is instant.
-  // The WorldView download is heavier and is deferred to the notebook itself.
+  // Run a one-time setup the first time the container is created (health checks
+  // only). onCreateCommand, not postCreateCommand, because Codespaces prebuilds
+  // run only the former. It downloads no data: each notebook's download cell
+  // fetches its own from a release of this repo, so a prebuild never holds
+  // stale data.
   "onCreateCommand": "bash .devcontainer/onCreate.sh",
 
   // Open Tutorial 1 once VS Code is attached and the folder is trusted.

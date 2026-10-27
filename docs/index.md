@@ -118,5 +118,6 @@ comparisons/index
 reference/glossary
 reference/output-files
 reference/installation
+reference/data
 reference/further-reading
 ```

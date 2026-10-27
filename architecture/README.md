@@ -33,3 +33,4 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0025 — Back to VS Code: the JupyterLab start page is reverted](0025-back-to-vs-code.md) — *supersedes 0024*
 - [0026 — A simplified VS Code window for the tutorials](0026-simplified-vs-code.md)
 - [0027 — One ASTER tutorial: orthorectify, then `asp_mgm`, on a window around the summit](0027-single-aster-tutorial.md) — *supersedes 0023 and 0008's two reports*
+- [0028 — Tutorial data on this repo's releases, fetched by the notebooks](0028-tutorial-data-on-releases.md) — *extends 0022*

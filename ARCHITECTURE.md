@@ -22,7 +22,7 @@ stereopipeline-quickstart/
 │   ├── devcontainer.json              # pulls pre-built image; build: fallback
 │   ├── Dockerfile                     # ASP binaries + asp_plot conda env
 │   ├── environment.yml                # conda env spec (python 3.12)
-│   ├── onCreate.sh                    # ASP/asp_plot health check + download_aster.sh pre-fetch (runs in prebuilds)
+│   ├── onCreate.sh                    # ASP/asp_plot health check (runs in prebuilds; no data download)
 │   ├── postAttach.sh                  # opens Tutorial 1 once VS Code attaches (after the trust prompt), installs close-panel/
 │   ├── close-panel/                   # tiny VS Code extension: closes the terminal panel and clears notifications once on first launch
 │   └── postStart.sh                   # (stashed; not active)
@@ -69,8 +69,8 @@ stereopipeline-quickstart/
 │   ├── 03_worldview_ucsd_ba.ipynb     # WV3 BA variant (adds bundle_adjust; _ba-suffixed outputs)
 │   └── utils.py                       # scene_bbox/utm_epsg via camera_footprint
 ├── scripts/
-│   ├── download_aster.sh              # Zenodo fetch + shipped ICESat-2 (release) + unzip
-│   ├── download_worldview_ucsd.sh     # SpaceNet S3 fetch + shipped ICESat-2 (release) + tar extract + rename
+│   ├── download_aster.sh              # all ASTER data from release aster-rainier-* (L1A, ICESat-2, COP30) + unzip
+│   ├── download_worldview_ucsd.sh     # WV3 NTF + XML from SpaceNet's bucket over HTTPS; ICESat-2 + COP30 from release ucsd-wv3-*
 │   └── fetch_cop_dem.py               # COP30 from AWS, local geoid→ellipsoid shift
 └── CLAUDE/                            # gitignored; local session/design scratch notes
 ```
@@ -189,7 +189,7 @@ One-time setup: repo Settings → Actions → General → Workflow permissions, 
 
 See [ADR-0027](architecture/0027-single-aster-tutorial.md), which supersedes the two-notebook split of [ADR-0023](architecture/0023-split-aster-tutorial.md) and the two-report design of [ADR-0008](architecture/0008-aster-cop30-two-reports.md). One notebook, `01_aster_rainier.ipynb`, runs the standard workflow on a processing window around the summit and shows the data after each step with `asp-plot` calls in the cells:
 
-1. `download_aster.sh`: the L1A archive from Zenodo, then the shipped ICESat-2 data and the COP30 reference DEM (`ref/cop30_rainier.tif`, the window plus 2 km, made once with `fetch_cop_dem.py` and rewritten with `gdal_translate -a_srs EPSG:32610`, so its CRS is inside the GeoTIFF rather than in an `.aux.xml` sidecar the release wouldn't carry) from release `aster-rainier-2026-10-27`, so the tutorial makes no SlideRule request and no AWS fetch. `onCreate.sh` runs it, so a prebuilt Codespace has all of them. Then `aster2asp`.
+1. `download_aster.sh`: the L1A archive (a copy of the Zenodo record), the shipped ICESat-2 data and the COP30 reference DEM (`ref/cop30_rainier.tif`, the window plus 2 km, made once with `fetch_cop_dem.py` and rewritten with `gdal_translate -a_srs EPSG:32610`, so its CRS is inside the GeoTIFF rather than in an `.aux.xml` sidecar the release wouldn't carry) from release `aster-rainier-2026-10-27`, about 55 MB, so the tutorial needs no host but GitHub, no SlideRule request and no AWS fetch. The notebook's first step runs it; Codespace startup doesn't pre-fetch ([ADR-0028](architecture/0028-tutorial-data-on-releases.md)). Then `aster2asp`.
 2. Stereo geometry: `StereoGeometryPlotter(inputs=[out-Band3N.xml, out-Band3B.xml]).stereo_geom_plot()` (skyplot + footprint map; the basemap needs internet).
 3. Raw images: `Raster(fn, downsample=8).read_array()` drawn with `Plotter().plot_array()`, through a small `show_pair()` defined in the cell.
 4. `mapproject` both views onto COP30 at 15 m with `--t_projwin 577305 5172975 615705 5209035` (`T_PROJWIN`, UTM 10N, about 38 × 36 km), one cell of its own.
@@ -199,11 +199,17 @@ See [ADR-0027](architecture/0027-single-aster-tutorial.md), which supersedes the
 
 `asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4` for the 4-core floor.
 
+### Tutorial data on releases
+
+See [ADR-0028](architecture/0028-tutorial-data-on-releases.md). Each tutorial dataset has one dated release of this repo with everything it needs that may be re-hosted, as separate assets: `aster-rainier-2026-10-27` (L1A archive, ICESat-2 points and figure selections, COP30 clip) and `ucsd-wv3-2026-10-27` (ICESat-2 points and figure selections, COP30 clip). The release notes record each file's source, licence and how it was made; `docs/reference/data.md` lists the same for readers, with the Copernicus notice. The WorldView-3 imagery is IARPA CORE3D data on SpaceNet's AWS bucket, outside the bucket's CC BY-SA licence and with no redistribution grant found, so `download_worldview_ucsd.sh` fetches it from there over plain HTTPS (no AWS CLI) and it is not re-hosted. COP30 clips are rewritten with `gdal_translate -a_srs <EPSG>` before upload: `fetch_cop_dem.py` writes a 3D CRS that GDAL keeps in an `.aux.xml` sidecar, and without it ASP can't place the DEM. Large downloads go to a `.part` file first, so an interrupted one is never taken for a finished one.
+
+Codespace startup downloads no data (`onCreate.sh` only checks the toolchain); each notebook's download cell fetches its dataset, so a Codespace always gets the release its checked-out code names.
+
 ### `--reuse-selections` for comparable reports
 
 Every report replays shipped figure selections, and the WorldView pair's second report replays the first's, so those two PDFs line up panel-for-panel (same ICESat-2 points, profile track, hillshade crops) and only the processing change shows:
 
-- By default every report replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both with `curl -f` from a dated release: `download_aster.sh` from `aster-rainier-2026-10-27` (regenerated for the processing window, together with the COP30 reference DEM, [ADR-0027](architecture/0027-single-aster-tutorial.md)), `download_worldview_ucsd.sh` from `icesat2-2026-10-23`. `download_aster.sh` writes the tag to `data/aster_rainier/RELEASE` and replaces shipped files from any other release, so a Codespace prebuilt before a data change gets the new files. See [ADR-0022](architecture/0022-ship-icesat2-data.md).
+- By default every report replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both with `curl -f` from the tutorial's dated release, together with its COP30 reference DEM: `download_aster.sh` from `aster-rainier-2026-10-27` (regenerated for the processing window, [ADR-0027](architecture/0027-single-aster-tutorial.md)), `download_worldview_ucsd.sh` from `ucsd-wv3-2026-10-27`. Each writes the tag to `data/<tutorial>/RELEASE` and replaces shipped files from any other release. See [ADR-0022](architecture/0022-ship-icesat2-data.md) and [ADR-0028](architecture/0028-tutorial-data-on-releases.md).
 - With `FRESH_ICESAT2 = True` (first code cell of each notebook), the ASTER report and the first WorldView report request fresh data from SlideRule, and the 03 BA report reuses 02's own `stereo/ucsd_wv3_report_figure_selections.yml` (run 02 first).
 
 asp_plot writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_report --reuse-selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone. The sidecar's `parquet_cache` path is resolved from the working directory, so shipped sidecars are written relative to `notebooks/`.
@@ -252,7 +258,7 @@ ASTER — 01_aster_rainier.ipynb (see [ADR-0027](architecture/0027-single-aster-
 - `ref/cop30_rainier.tif` is fetched by `download_aster.sh`, which handles its own idempotency
 
 WV3 — 02_worldview_ucsd.ipynb is the NO-BA canonical; the BA recipe is the variant 03_worldview_ucsd_ba.ipynb with `_ba`-suffixed outputs so both can run in one data dir (see [ADR-0012](architecture/0012-no-ba-canonical-wv.md)):
-- `ref/cop30_ucsd.tif` (COP30 fetch; shared)
+- `ref/cop30_ucsd.tif` (fetched by `download_worldview_ucsd.sh`; the notebook's COP30 cell finds it and skips its own fetch)
 - canonical: `<catid>_P001_ortho.tif`, `stereo/run-DEM.tif`, `stereo/ucsd_wv3_report.pdf`
 - BA variant: `ba/run-final_residuals_pointmap.csv`, `<catid>_P001_ortho_ba.tif`, `stereo_ba/run-DEM.tif`, `stereo_ba/ucsd_wv3_ba_report.pdf`
 

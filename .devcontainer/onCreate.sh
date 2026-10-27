@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
-# Runs once when the Codespace is created (onCreateCommand). Codespaces
-# prebuilds run onCreateCommand but not postCreateCommand, so with a prebuild
-# the downloads below are already done when a user opens the Codespace.
-# Keep this fast — anything that takes more than a minute or two should be
-# done inside the notebook on demand.
+# Runs once when the Codespace is created (onCreateCommand), including in
+# Codespaces prebuilds. Keep this fast.
 #
 # What we do here:
 #   1. Confirm ASP and the python env are healthy.
-#   2. Pre-fetch the small ASTER Zenodo archive and the shipped ICESat-2 data
-#      so notebook 01 is instant.
-#   3. Print a short "what now?" message into the terminal.
+#   2. Print a short "what now?" message into the terminal.
+#
+# It downloads no data: each notebook's download cell fetches its own, from a
+# release of this repo, so a Codespace always gets the data its checked-out code
+# names (a prebuild made before a data change can't hand out stale files).
 
 set -euo pipefail
 
@@ -35,13 +34,7 @@ echo "--> asp_plot version:"
 # manipulation in lifecycle wrapping.
 /opt/conda/envs/asp/bin/python -c "import asp_plot; print(asp_plot.__version__)"
 
-# ---- 2. Pre-fetch ASTER demo data -------------------------------------------
-# Same script notebook 01 runs, so the Zenodo scene and the shipped ICESat-2
-# data land where the notebook expects them.
-echo "--> Pre-fetching ASTER Mt. Rainier scene and ICESat-2 data..."
-bash scripts/download_aster.sh "${PWD}/data/aster_rainier"
-
-# ---- 3. Friendly hello -------------------------------------------------------
+# ---- 2. Friendly hello -------------------------------------------------------
 cat <<'EOF'
 
 ===============================================================
@@ -51,7 +44,7 @@ ASP + asp_plot, ready to go.
 
 Next steps:
   1. Open notebooks/01_aster_rainier.ipynb and click "Run All".
-     (Data is pre-fetched into data/aster_rainier/.)
+     (Its first step downloads the data into data/aster_rainier/.)
   2. Or read docs/start/codespaces.md for an orientation tour.
 
 ===============================================================
