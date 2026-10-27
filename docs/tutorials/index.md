@@ -35,14 +35,14 @@ Stereo from a high-resolution WorldView-3 pair over Mount Soledad, next to UC Sa
 - `parallel_stereo` (`asp_mgm`, subpixel mode 9) + `point2dem`
 - `asp-plot` PDF report with ICESat-2 alignment (`pc_align` runs by default)
 
-Output: a 2.4 m DEM of Mount Soledad. Run time: ~15 min, a third of it downloading.
+Output: a 2.4 m DEM of Mount Soledad. Run time: ~10 min, 2 of them downloading.
 :::
 
 :::{grid-item-card} 3. WorldView-3 Mount Soledad, three images blended
 :link: 03_worldview_ucsd_blend
 :link-type: doc
 
-Adds a third image of the same window: bundle adjusts all three cameras, runs stereo on each of the three pairs, and averages the three DEMs with `dem_mosaic` into one with fewer holes and less noise. Run time: ~20 min.
+Adds a third image of the same window: bundle adjusts all three cameras, runs stereo on each of the three pairs, and averages the three DEMs with `dem_mosaic` into one with fewer holes and less noise. Run time: ~16 min after Tutorial 2.
 :::
 ::::
 
