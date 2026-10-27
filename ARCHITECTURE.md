@@ -65,8 +65,8 @@ stereopipeline-quickstart/
 │       └── further-reading.md
 ├── notebooks/
 │   ├── 01_aster_rainier.ipynb         # ASTER: L1A → skyplot → mapproject onto COP30 → asp_mgm 30 m DEM (summit window) + report
-│   ├── 03_worldview_ucsd.ipynb        # WV3 → 4 m DEM, no-BA canonical (mapproj + stereo + pc_align report)
-│   ├── 04_worldview_ucsd_ba.ipynb     # WV3 BA variant (adds bundle_adjust; _ba-suffixed outputs)
+│   ├── 02_worldview_ucsd.ipynb        # WV3 → 4 m DEM, no-BA canonical (mapproj + stereo + pc_align report)
+│   ├── 03_worldview_ucsd_ba.ipynb     # WV3 BA variant (adds bundle_adjust; _ba-suffixed outputs)
 │   └── utils.py                       # scene_bbox/utm_epsg via camera_footprint
 ├── scripts/
 │   ├── download_aster.sh              # Zenodo fetch + shipped ICESat-2 (release) + unzip
@@ -99,7 +99,7 @@ Import gotcha: RTD's auto-detect can flag a public repo as "private" when its ca
 
 See [ADR-0004](architecture/0004-docs-wip-skeleton.md) (skeleton phase), [ADR-0017](architecture/0017-retire-per-page-wip-admonitions.md) (admonitions retired), and [ADR-0020](architecture/0020-soften-banner-issue-form.md) (banner softened). The concept/intro pages shipped as a WIP skeleton and have since been fleshed out with prose and figures (issue #6); the site-wide banner (`announcement` in `docs/conf.py`) now reads "In development, but ready for usage" rather than flagging a WIP. Reader contact is the GitHub issue form (`.github/ISSUE_TEMPLATE/problem-report.yml`), linked from the banner, the landing page's "Reporting problems" section, the Codespace page, and the tutorials index. Figures that still need full processing runs are marked by the remaining HTML comments `<!-- FIGURE IDEA: ... -->`.
 
-Figure conventions are in [ADR-0018](architecture/0018-docs-figure-conventions.md): conceptual diagrams are hand-written SVGs in a `figures/` dir next to the page, drawn on an opaque light surface so one file reads on both themes; data-backed figures are matplotlib/asp_plot PNGs from real runs, with provenance stated in the page prose. The BA residual figures come from a `bundle_adjust` run matching the tutorial-4 config (`--ip-per-tile 10`); the remaining `concepts/figures/*.png` come from full local runs of the tutorial-1 and tutorial-2 (ASTER raw and orthorectified passes) and tutorial-3 (WV3) configurations, plus two extras kept under `data/ucsd_stereo_21deg_12d/`: `stereo_knobs/` (an 800 m crop run with `asp_bm`/`asp_mgm` × subpixel 1/2/9 for the knobs figure) and `align_demo/` (a DEM-vs-COP30 `pc_align` run quoted on the alignment page).
+Figure conventions are in [ADR-0018](architecture/0018-docs-figure-conventions.md): conceptual diagrams are hand-written SVGs in a `figures/` dir next to the page, drawn on an opaque light surface so one file reads on both themes; data-backed figures are matplotlib/asp_plot PNGs from real runs, with provenance stated in the page prose. The BA residual figures come from a `bundle_adjust` run matching the WorldView bundle-adjustment tutorial's config (`--ip-per-tile 10`); the remaining `concepts/figures/*.png` come from full local runs of the earlier ASTER raw and orthorectified tutorial configurations (before [ADR-0027](architecture/0027-single-aster-tutorial.md)) and the WorldView tutorial's (WV3) configuration, plus two extras kept under `data/ucsd_stereo_21deg_12d/`: `stereo_knobs/` (an 800 m crop run with `asp_bm`/`asp_mgm` × subpixel 1/2/9 for the knobs figure) and `align_demo/` (a DEM-vs-COP30 `pc_align` run quoted on the alignment page).
 
 Glossary linking is in [ADR-0019](architecture/0019-glossary-term-hover-previews.md): jargon links to `docs/reference/glossary.md` with the MyST `{term}` role at its first occurrence on a page, prose only. `sphinx-tippy` (in `docs/requirements.txt`) turns those links into hover previews, scoped to glossary anchors by `tippy_skip_urls` in `docs/conf.py`; term links get a dotted underline and the tooltip box follows the theme via `--pst-*` variables in `custom.css`. tippy.js and popper are vendored as pinned copies in `docs/_static/js/` (`tippy_js` in `conf.py`), so no CDN is involved.
 
@@ -204,7 +204,7 @@ See [ADR-0027](architecture/0027-single-aster-tutorial.md), which supersedes the
 Every report replays shipped figure selections, and the WorldView pair's second report replays the first's, so those two PDFs line up panel-for-panel (same ICESat-2 points, profile track, hillshade crops) and only the processing change shows:
 
 - By default every report replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both with `curl -f` from a dated release: `download_aster.sh` from `icesat2-2026-10-26` (regenerated for the processing window, [ADR-0027](architecture/0027-single-aster-tutorial.md)), `download_worldview_ucsd.sh` from `icesat2-2026-10-23`. See [ADR-0022](architecture/0022-ship-icesat2-data.md).
-- With `FRESH_ICESAT2 = True` (first code cell of each notebook), the ASTER report and the first WorldView report request fresh data from SlideRule, and the 04 BA report reuses 03's own `stereo/ucsd_wv3_report_figure_selections.yml` (run 03 first).
+- With `FRESH_ICESAT2 = True` (first code cell of each notebook), the ASTER report and the first WorldView report request fresh data from SlideRule, and the 03 BA report reuses 02's own `stereo/ucsd_wv3_report_figure_selections.yml` (run 02 first).
 
 asp_plot writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_report --reuse-selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone. The sidecar's `parquet_cache` path is resolved from the working directory, so shipped sidecars are written relative to `notebooks/`.
 
@@ -251,7 +251,7 @@ ASTER — 01_aster_rainier.ipynb (see [ADR-0027](architecture/0027-single-aster-
 - `stereo/rainier_aster_report.pdf` (report)
 - `ref/cop30_rainier.tif` is fetched by `download_aster.sh`, which handles its own idempotency
 
-WV3 — 03_worldview_ucsd.ipynb is the NO-BA canonical; the BA recipe is the variant 04_worldview_ucsd_ba.ipynb with `_ba`-suffixed outputs so both can run in one data dir (see [ADR-0012](architecture/0012-no-ba-canonical-wv.md)):
+WV3 — 02_worldview_ucsd.ipynb is the NO-BA canonical; the BA recipe is the variant 03_worldview_ucsd_ba.ipynb with `_ba`-suffixed outputs so both can run in one data dir (see [ADR-0012](architecture/0012-no-ba-canonical-wv.md)):
 - `ref/cop30_ucsd.tif` (COP30 fetch; shared)
 - canonical: `<catid>_P001_ortho.tif`, `stereo/run-DEM.tif`, `stereo/ucsd_wv3_report.pdf`
 - BA variant: `ba/run-final_residuals_pointmap.csv`, `<catid>_P001_ortho_ba.tif`, `stereo_ba/run-DEM.tif`, `stereo_ba/ucsd_wv3_ba_report.pdf`
