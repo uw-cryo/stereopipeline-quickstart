@@ -33,7 +33,7 @@ A separate, beginner-friendly home for the NASA Ames Stereo Pipeline (ASP) itsel
 No chdir; full relative paths from `notebooks/`. Cell 1 of each notebook defines a single literal:
 
 ```python
-DATA = "../data/aster_rainier"        # or "../data/ucsd_stereo_21deg_12d"
+DATA = "../data/aster_rainier"        # or "../data/ucsd_soledad"
 !mkdir -p {DATA}
 ```
 

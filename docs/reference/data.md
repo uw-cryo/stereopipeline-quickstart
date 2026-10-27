@@ -16,8 +16,8 @@ Release: [`aster-rainier-2026-10-27`](https://github.com/uw-cryo/stereopipeline-
 
 | Data | Source | Licence |
 |---|---|---|
-| WorldView-3 panchromatic pair over UCSD, 2015-02-12 and 2015-02-24 | IARPA CORE3D public data, downloaded from SpaceNet's public AWS bucket by `scripts/download_worldview_ucsd.sh` | Released for public research. Publications using it should cite Hagstrom, Pak, Ku, Wang, Hager and Brown (2021), "Cumulative assessment for urban 3D modeling", IEEE IGARSS. Not re-hosted here |
-| Reference DEM and ICESat-2 data | Release [`ucsd-wv3-2026-10-27`](https://github.com/uw-cryo/stereopipeline-quickstart/releases/tag/ucsd-wv3-2026-10-27), made as for the ASTER tutorial | As for the ASTER tutorial |
+| WorldView-3 panchromatic scenes over Mount Soledad (UCSD), 2014-11-09, 2014-12-23 and 2015-01-24 | IARPA CORE3D public data, downloaded from SpaceNet's public AWS bucket by `scripts/download_worldview_ucsd.sh` | Released for public research. Publications using it should cite Hagstrom, Pak, Ku, Wang, Hager and Brown (2021), "Cumulative assessment for urban 3D modeling", IEEE IGARSS. Not re-hosted here |
+| Reference DEM and ICESat-2 data | Release [`ucsd-soledad-2026-10-27`](https://github.com/uw-cryo/stereopipeline-quickstart/releases/tag/ucsd-soledad-2026-10-27), made as for the ASTER tutorial | As for the ASTER tutorial |
 
 ## Copernicus DEM notice
 

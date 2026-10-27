@@ -1,7 +1,7 @@
 # 12. No-BA WV tutorial is canonical; BA is the _ba variant
 
 - **Date:** 2026-06-10
-- **Status:** Accepted (supersedes the bundle-adjust-first WV tutorial)
+- **Status:** Superseded by [0029](0029-ucsd-soledad-tutorials.md): both WorldView tutorials now bundle adjust, on crops. Superseded the bundle-adjust-first WV tutorial
 - **Context doc:** `AGENTS.md` § ASTER two-report / WV3 thread budget; issue #7, commit ba37079
 
 ## Context

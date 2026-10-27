@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Download the SpaceNet CORE3D UCSD WorldView-3 stereo pair, plus the
-# tutorial's shipped data.
+# Download WorldView-3 scenes over Mount Soledad (UCSD, San Diego) for the
+# WorldView tutorials, plus the tutorials' shipped data.
 #
-# Pair (selected by asp_plot's UCSD scene-selection notebook):
-#   - 2015-02-12, off-nadir 8.4°,  catid 1040010007A93700 (left)
-#   - 2015-02-24, off-nadir 12.9°, catid 1040010007CA4D00 (right)
-# Convergence angle 21°, B/H 0.37 — well-conditioned for natural terrain.
+# Scenes (the three used by the tutorials; chosen in the cropped and full-scene
+# benchmark studies of the SpaceNet UCSD stack):
+#   - 104001000496A100, 2014-11-09, the near-nadir scene ("nadir")
+#   - 10400100071D8800, 2015-01-24 ("n16"): with nadir, a 16.9° pair
+#   - 10400100057DD500, 2014-12-23 ("n24"): 25.9° with nadir, 25.3° with n16
 #
 # The imagery comes from SpaceNet's public AWS bucket (spacenet-dataset), over
 # plain HTTPS, so no AWS CLI or credentials are needed. It is IARPA CORE3D data,
@@ -14,15 +15,17 @@
 # re-hosted here: no licence we could find allows redistribution.
 #
 # The shipped ICESat-2 points and figure selections, and the Copernicus
-# reference DEM for the scene, come from a release of this repo.
+# reference DEM for the processing window, come from a release of this repo.
 #
 # Usage:
-#   bash scripts/download_worldview_ucsd.sh          # → ./data/ucsd_stereo_21deg_12d/
-#   bash scripts/download_worldview_ucsd.sh /path    # → /path/
+#   bash scripts/download_worldview_ucsd.sh                 # all three → ./data/ucsd_soledad/
+#   bash scripts/download_worldview_ucsd.sh /path           # all three → /path/
+#   bash scripts/download_worldview_ucsd.sh /path CATID...  # only these scenes
 
 set -euo pipefail
 
-DEST="${1:-data/ucsd_stereo_21deg_12d}"
+DEST="${1:-data/ucsd_soledad}"
+shift || true
 mkdir -p "${DEST}/images"
 
 # Download a URL to a path via a .part file, so an interrupted download is never
@@ -38,17 +41,22 @@ fetch() {
 # name from the S3 file, so it is found by order ID.
 S3_BASE="https://spacenet-dataset.s3.amazonaws.com/Hosted-Datasets/CORE3D-Public-Data/Satellite-Images/UCSD/WV3/PAN"
 SCENES=(
-    "1040010007A93700 500647760030_01 12FEB15WV031300015FEB12183926-P1BS-500647760030_01_P001_________AAE_0AAAAABPABS0"
-    "1040010007CA4D00 500647759040_01 24FEB15WV031300015FEB24183134-P1BS-500647759040_01_P001_________AAE_0AAAAABPABS0"
+    "104001000496A100 500647758070_01 09NOV14WV031300014NOV09182948-P1BS-500647758070_01_P001_________AAE_0AAAAABPABT0"
+    "10400100071D8800 500647760080_01 24JAN15WV031300015JAN24183547-P1BS-500647760080_01_P001_________AAE_0AAAAABPABR0"
+    "10400100057DD500 500647759010_01 23DEC14WV031300014DEC23182236-P1BS-500647759010_01_P001_________AAE_0AAAAABPABP0"
 )
+WANT=("$@")
 for scene in "${SCENES[@]}"; do
     read -r catid order stem <<< "${scene}"
+    if [[ ${#WANT[@]} -gt 0 && ! " ${WANT[*]} " =~ " ${catid} " ]]; then
+        continue
+    fi
     ntf="${DEST}/${catid}_P001.NTF"
     xml="${DEST}/${catid}_P001.xml"
     if [[ -f "${ntf}" ]]; then
         echo "Already have ${ntf} — skipping."
     else
-        echo "Downloading ${catid} image (~880 MB) from SpaceNet..."
+        echo "Downloading ${catid} image (~870 MB) from SpaceNet..."
         fetch "${S3_BASE}/${stem}.NTF" "${ntf}"
     fi
     if [[ -f "${xml}" ]]; then
@@ -66,22 +74,24 @@ for scene in "${SCENES[@]}"; do
     fi
 done
 
-# Shipped data, attached to a release of this repo, so the tutorial needs no
-# SlideRule request and no AWS fetch for its reference DEM:
-# - ICESat-2 ATL06-SR points and the report's figure selections from a
-#   known-good run, in their own folder so a fresh SlideRule request can't
-#   overwrite them (the sidecar's parquet_cache path is relative to notebooks/);
-# - the Copernicus GLO-30 reference DEM over the scene, with ellipsoid heights,
-#   made with fetch_cop_dem.py (the release notes give the command and the
-#   Copernicus notice).
+# Shipped data, attached to a release of this repo, so the tutorials need no
+# SlideRule request and no AWS fetch for their reference DEM:
+# - ICESat-2 ATL06-SR points over the processing window and each report's
+#   figure selections from a known-good run, in their own folder so a fresh
+#   SlideRule request can't overwrite them (the sidecars' parquet_cache path is
+#   relative to notebooks/);
+# - the Copernicus GLO-30 reference DEM over the window, with ellipsoid
+#   heights, made with fetch_cop_dem.py (the release notes give the command and
+#   the Copernicus notice).
 # RELEASE records which release they came from: files from an older release
 # (for example from an earlier version of this script) are replaced.
-DATA_TAG="ucsd-wv3-2026-10-27"
+DATA_TAG="ucsd-soledad-2026-10-27"
 DATA_URL="https://github.com/uw-cryo/stereopipeline-quickstart/releases/download/${DATA_TAG}"
 SHIPPED=(
-    "ucsd_atl06sr_all.parquet icesat2_shipped/atl06sr_all.parquet"
-    "ucsd_figure_selections.yml icesat2_shipped/figure_selections.yml"
-    "ucsd_cop30.tif ref/cop30_ucsd.tif"
+    "soledad_atl06sr_all.parquet icesat2_shipped/atl06sr_all.parquet"
+    "soledad_pair_figure_selections.yml icesat2_shipped/pair_figure_selections.yml"
+    "soledad_blend_figure_selections.yml icesat2_shipped/blend_figure_selections.yml"
+    "soledad_cop30.tif ref/cop30_soledad.tif"
 )
 mkdir -p "${DEST}/icesat2_shipped" "${DEST}/ref"
 if [[ "$(cat "${DEST}/RELEASE" 2>/dev/null)" != "${DATA_TAG}" ]]; then
@@ -102,5 +112,5 @@ done
 echo "${DATA_TAG}" > "${DEST}/RELEASE"
 
 echo
-echo "WorldView-3 UCSD pair ready at ${DEST}/"
+echo "WorldView-3 Mount Soledad data ready at ${DEST}/"
 ls -lh "${DEST}"/*.NTF "${DEST}"/*.xml 2>/dev/null || true

@@ -101,7 +101,7 @@ concepts/visualization
 tutorials/index
 tutorials/01_aster_rainier
 tutorials/02_worldview_ucsd
-tutorials/03_worldview_ucsd_ba
+tutorials/03_worldview_ucsd_blend
 ```
 
 ```{toctree}

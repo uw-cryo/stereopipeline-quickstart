@@ -24,8 +24,8 @@ The tutorials use openly available data; no API keys, no Earthdata login require
 | Tutorial | Sensor | Region | Data source | Run time |
 |---|---|---|---|---|
 | `01_aster_rainier.ipynb` | ASTER L1A | Mt. Rainier, WA | Zenodo (10.5281/zenodo.7972223), via this repo's release | ~10 min |
-| `02_worldview_ucsd.ipynb` | WorldView-3 | UCSD, San Diego | IARPA CORE3D, on SpaceNet's AWS bucket | ~6 min |
-| `03_worldview_ucsd_ba.ipynb` | WorldView-3 | UCSD, San Diego | IARPA CORE3D, on SpaceNet's AWS bucket | ~20 min |
+| `02_worldview_ucsd.ipynb` | WorldView-3, one pair | Mount Soledad, San Diego | IARPA CORE3D, on SpaceNet's AWS bucket | ~15 min |
+| `03_worldview_ucsd_blend.ipynb` | WorldView-3, three pairs blended | Mount Soledad, San Diego | IARPA CORE3D, on SpaceNet's AWS bucket | ~20 min |
 
 ## Read the static docs
 

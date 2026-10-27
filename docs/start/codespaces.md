@@ -37,8 +37,8 @@ Open one of the notebooks under `notebooks/`:
 | File | What it does |
 |---|---|
 | `01_aster_rainier.ipynb` | ASTER L1A → orthorectified 30 m DEM of Mt. Rainier (~10 min) |
-| `02_worldview_ucsd.ipynb` | WorldView-3 → 4 m DEM of UCSD (~6 min) |
-| `03_worldview_ucsd_ba.ipynb` | Tutorial 2 plus bundle adjustment, for comparison (~20 min) |
+| `02_worldview_ucsd.ipynb` | WorldView-3 pair → bundle adjusted, orthorectified 2.4 m DEM of Mount Soledad (~15 min) |
+| `03_worldview_ucsd_blend.ipynb` | Three WorldView-3 images → three pair DEMs blended into one (~20 min) |
 
 Each notebook has a "Run All" button at the top. Cells are small enough to run them step by step.
 

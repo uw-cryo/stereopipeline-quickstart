@@ -16,8 +16,8 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0008 — ASTER tutorial restructured around a COP30 reference + two reports](0008-aster-cop30-two-reports.md) — *supersedes the downsample-reference workflow; two-report design superseded by 0027*
 - [0009 — Tool comparisons stay qualitative, not journal-grade quantitative](0009-qualitative-tool-comparisons.md)
 - [0010 — 4-core Codespace floor](0010-4-core-codespace-floor.md) — *supersedes the 8-core floor*
-- [0011 — WV3 ROI + resolution: coastal 2x2 km, TR 1.0 / 4 m DEM](0011-wv3-roi-and-resolution.md)
-- [0012 — No-BA WV tutorial is canonical; BA is the _ba variant](0012-no-ba-canonical-wv.md) — *supersedes the BA-first tutorial*
+- [0011 — WV3 ROI + resolution: coastal 2x2 km, TR 1.0 / 4 m DEM](0011-wv3-roi-and-resolution.md) — *superseded by 0029*
+- [0012 — No-BA WV tutorial is canonical; BA is the _ba variant](0012-no-ba-canonical-wv.md) — *supersedes the BA-first tutorial; superseded by 0029*
 - [0013 — Python 3.12 floor (sliderule PEP 701 f-strings)](0013-python-312-floor.md)
 - [0014 — Automated ASP-version tracking via PR-based bumps, not auto-merge](0014-asp-version-tracking.md)
 - [0015 — Contributor docs as AGENTS.md + ADRs; retire CLAUDE.md and the CHANGELOG](0015-agents-md-and-adrs.md)
@@ -34,3 +34,4 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0026 — A simplified VS Code window for the tutorials](0026-simplified-vs-code.md)
 - [0027 — One ASTER tutorial: orthorectify, then `asp_mgm`, on a window around the summit](0027-single-aster-tutorial.md) — *supersedes 0023 and 0008's two reports*
 - [0028 — Tutorial data on this repo's releases, fetched by the notebooks](0028-tutorial-data-on-releases.md) — *extends 0022*
+- [0029 — WorldView tutorials on Mount Soledad crops: one pair, then three pairs blended](0029-ucsd-soledad-tutorials.md) — *supersedes 0011 and 0012*
