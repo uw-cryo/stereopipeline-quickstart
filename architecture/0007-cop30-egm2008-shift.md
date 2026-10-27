@@ -1,7 +1,7 @@
 # 7. COP30 reference DEM: AWS Open Data + local EGM2008 to ellipsoid shift
 
 - **Date:** 2026-05-04
-- **Status:** Accepted
+- **Status:** Accepted. Amended 2026-10-27: the output is now tagged with the 2D horizontal SRS, not the compound CRS, which a GeoTIFF can't store (GDAL kept it in an `.aux.xml` sidecar, and the `.tif` alone had no CRS). See `ARCHITECTURE.md` § COP30 reference DEM
 - **Context doc:** `AGENTS.md` § COP30 reference DEM; commit 12b51b1
 
 ## Context

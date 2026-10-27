@@ -120,12 +120,16 @@ def main() -> None:
             check=True,
         )
 
-    # gdalwarp tags the output with only the target horizontal SRS; re-assert
-    # the compound CRS so downstream tools see the vertical component.
+    # Tag the output with the 2D horizontal SRS only. The heights are already
+    # ellipsoidal, which ASP assumes. A GeoTIFF can't store the 3D compound CRS
+    # (<t_srs>+EPSG:4979), so tagging with it puts the CRS in a .aux.xml
+    # sidecar; copy the .tif alone and ASP can't place the DEM (mapproject
+    # writes all-nodata images). With the 2D SRS the CRS is inside the file.
     subprocess.run(
-        ["gdal_edit.py", str(args.out), "-a_srs", dst_crs],
+        ["gdal_edit.py", str(args.out), "-a_srs", args.t_srs],
         check=True,
     )
+    Path(f"{args.out}.aux.xml").unlink(missing_ok=True)
     print("Done.")
 
 
