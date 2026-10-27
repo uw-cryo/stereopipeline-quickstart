@@ -17,7 +17,7 @@ The companion package [`asp-plot`](https://github.com/uw-cryo/asp_plot) handles 
 
 Click "Open in GitHub Codespaces" above. The Codespace pulls a pre-built container image with ASP and `asp-plot` already installed, then opens VS Code in your browser. Open a notebook under `notebooks/` and run cells top-to-bottom.
 
-New to ASP? Start with `01_aster_rainier.ipynb`, the ASTER quick look. In about 6 minutes it goes from raw satellite images to a DEM and a PDF report.
+New to ASP? Start with `01_aster_rainier.ipynb`, the ASTER quick look. In about 7 minutes it goes from raw satellite images to a DEM and a PDF report.
 
 The tutorials use openly available data; no API keys, no Earthdata login required. Run times are for the default 4-core Codespace:
 

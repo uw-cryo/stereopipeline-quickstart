@@ -64,7 +64,7 @@ stereopipeline-quickstart/
 │       ├── installation.md            # local-install guide; demoted from start/
 │       └── further-reading.md
 ├── notebooks/
-│   ├── 01_aster_rainier.ipynb         # ASTER quick look: L1A → raw 30 m DEM (asp_bm) + report
+│   ├── 01_aster_rainier.ipynb         # ASTER quick look: L1A → raw 30 m DEM (asp_mgm, summit crop) + report
 │   ├── 02_aster_rainier_ortho.ipynb   # ASTER: COP30 fetch + mapproject + asp_mgm 30 m DEM + report reusing 01's selections
 │   ├── 03_worldview_ucsd.ipynb        # WV3 → 4 m DEM, no-BA canonical (mapproj + stereo + pc_align report)
 │   ├── 04_worldview_ucsd_ba.ipynb     # WV3 BA variant (adds bundle_adjust; _ba-suffixed outputs)
@@ -190,16 +190,16 @@ One-time setup: repo Settings → Actions → General → Workflow permissions, 
 
 See [ADR-0008](architecture/0008-aster-cop30-two-reports.md), amended by [ADR-0023](architecture/0023-split-aster-tutorial.md). The two ASTER notebooks mirror the WV flow, producing two DEMs + two reports:
 
-1. Raw pass (`01_aster_rainier.ipynb`, the quick look): `parallel_stereo` on the raw imagery (no BA, no ortho) → `stereo/run-DEM.tif` at 30 m → `stereo/rainier_aster_report.pdf`. Uses `--stereo-algorithm asp_bm` + `--subpixel-mode 1`; mode 9 is unsupported on block matching ("Use mode <= 6").
-2. Ortho pass (`02_aster_rainier_ortho.ipynb`): fetch a COP30 DEM, `mapproject` both views onto it at 15 m, re-run stereo with `asp_mgm` + `--subpixel-mode 9` → `stereo_ortho/run-DEM.tif` → `stereo_ortho/rainier_aster_ortho_report.pdf` (COP30 reference).
+1. Raw pass (`01_aster_rainier.ipynb`, the quick look): `parallel_stereo` on the raw imagery (no BA, no ortho), cropped with `--left-image-crop-win 1800 2100 2100 2100` (a 2100 × 2100 px nadir-image window, about 31 km around the summit) → `stereo/run-DEM.tif` at 30 m → `stereo/rainier_aster_report.pdf`. Uses `--stereo-algorithm asp_mgm` + `--subpixel-mode 9`, ASP's own ASTER example settings.
+2. Ortho pass (`02_aster_rainier_ortho.ipynb`): fetch a COP30 DEM for the whole scene, `mapproject` both views onto it at 15 m with `--t_projwin 577305 5172975 615705 5209035` (`T_PROJWIN`: the UTM 10N extent of the raw pass's DEM), re-run stereo with the same settings → `stereo_ortho/run-DEM.tif` → `stereo_ortho/rainier_aster_ortho_report.pdf` (COP30 reference). Orthorectification is the only processing difference between the passes.
 
-`asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4` for the 4-core floor.
+`asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4` for the 4-core floor. Until 2026-10 the raw pass used `asp_bm` + `--subpixel-mode 1` on the whole scene; see [ADR-0027](architecture/0027-aster-quick-look-mgm-crop.md) for why it changed.
 
 ### `--reuse-selections` for comparable reports
 
 Both two-report comparisons replay the first run's figure selections so the PDFs line up panel-for-panel (same ICESat-2 points, profile track, hillshade crops) and only the processing change shows:
 
-- By default every report, the first of each pair included, replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both from the `icesat2-2026-10-23` release with `curl -f`. See [ADR-0022](architecture/0022-ship-icesat2-data.md).
+- By default every report, the first of each pair included, replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both with `curl -f` from a dated release: `download_aster.sh` from `icesat2-2026-10-26` (regenerated for the cropped quick look, [ADR-0027](architecture/0027-aster-quick-look-mgm-crop.md)), `download_worldview_ucsd.sh` from `icesat2-2026-10-23`. See [ADR-0022](architecture/0022-ship-icesat2-data.md).
 - With `FRESH_ICESAT2 = True` (first code cell of each notebook), the first report requests fresh data from SlideRule, and the second reuses the first's own sidecar: the 02 ortho report reuses 01's `stereo/rainier_aster_report_figure_selections.yml` (run 01 first), and the 04 BA report reuses 03's `stereo/ucsd_wv3_report_figure_selections.yml` (run 03 first).
 
 asp_plot writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_report --reuse-selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone. The sidecar's `parquet_cache` path is resolved from the working directory, so shipped sidecars are written relative to `notebooks/`.

@@ -14,25 +14,25 @@ The tutorial pages below are static renders of the notebooks in `notebooks/`, sh
 :link: 01_aster_rainier
 :link-type: doc
 
-Stereo from a single ASTER L1A scene with ASP's fastest settings. The simplest end-to-end flow:
+Stereo from a single ASTER L1A scene, on a 31 km window around the summit. The simplest end-to-end flow:
 - `aster2asp` to extract nadir + back-looking views
-- `parallel_stereo` (`asp_bm`) + `point2dem` on the raw imagery
+- `parallel_stereo` (`asp_mgm`, subpixel mode 9) + `point2dem` on the raw imagery
 - `asp-plot` PDF report
 
-Output: a ~30 m DEM of Mt. Rainier. Run time: ~6 min.
+Output: a ~30 m DEM of Mt. Rainier. Run time: ~7 min.
 :::
 
 :::{grid-item-card} 2. ASTER Mt. Rainier, orthorectified
 :link: 02_aster_rainier_ortho
 :link-type: doc
 
-The same scene, processed the slower, higher-quality way:
+The same window, orthorectified before stereo:
 - COP-DEM clip from AWS Open Data
 - `mapproject` both views onto it
 - `parallel_stereo` (`asp_mgm`, subpixel mode 9) on the orthorectified pair
 - `asp-plot` PDF report that lines up panel for panel with Tutorial 1's
 
-Output: an orthorectified ~30 m DEM of Mt. Rainier. Run time: ~20 min.
+Output: an orthorectified ~30 m DEM of Mt. Rainier. Run time: ~10 min.
 :::
 
 :::{grid-item-card} 3. WorldView-3 UCSD

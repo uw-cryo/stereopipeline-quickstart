@@ -131,7 +131,7 @@ stereo
   ASP's main command for stereo correlation + triangulation. The parallel version (`parallel_stereo`) is what tutorials actually use.
 
 subpixel mode
-  Setting that controls how `parallel_stereo` refines integer-pixel matches; e.g. mode 9 (Bayes EM with MGM).
+  Setting that controls how `parallel_stereo` refines integer-pixel matches; e.g. mode 1 (a fast parabola fit), mode 2 (Bayes EM, slow and accurate), or mode 9 (one of the methods built into `asp_sgm` and `asp_mgm`).
 
 tie point
   A single 3D ground point observed (and matched) in two or more images. Bundle adjustment optimizes camera parameters using tie-point reprojection errors.

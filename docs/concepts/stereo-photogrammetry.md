@@ -22,7 +22,7 @@ The Community Sensor Model ({term}`CSM`) is a community standard interface for r
 
 The matcher (`--stereo-algorithm`) and the subpixel refiner (`--subpixel-mode`) are the two parameters that most affect quality and runtime. The same 800 m crop of the WorldView tutorial pair, run four ways (`asp_bm` does not support subpixel mode 9, so its quality mode here is 2):
 
-![The same WorldView crop run with two matchers and two subpixel modes](figures/wv3-stereo-knobs.png) `asp_bm` is ASP's classic block matcher, fast and effective on well-textured images; `asp_mgm` costs more compute and memory and does better where texture is poor or repetitive. The tutorials pair `asp_bm` with `--subpixel-mode 1` for the quick first ASTER pass and `asp_mgm` with `--subpixel-mode 9` everywhere else; the [ASP correlation docs](https://stereopipeline.readthedocs.io/en/latest/correlation.html) describe the full menu.
+![The same WorldView crop run with two matchers and two subpixel modes](figures/wv3-stereo-knobs.png) `asp_bm` is ASP's classic block matcher, fast and effective on well-textured images; `asp_mgm` costs more compute and memory and does better where texture is poor or repetitive. The tutorials use `asp_mgm` with `--subpixel-mode 9` throughout; the [ASP correlation docs](https://stereopipeline.readthedocs.io/en/latest/correlation.html) describe the full menu.
 
 ## Viewing geometry
 

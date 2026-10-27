@@ -32,3 +32,4 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0024 — Tutorials open in JupyterLab on a forwarded port, from a start page](0024-jupyterlab-start-page.md) — *superseded by 0025*
 - [0025 — Back to VS Code: the JupyterLab start page is reverted](0025-back-to-vs-code.md) — *supersedes 0024*
 - [0026 — A simplified VS Code window for the tutorials](0026-simplified-vs-code.md)
+- [0027 — ASTER quick look: `asp_mgm` on a window around the summit](0027-aster-quick-look-mgm-crop.md) — *amends 0023*

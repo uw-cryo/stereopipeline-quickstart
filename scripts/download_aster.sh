@@ -29,17 +29,24 @@ fi
 # attached to a release of this repo so the tutorial doesn't depend on SlideRule
 # being up. The sidecar's parquet_cache path is relative to notebooks/. Kept in
 # their own folder so a fresh SlideRule request can't overwrite them.
-ICESAT2_URL="https://github.com/uw-cryo/stereopipeline-quickstart/releases/download/icesat2-2026-10-23"
+# RELEASE records which release they came from: files from an older release
+# (for example in a Codespace prebuilt before the data changed) are replaced.
+ICESAT2_TAG="icesat2-2026-10-26"
+ICESAT2_URL="https://github.com/uw-cryo/stereopipeline-quickstart/releases/download/${ICESAT2_TAG}"
 ICESAT2_DIR="${DEST}/icesat2_shipped"
 mkdir -p "${ICESAT2_DIR}"
+if [[ "$(cat "${ICESAT2_DIR}/RELEASE" 2>/dev/null)" != "${ICESAT2_TAG}" ]]; then
+    rm -f "${ICESAT2_DIR}/atl06sr_all.parquet" "${ICESAT2_DIR}/figure_selections.yml" "${ICESAT2_DIR}/RELEASE"
+fi
 for name in atl06sr_all.parquet figure_selections.yml; do
     if [[ -f "${ICESAT2_DIR}/${name}" ]]; then
         echo "Already have ICESat-2 ${name} — skipping."
     else
-        echo "Downloading ICESat-2 ${name} from the icesat2-2026-10-23 release..."
+        echo "Downloading ICESat-2 ${name} from the ${ICESAT2_TAG} release..."
         curl -fL -o "${ICESAT2_DIR}/${name}" "${ICESAT2_URL}/aster_rainier_${name}"
     fi
 done
+echo "${ICESAT2_TAG}" > "${ICESAT2_DIR}/RELEASE"
 
 # Extract into a subdirectory so aster2asp has a clean target.
 EXTRACT_DIR="${DEST}/dataDir"
