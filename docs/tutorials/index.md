@@ -1,6 +1,6 @@
 # Tutorials
 
-Three end-to-end notebooks: the ASTER tutorial, then a WorldView pair, where the second adds bundle adjustment and the two reports line up for comparison. Run times are for the default 4-core Codespace. All use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
+Three end-to-end notebooks: the ASTER tutorial, then two WorldView-3 tutorials on the same window: one pair, then three images blended. Run times are for the default 4-core Codespace. All use openly available data; no NASA Earthdata or Vantor credentials, no API keys.
 
 ```{admonition} To run these notebooks, launch the Codespace first
 :class: important
@@ -27,21 +27,22 @@ Output: a ~30 m DEM of Mt. Rainier. Run time: ~10 min.
 :link: 02_worldview_ucsd
 :link-type: doc
 
-Stereo from a high-resolution commercial-style WV3 pair (SpaceNet CORE3D, openly hosted on AWS). Steps:
-- Stereo geometry analysis with `StereoGeometryPlotter`
-- COP-DEM clip from AWS Open Data
-- `mapproject` to the COP-DEM grid
-- `parallel_stereo` on the orthorectified pair
-- `asp_plot` PDF report with ICESat-2 alignment (`pc_align` runs by default)
+Stereo from a high-resolution WorldView-3 pair over Mount Soledad, next to UC San Diego (SpaceNet CORE3D, openly hosted on AWS). Steps:
+- Stereo geometry with `StereoGeometryPlotter`
+- `cam2rpc` to crop both images to a 3 × 3 km window, with an RPC camera per crop
+- `bundle_adjust` to refine the cameras, and its residuals
+- `mapproject` onto a COP30 reference DEM
+- `parallel_stereo` (`asp_mgm`, subpixel mode 9) + `point2dem`
+- `asp-plot` PDF report with ICESat-2 alignment (`pc_align` runs by default)
 
-Output: 4 m DEM of the UCSD campus and sea cliffs. Run time: ~6 min.
+Output: a 2.4 m DEM of Mount Soledad. Run time: ~10 min, 2 of them downloading.
 :::
 
-:::{grid-item-card} 3. WorldView-3 UCSD with bundle adjustment
-:link: 03_worldview_ucsd_ba
+:::{grid-item-card} 3. WorldView-3 Mount Soledad, three images blended
+:link: 03_worldview_ucsd_blend
 :link-type: doc
 
-Variant of Tutorial 2 that adds `bundle_adjust` to refine the vendor RPC cameras before orthorectification. Outputs are suffixed `_ba`, so both runs share a data directory and the two `asp-plot` reports can be compared side by side. Run time: ~20 min, most of it bundle adjustment.
+Adds a third image of the same window: bundle adjusts all three cameras, runs stereo on each of the three pairs, and averages the three DEMs with `dem_mosaic` into one with fewer holes and less noise. Run time: ~16 min after Tutorial 2.
 :::
 ::::
 
@@ -49,7 +50,7 @@ Variant of Tutorial 2 that adds `bundle_adjust` to refine the vendor RPC cameras
 
 If you've never run ASP before, start with Tutorial 1, the ASTER tutorial. It has the fewest parameters and the coarsest resolution.
 
-The WorldView tutorial then adds cropping and a finer resolution, higher accuracy result. The bundle-adjustment variant comes last: run it after Tutorial 2 and compare the reports to see what camera refinement adds.
+The WorldView tutorials then add cropping, bundle adjustment and a much finer resolution. Tutorial 3 reuses Tutorial 2's downloads and crops, so run it second.
 
 ## Beyond the tutorials
 

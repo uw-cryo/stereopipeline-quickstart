@@ -65,12 +65,12 @@ stereopipeline-quickstart/
 │       └── further-reading.md
 ├── notebooks/
 │   ├── 01_aster_rainier.ipynb         # ASTER: L1A → skyplot → mapproject onto COP30 → asp_mgm 30 m DEM (summit window) + report
-│   ├── 02_worldview_ucsd.ipynb        # WV3 → 4 m DEM, no-BA canonical (mapproj + stereo + pc_align report)
-│   ├── 03_worldview_ucsd_ba.ipynb     # WV3 BA variant (adds bundle_adjust; _ba-suffixed outputs)
-│   └── utils.py                       # scene_bbox/utm_epsg via camera_footprint
+│   ├── 02_worldview_ucsd.ipynb        # WV3 Mount Soledad pair: cam2rpc crops → BA → mapproject → asp_mgm 2.4 m DEM + report
+│   ├── 03_worldview_ucsd_blend.ipynb  # WV3 three crops → BA → three raw pairs → dem_mosaic blend + report
+│   └── utils.py                       # average_crop (crop + RPC rescale) and plotting helpers
 ├── scripts/
 │   ├── download_aster.sh              # all ASTER data from release aster-rainier-* (L1A, ICESat-2, COP30) + unzip
-│   ├── download_worldview_ucsd.sh     # WV3 NTF + XML from SpaceNet's bucket over HTTPS; ICESat-2 + COP30 from release ucsd-wv3-*
+│   ├── download_worldview_ucsd.sh     # WV3 NTF + XML from SpaceNet's bucket over HTTPS; ICESat-2 + COP30 from release ucsd-soledad-*
 │   └── fetch_cop_dem.py               # COP30 from AWS, local geoid→ellipsoid shift
 └── CLAUDE/                            # gitignored; local session/design scratch notes
 ```
@@ -201,16 +201,16 @@ See [ADR-0027](architecture/0027-single-aster-tutorial.md), which supersedes the
 
 ### Tutorial data on releases
 
-See [ADR-0028](architecture/0028-tutorial-data-on-releases.md). Each tutorial dataset has one dated release of this repo with everything it needs that may be re-hosted, as separate assets: `aster-rainier-2026-10-27` (L1A archive, ICESat-2 points and figure selections, COP30 clip) and `ucsd-wv3-2026-10-27` (ICESat-2 points and figure selections, COP30 clip). The release notes record each file's source, licence and how it was made; `docs/reference/data.md` lists the same for readers, with the Copernicus notice. The WorldView-3 imagery is IARPA CORE3D data on SpaceNet's AWS bucket, outside the bucket's CC BY-SA licence and with no redistribution grant found, so `download_worldview_ucsd.sh` fetches it from there over plain HTTPS (no AWS CLI) and it is not re-hosted. COP30 clips are rewritten with `gdal_translate -a_srs <EPSG>` before upload: `fetch_cop_dem.py` writes a 3D CRS that GDAL keeps in an `.aux.xml` sidecar, and without it ASP can't place the DEM. Large downloads go to a `.part` file first, so an interrupted one is never taken for a finished one.
+See [ADR-0028](architecture/0028-tutorial-data-on-releases.md). Each tutorial dataset has one dated release of this repo with everything it needs that may be re-hosted, as separate assets: `aster-rainier-2026-10-27` (L1A archive, ICESat-2 points and figure selections, COP30 clip) and `ucsd-soledad-2026-10-27` (ICESat-2 points, both WorldView reports' figure selections, COP30 clip). The release notes record each file's source, licence and how it was made; `docs/reference/data.md` lists the same for readers, with the Copernicus notice. The WorldView-3 imagery is IARPA CORE3D data on SpaceNet's AWS bucket, outside the bucket's CC BY-SA licence and with no redistribution grant found, so `download_worldview_ucsd.sh` fetches it from there over plain HTTPS (no AWS CLI) and it is not re-hosted. COP30 clips are rewritten with `gdal_translate -a_srs <EPSG>` before upload: `fetch_cop_dem.py` writes a 3D CRS that GDAL keeps in an `.aux.xml` sidecar, and without it ASP can't place the DEM. Large downloads go to a `.part` file first, so an interrupted one is never taken for a finished one.
 
 Codespace startup downloads no data (`onCreate.sh` only checks the toolchain); each notebook's download cell fetches its dataset, so a Codespace always gets the release its checked-out code names.
 
 ### `--reuse-selections` for comparable reports
 
-Every report replays shipped figure selections, and the WorldView pair's second report replays the first's, so those two PDFs line up panel-for-panel (same ICESat-2 points, profile track, hillshade crops) and only the processing change shows:
+Every report replays shipped figure selections, so a rerun matches the committed outputs and no SlideRule request is made. The two WorldView reports share one ICESat-2 sample, so their profiles follow the same track:
 
-- By default every report replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both with `curl -f` from the tutorial's dated release, together with its COP30 reference DEM: `download_aster.sh` from `aster-rainier-2026-10-27` (regenerated for the processing window, [ADR-0027](architecture/0027-single-aster-tutorial.md)), `download_worldview_ucsd.sh` from `ucsd-wv3-2026-10-27`. Each writes the tag to `data/<tutorial>/RELEASE` and replaces shipped files from any other release. See [ADR-0022](architecture/0022-ship-icesat2-data.md) and [ADR-0028](architecture/0028-tutorial-data-on-releases.md).
-- With `FRESH_ICESAT2 = True` (first code cell of each notebook), the ASTER report and the first WorldView report request fresh data from SlideRule, and the 03 BA report reuses 02's own `stereo/ucsd_wv3_report_figure_selections.yml` (run 02 first).
+- By default every report replays the sidecar shipped with the tutorial: `data/<tutorial>/icesat2_shipped/figure_selections.yml`, whose `parquet_cache` points at the shipped `atl06sr_all.parquet` beside it, so no SlideRule request is made. The download scripts fetch both with `curl -f` from the tutorial's dated release, together with its COP30 reference DEM: `download_aster.sh` from `aster-rainier-2026-10-27` (regenerated for the processing window, [ADR-0027](architecture/0027-single-aster-tutorial.md)), `download_worldview_ucsd.sh` from `ucsd-soledad-2026-10-27` (one sidecar per WorldView report, `pair_figure_selections.yml` and `blend_figure_selections.yml`, both pointing at the same parquet; [ADR-0029](architecture/0029-ucsd-soledad-tutorials.md)). Each writes the tag to `data/<tutorial>/RELEASE` and replaces shipped files from any other release. See [ADR-0022](architecture/0022-ship-icesat2-data.md) and [ADR-0028](architecture/0028-tutorial-data-on-releases.md).
+- With `FRESH_ICESAT2 = True` (first code cell of each notebook), the report requests fresh data from SlideRule instead.
 
 asp_plot writes the sidecar next to each report PDF (`<report_stem>_figure_selections.yml`) and reads it back via `asp_report --reuse-selections <path>`. The cells pass the flag only when the file exists (`reuse = ... if Path(prior).exists() else ""`), so each stays runnable standalone. The sidecar's `parquet_cache` path is resolved from the working directory, so shipped sidecars are written relative to `notebooks/`.
 
@@ -218,24 +218,24 @@ As of asp_plot ≥ 1.18.0 the report's Processing Parameters page also renders t
 
 ### Report figures inline
 
-PDFs open poorly in the browser-based editor, so each report cell also shows three of the report's figures below it. `asp_report --figures-directory` (asp_plot ≥ 3.5.0) keeps a copy of each figure as `NN_<title>.png` in `<stereo dir>/report_figures/`, which asp_report otherwise deletes with its `tmp_asp_report_plots/` directory. `show_report_figures()` in `notebooks/utils.py` displays the ones named in `REPORT_FIGURES` (DEM results, detailed hillshade, ICESat-2 profile), picked by title because the number shifts when a section is skipped. They are scaled to 1400 px wide, about 2.6 MB of notebook output per report; the PDF keeps them at full resolution. Both reports of a pair show the same three figures, which line up because of `--reuse-selections`.
+PDFs open poorly in the browser-based editor, so each report cell also shows three of the report's figures below it. `asp_report --figures-directory` (asp_plot ≥ 3.5.0) keeps a copy of each figure as `NN_<title>.png` in `<stereo dir>/report_figures/`, which asp_report otherwise deletes with its `tmp_asp_report_plots/` directory. `show_report_figures()` in `notebooks/utils.py` displays the ones named in `REPORT_FIGURES` (DEM results, detailed hillshade, ICESat-2 profile), picked by title because the number shifts when a section is skipped. They are scaled to 1400 px wide, about 2.6 MB of notebook output per report; the PDF keeps them at full resolution. The two WorldView reports show the same three figures, with the ICESat-2 profile on the same track.
 
 ### COP30 reference DEM: AWS Open Data + local EGM2008 → ellipsoid shift
 
-See [ADR-0007](architecture/0007-cop30-egm2008-shift.md). The WorldView tutorials run `scripts/fetch_cop_dem.py` themselves; the ASTER tutorial's clip was made with it once and ships on a release. It fetches Copernicus GLO-30 tiles from the public AWS bucket `copernicus-dem-30m` (no API key) and shifts them from EGM2008 geoid to WGS84 ellipsoid heights locally via `gdalwarp` with a compound CRS pair (mirrors `uw-cryo/fetch_dem`):
+See [ADR-0007](architecture/0007-cop30-egm2008-shift.md). Each tutorial's clip was made with `scripts/fetch_cop_dem.py` once and ships on its release. It fetches Copernicus GLO-30 tiles from the public AWS bucket `copernicus-dem-30m` (no API key) and shifts them from EGM2008 geoid to WGS84 ellipsoid heights locally via `gdalwarp` with a compound CRS pair (mirrors `uw-cryo/fetch_dem`):
 
 - Source: `EPSG:4326+EPSG:3855` (WGS84 lon/lat + EGM2008 geoid).
 - Target: `<t_srs>+EPSG:4979` (requested horizontal + WGS84 ellipsoid).
 
 `gdalwarp` applies the per-pixel shift via PROJ's bundled EGM2008 grid; `gdal_edit.py -a_srs <t_srs>` then tags the output with the 2D horizontal SRS, and any `.aux.xml` is removed. Until 2026-10-27 it re-asserted the compound CRS instead, which a GeoTIFF can't store: GDAL kept it in an `.aux.xml` sidecar, and a copy of the `.tif` alone had no CRS (`mapproject` wrote all-nodata images, then stereo failed with "ERROR: Could not find interest points."). The heights are ellipsoidal either way, which ASP assumes. ASP represents DEM heights above the datum ellipsoid (per its `dem_geoid` / `mapproject` docs), so skipping this shift feeds geoid heights into `mapproject` and injects a vertical datum-mismatch bias (tens of meters; ~−35 m at UCSD). If a Codespace can't find the EGM2008 grid, `gdalwarp` errors ("Cannot find proj.db" / "egm08_25.gtx"); pre-caching the grid in the Dockerfile is a fallback.
 
-### WV3 ROI and resolution
+### WV3 window, crops and resolution
 
-See [ADR-0011](architecture/0011-wv3-roi-and-resolution.md). `T_PROJWIN = "476000 3637000 478000 3639000"` in UTM 11N (coastal 2 × 2 km, sea cliffs → UCSD campus). Processing GSD `TR = 1.0` (`mapproject`), output `point2dem --tr 4.0` → a 4 m DEM. 4 m is coarse for WV3, a deliberate teaching-artifact tradeoff; bump `TR` down on a bigger machine. A denser-ICESat-2 crossover ROI east of UCSD (`477750 3634800 480750 3637800`) exists but the coastal clip is kept for the landscape.
+See [ADR-0029](architecture/0029-ucsd-soledad-tutorials.md). Both WorldView tutorials work on a 3 × 3 km window around the summit of Mount Soledad, `T_PROJWIN = "476000 3632000 479000 3635000"` in UTM 11N (the cropped benchmark's crop A). `cam2rpc -t dg --dem-file <COP30 over the window + 250 m> --save-tif-image` cuts each NTF to the window and fits an RPC camera to the crop; `average_crop()` in `notebooks/utils.py` averages 4 × 4 blocks (native ~0.31 m → ~1.2 m) and rescales the RPC line/sample offsets and scales to match. Everything after runs on the crops with `-t rpc`: `bundle_adjust` in seconds instead of ~16 minutes on the full scenes (with `--heights-from-dem <COP30> --heights-from-dem-uncertainty 10`, which removes the vendor cameras' ~8 m vertical offset here), `mapproject --tr 1.2`, stereo, `point2dem --tr 2.4`.
 
 ### WV3 thread budget tuned for the 4-core floor
 
-Config detail behind [ADR-0011](architecture/0011-wv3-roi-and-resolution.md). `asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4 --threads-singleprocess 4` (MGM is memory-heavy and multithreads within a process, so few-processes-many-threads is right on a 16 GB box; `--processes 4` risks OOM). On a bigger machine, raise `--processes` (cores ÷ threads). `bundle_adjust` and `mapproject` use `--threads 4`.
+Config detail behind [ADR-0029](architecture/0029-ucsd-soledad-tutorials.md). `asp_mgm` stereo runs `--processes 1 --threads-multiprocess 4 --threads-singleprocess 4` (MGM is memory-heavy and multithreads within a process, so few-processes-many-threads is right on a 16 GB box; `--processes 4` risks OOM). On a bigger machine, raise `--processes` (cores ÷ threads). `bundle_adjust` and `mapproject` use `--threads 4`. The WorldView stereo also passes `--job-size-w 4096 --job-size-h 4096`, so each stage runs once over the whole ~2,700-pixel crop instead of in 2048-pixel tiles with 256-pixel collars: about 30% faster, same DEM. (`--parallel-tile-size` is `parallel_stereo`'s internal option and fails when passed by hand: "Cannot produce tiles without a valid L.tif".) Don't raise the job size for larger crops without checking memory: one 6000-pixel MGM job warned "Unable to compute valid search ranges for SGM input. Increase --corr-memory-mb" and left most of the DEM empty.
 
 ### Notebook path and helper conventions
 
@@ -244,7 +244,7 @@ The no-chdir `DATA` pattern itself is an editing rule in `AGENTS.md`. Earlier it
 - Re-running the chdir cell after later cells produce subdirs compounds the chdir and breaks subsequent paths.
 - It hides what's actually happening. With explicit paths in every cell, the reader sees the layout.
 
-`notebooks/utils.py` holds two helpers used by the COP30 cells: `scene_bbox(*image_camera_pairs, session=None, pad=0.05)` runs ASP's `camera_footprint` on each view and unions the results into a `"minlon minlat maxlon maxlat"` string; `utm_epsg(bbox)` returns the UTM EPSG at the bbox center. Both notebooks use these so neither hardcodes a bbox or `T_SRS`. `camera_footprint` needs no DEM — `--datum WGS84` intersects the camera rays with the ellipsoid — and works for both the raw ASTER images (no georeferencing) and the WV NTFs (RPC metadata GDAL won't intersect on its own).
+`notebooks/utils.py` holds `average_crop()` (see § WV3 window, crops and resolution) and the plotting helpers the notebooks call (`show_image_pair`, `show_dem_hillshade`, `show_hillshades`, `show_report_figures`), so cells show `asp-plot` calls without matplotlib boilerplate.
 
 ### Sentinel files per step
 
@@ -257,9 +257,9 @@ ASTER — 01_aster_rainier.ipynb (see [ADR-0027](architecture/0027-single-aster-
 - `stereo/rainier_aster_report.pdf` (report)
 - `ref/cop30_rainier.tif` is fetched by `download_aster.sh`, which handles its own idempotency
 
-WV3 — 02_worldview_ucsd.ipynb is the NO-BA canonical; the BA recipe is the variant 03_worldview_ucsd_ba.ipynb with `_ba`-suffixed outputs so both can run in one data dir (see [ADR-0012](architecture/0012-no-ba-canonical-wv.md)):
-- `ref/cop30_ucsd.tif` (fetched by `download_worldview_ucsd.sh`; the notebook's COP30 cell finds it and skips its own fetch)
-- canonical: `<catid>_P001_ortho.tif`, `stereo/run-DEM.tif`, `stereo/ucsd_wv3_report.pdf`
-- BA variant: `ba/run-final_residuals_pointmap.csv`, `<catid>_P001_ortho_ba.tif`, `stereo_ba/run-DEM.tif`, `stereo_ba/ucsd_wv3_ba_report.pdf`
+WV3 — 02_worldview_ucsd.ipynb and 03_worldview_ucsd_blend.ipynb share `data/ucsd_soledad/` (see [ADR-0029](architecture/0029-ucsd-soledad-tutorials.md)); 03 reuses 02's downloads and crops:
+- `crops/<catid>_P001.tif` (cam2rpc + average_crop, one check per scene; shared). The crops keep the vendor files' `<catid>_P001` stem so `asp_report` resolves the stereo log's camera paths to the vendor XMLs in `data/ucsd_soledad/`, which carry the geometry metadata the crops' RPC XMLs lack
+- 02: `ba/run-final_residuals_pointmap.csv`, `ortho/<catid>.tif`, `stereo/run-DEM.tif`, `stereo/soledad_wv3_report.pdf`
+- 03: `ba3/run-final_residuals_pointmap.csv`, `pairs/<left>_<right>/run-DEM.tif` (one check per pair), `pairs/<first pair>/run-blend-DEM.tif`, `pairs/<first pair>/soledad_wv3_blend_report.pdf`
 
 The download `*.sh` scripts handle their own idempotency, so those cells are not wrapped.

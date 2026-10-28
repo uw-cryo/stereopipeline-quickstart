@@ -2,45 +2,38 @@
 from __future__ import annotations
 
 import re
-import subprocess
 
 
-def scene_bbox(*image_camera_pairs, session=None, pad=0.05):
-    """Lon/lat bounding box covering one or more scenes, as "minlon minlat maxlon maxlat".
+def average_crop(image, camera, out_image, out_camera, factor):
+    """Average `factor` x `factor` pixel blocks of a cam2rpc crop, and rescale its RPC camera to match.
 
-    Runs ASP's `camera_footprint` on each (image, camera) pair and unions the
-    results. `pad` (degrees) absorbs terrain-induced footprint shift, since the
-    footprint is computed on the datum ellipsoid.
+    Writes `out_image` as compressed UInt16 (WorldView panchromatic data is
+    11-bit integer) and `out_camera` as the RPC camera of the smaller image.
+    ASP puts pixel centres at whole numbers, so new pixel j is centred on old
+    pixel factor*j + (factor-1)/2: the RPC line and sample offsets become
+    (offset - (factor-1)/2) / factor and their scales scale / factor.
     """
-    boxes = []
-    for image, camera in image_camera_pairs:
-        cmd = ["camera_footprint", "--quick", "--datum", "WGS84"]
-        if session:
-            cmd += ["-t", session]
-        cmd += [str(image), str(camera)]
-        out = subprocess.run(cmd, capture_output=True, text=True, check=True).stdout
-        m = re.search(
-            r"Min: \(([-\d.eE+]+), ([-\d.eE+]+)\) width: ([-\d.eE+]+) height: ([-\d.eE+]+)",
-            out,
-        )
-        if not m:
-            raise RuntimeError(f"Could not parse camera_footprint output:\n{out}")
-        minlon, minlat, w, h = map(float, m.groups())
-        boxes.append((minlon, minlat, minlon + w, minlat + h))
-    minlon = min(b[0] for b in boxes) - pad
-    minlat = min(b[1] for b in boxes) - pad
-    maxlon = max(b[2] for b in boxes) + pad
-    maxlat = max(b[3] for b in boxes) + pad
-    return f"{minlon:.4f} {minlat:.4f} {maxlon:.4f} {maxlat:.4f}"
+    from osgeo import gdal
 
+    src = gdal.Open(str(image))
+    w, h = src.RasterXSize // factor, src.RasterYSize // factor
+    gdal.Translate(
+        str(out_image), src, srcWin=[0, 0, w * factor, h * factor], width=w, height=h,
+        resampleAlg="average", outputType=gdal.GDT_UInt16,
+        creationOptions=["COMPRESS=DEFLATE", "PREDICTOR=2", "TILED=YES"],
+    )
+    src = None
 
-def utm_epsg(bbox):
-    """EPSG code ("EPSG:326xx" north / "EPSG:327xx" south) of the UTM zone at a bbox center."""
-    minlon, minlat, maxlon, maxlat = map(float, bbox.split())
-    lon = (minlon + maxlon) / 2
-    lat = (minlat + maxlat) / 2
-    zone = int((lon + 180) // 6) + 1
-    return f"EPSG:{(32600 if lat >= 0 else 32700) + zone}"
+    xml = open(camera).read()
+    for key in ("LINE", "SAMP"):
+        for tag, fn in ((f"{key}OFFSET", lambda v: (v - (factor - 1) / 2) / factor),
+                        (f"{key}SCALE", lambda v: v / factor)):
+            xml, n = re.subn(rf"<{tag}>([^<]+)</{tag}>",
+                             lambda m: f"<{tag}>{fn(float(m.group(1))):.10g}</{tag}>", xml)
+            if n != 1:
+                raise ValueError(f"{camera}: expected one <{tag}>, found {n}")
+    with open(out_camera, "w") as f:
+        f.write(xml)
 
 
 def show_image_pair(left, right, titles, downsample=8):
@@ -78,6 +71,25 @@ def show_dem_hillshade(dem_fn, title="Stereo DEM"):
     plotter.plot_array(ax, dem.read_array(), cmap="viridis", alpha=0.5, cbar_label="Elevation (m HAE)")
     ax.set_title(title)
     ax.set_axis_off()
+    plt.show()
+
+
+def show_hillshades(dem_fns, titles):
+    """Show DEMs side by side as hillshades, to compare their detail and holes.
+
+    Uses asp_plot's `Raster.hillshade` and `Plotter.plot_array`. No-data cells
+    stay white.
+    """
+    import matplotlib.pyplot as plt
+    from asp_plot.utils import Plotter, Raster
+
+    plotter = Plotter()
+    fig, axes = plt.subplots(1, len(dem_fns), figsize=(5.5 * len(dem_fns), 5.5))
+    for ax, fn, title in zip(axes, dem_fns, titles):
+        plotter.plot_array(ax, Raster(fn).hillshade(), cmap="gray", add_cbar=False)
+        ax.set_title(title)
+        ax.set_axis_off()
+    plt.tight_layout()
     plt.show()
 
 

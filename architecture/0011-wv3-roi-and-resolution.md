@@ -1,7 +1,7 @@
 # 11. WV3 ROI + resolution: coastal 2x2 km, TR 1.0 / 4 m DEM
 
 - **Date:** 2026-06-10
-- **Status:** Accepted
+- **Status:** Superseded by [0029](0029-ucsd-soledad-tutorials.md): the WorldView tutorials moved to a Mount Soledad window
 - **Context doc:** `AGENTS.md` § WV3 ROI and resolution; issue #7
 
 ## Context
