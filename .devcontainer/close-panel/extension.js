@@ -14,7 +14,9 @@
 // Each notebook under notebooks/ opens with its code cells collapsed: VS Code
 // ignores the notebooks' jupyter.source_hidden metadata (microsoft/vscode#168807).
 // The first time Tutorial 1 opens, it runs all cells, so a new user doesn't
-// have to find Run All (globalState flag).
+// have to find Run All (globalState flag). During that run the notebook
+// scrolls to each cell as it starts, so the user sees what is running; they
+// can still scroll away until the next cell starts.
 
 const vscode = require("vscode");
 
@@ -26,6 +28,8 @@ const KERNEL_WAIT_MS = 5000;
 
 // Notebooks already collapsed while open, so the user can expand cells again.
 const collapsed = new Set();
+// Notebooks whose first Run All is in progress, followed cell by cell.
+const following = new Set();
 
 function isTutorial(notebook) {
     return notebook.notebookType === "jupyter-notebook" && notebook.uri.path.includes("/notebooks/");
@@ -58,7 +62,36 @@ async function startFirstTutorial(context, notebook) {
         await jupyter.activate();
     }
     await new Promise((resolve) => setTimeout(resolve, KERNEL_WAIT_MS));
-    await vscode.commands.executeCommand("notebook.execute", notebook.uri);
+    following.add(notebook.uri.toString());
+    vscode.commands.executeCommand("notebook.execute", notebook.uri);
+}
+
+// Scroll a followed notebook to the cell that is starting. VS Code tells
+// extensions when a cell's execution summary changes, which happens when the
+// cell starts and when it ends; when one ends, Run All starts the next code
+// cell. Following stops after the last code cell or a failed cell.
+function followRun(event) {
+    const key = event.notebook.uri.toString();
+    if (!following.has(key)) {
+        return;
+    }
+    const editor = vscode.window.visibleNotebookEditors.find((e) => e.notebook.uri.toString() === key);
+    const code = event.notebook.getCells().filter((cell) => cell.kind === vscode.NotebookCellKind.Code);
+    for (const change of event.cellChanges) {
+        const summary = change.executionSummary;
+        if (!summary) {
+            continue;
+        }
+        let target = change.cell;
+        if (summary.success !== undefined) {
+            target = code.find((cell) => cell.index > change.cell.index);
+            if (!summary.success || !target) {
+                following.delete(key);
+                return;
+            }
+        }
+        editor?.revealRange(new vscode.NotebookRange(target.index, target.index + 1), vscode.NotebookEditorRevealType.AtTop);
+    }
 }
 
 async function onVisible(context, editors) {
@@ -73,13 +106,7 @@ async function onVisible(context, editors) {
     }
 }
 
-exports.activate = async function (context) {
-    context.subscriptions.push(
-        vscode.window.onDidChangeVisibleNotebookEditors((editors) => onVisible(context, editors)),
-        vscode.workspace.onDidCloseNotebookDocument((notebook) => collapsed.delete(notebook.uri.toString())),
-    );
-    await onVisible(context, vscode.window.visibleNotebookEditors);
-
+async function closePanel(context) {
     if (context.globalState.get(DONE)) {
         return;
     }
@@ -89,6 +116,20 @@ exports.activate = async function (context) {
         await vscode.commands.executeCommand("notifications.clearAll");
     }
     await context.globalState.update(DONE, true);
+}
+
+exports.activate = function (context) {
+    context.subscriptions.push(
+        vscode.window.onDidChangeVisibleNotebookEditors((editors) => onVisible(context, editors)),
+        vscode.workspace.onDidCloseNotebookDocument((notebook) => {
+            collapsed.delete(notebook.uri.toString());
+            following.delete(notebook.uri.toString());
+        }),
+        vscode.workspace.onDidChangeNotebookDocument(followRun),
+    );
+    // Neither waits for the other: starting Tutorial 1 waits for the kernel.
+    onVisible(context, vscode.window.visibleNotebookEditors);
+    closePanel(context);
 };
 
 exports.deactivate = function () {};
