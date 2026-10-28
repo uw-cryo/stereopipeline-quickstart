@@ -197,16 +197,18 @@ def run(cmd, log, label):
 
 
 # The stages parallel_stereo reports in <prefix>-stereo-status.txt, in run
-# order, with a plain description and their share of the run time (timed on
-# Tutorial 1; used only for the time-left estimate). Stages a run doesn't use,
-# such as stereo_rfne with asp_mgm, are skipped.
+# order, with a plain description and their relative run time (seconds in a
+# local run of Tutorial 1; used only for the time-left estimate). The status
+# file still says stereo_pprc while the low-resolution matching runs, so that
+# is counted in stereo_pprc. Stages a run doesn't use, such as stereo_rfne with
+# asp_mgm, are skipped.
 STEREO_STAGES = {
-    "stereo_pprc": ("Preparing the images and finding matching features", 0.23),
-    "stereo_corr": ("Matching every pixel between the two images", 0.38),
-    "stereo_rfne": ("Refining the matches", 0.05),
-    "stereo_blend": ("Joining the tiles", 0.16),
-    "stereo_fltr": ("Removing bad matches", 0.05),
-    "stereo_tri": ("Turning the matches into 3D points", 0.18),
+    "stereo_pprc": ("Preparing the images and finding matching features", 40),
+    "stereo_corr": ("Matching every pixel between the two images", 74),
+    "stereo_rfne": ("Refining the matches", 0),
+    "stereo_blend": ("Blending the tile edges", 23),
+    "stereo_fltr": ("Removing bad matches", 5),
+    "stereo_tri": ("Turning the matches into 3D points", 39),
 }
 
 
@@ -219,14 +221,23 @@ def _stereo_status(prefix):
         return None, 0, 0
 
 
-def _stereo_progress(stage, done, total):
-    """The fraction of the stereo run done, from the stage shares in STEREO_STAGES."""
-    if stage not in STEREO_STAGES:
-        return 0.0
+def _stereo_time_left(stage, done, total, in_stage, last_tile, rate):
+    """Seconds of stereo left, or None before there is anything to go on.
+
+    `in_stage` is the time spent in the current stage, `last_tile` the time
+    into the stage when its latest tile finished, and `rate` the seconds per
+    unit of STEREO_STAGES time, measured on the stages already finished. Once a
+    tile of the stage is done, the time per tile so far is used for the rest.
+    """
+    if stage not in STEREO_STAGES or rate is None:
+        return None
     names = list(STEREO_STAGES)
-    before = sum(STEREO_STAGES[s][1] for s in names[: names.index(stage)])
-    current = STEREO_STAGES[stage][1] * (done / total if total else 0)
-    return (before + current) / sum(share for _, share in STEREO_STAGES.values())
+    later = sum(STEREO_STAGES[s][1] for s in names[names.index(stage) + 1 :]) * rate
+    if 0 < done < total:
+        per_tile = last_tile / done
+        tiles_left = total - done
+        return max(per_tile * tiles_left - (in_stage - last_tile), per_tile * (tiles_left - 1)) + later
+    return max(STEREO_STAGES[stage][1] * rate - in_stage, 0) + later
 
 
 def _read_tile(path, bands, step):
@@ -293,10 +304,10 @@ def run_stereo(cmd, prefix, log, step=4):
 
     `prefix` is the output prefix given to parallel_stereo. ASP's output goes
     to `log`. While it runs, the notebook shows the current stage, the tiles
-    done, the time so far and an estimate of the time left, and a map of the
-    processing window that fills in tile by tile: the shift between the images
-    after matching, and the heights after triangulation. The map is drawn
-    every `step` pixels, to keep it quick.
+    done, the time so far and, after the first stage, an estimate of the time
+    left, and a map of the processing window that fills in tile by tile: the
+    shift between the images after matching, and the heights after
+    triangulation. The map is drawn every `step` pixels, to keep it quick.
 
     For orthorectified images only: the tiles are placed by their pixel
     position in the left image, which is then the map grid.
@@ -321,18 +332,37 @@ def run_stereo(cmd, prefix, log, step=4):
     shift = heights = None  # window-sized arrays, made once the left image exists
     drawn = set()
     plot = None
+    stage_start = {}  # when each stage first showed up in the status file
+    tile_end = {}  # when the latest tile of each stage finished
+    finishing = False  # all tiles triangulated
     while proc.poll() is None:
         time.sleep(2)
         elapsed = time.time() - t0
         stage, done, total = _stereo_status(prefix)
         text = f"⏳ **Stereo**: {_minutes(elapsed)} so far"
-        if stage in STEREO_STAGES:
+        # Once the tiles are triangulated, parallel_stereo joins each stage's
+        # tiles into full-size outputs, and the status file cycles through the
+        # stages again with 0 tiles done.
+        tri_tiles = tile_end.get("stereo_tri", (0, 0))[0]
+        finishing = finishing or (stage == "stereo_tri" and total > 0 and done == total)
+        finishing = finishing or ("stereo_tri" in stage_start and (stage != "stereo_tri" or done < tri_tiles))
+        if finishing:
+            text += ". Writing the full-size outputs, nearly done"
+        elif stage in STEREO_STAGES:
+            stage_start.setdefault(stage, elapsed)
+            if stage not in tile_end or tile_end[stage][0] != done:
+                tile_end[stage] = (done, elapsed)
             text += f". {STEREO_STAGES[stage][0]}"
             if total > 1:
                 text += f" (tile {min(done + 1, total)} of {total})"
-            fraction = _stereo_progress(stage, done, total)
-            if fraction > 0.1:
-                text += f". About {_minutes(elapsed * (1 - fraction) / fraction)} left"
+            finished = [s for s in stage_start if s != stage]
+            units = sum(STEREO_STAGES[s][1] for s in finished)
+            rate = stage_start[stage] / units if units else None
+            in_stage = elapsed - stage_start[stage]
+            last_tile = tile_end[stage][1] - stage_start[stage]
+            remaining = _stereo_time_left(stage, done, total, in_stage, last_tile, rate)
+            if remaining is not None:
+                text += f". About {_minutes(remaining)} left" if remaining >= 60 else ". Less than a minute left"
         status.update(_markdown(text + "."))
 
         if shift is None:

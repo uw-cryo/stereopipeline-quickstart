@@ -22,6 +22,7 @@ const DONE = "stereopipeline-quickstart.panelClosed";
 const STARTED = "stereopipeline-quickstart.tutorialStarted";
 const DELAYS_MS = [500, 2000, 5000];
 const FIRST_TUTORIAL = "/notebooks/01_aster_rainier.ipynb";
+const KERNEL_WAIT_MS = 5000;
 
 // Notebooks already collapsed while open, so the user can expand cells again.
 const collapsed = new Set();
@@ -43,12 +44,20 @@ async function startFirstTutorial(context, notebook) {
         return;
     }
     await context.globalState.update(STARTED, true);
-    // Let the Jupyter extension finish starting, so Run All picks the asp
-    // kernel by itself instead of asking for one.
+    // Run All only once the asp kernel is attached, or VS Code opens a "Select
+    // Kernel" picker. The Jupyter extension attaches it after the Python
+    // extension has found the conda environments, and a few seconds later.
+    const python = vscode.extensions.getExtension("ms-python.python");
+    if (python) {
+        const api = await python.activate();
+        await api?.ready;
+        await api?.environments?.refreshEnvironments();
+    }
     const jupyter = vscode.extensions.getExtension("ms-toolsai.jupyter");
     if (jupyter) {
         await jupyter.activate();
     }
+    await new Promise((resolve) => setTimeout(resolve, KERNEL_WAIT_MS));
     await vscode.commands.executeCommand("notebook.execute", notebook.uri);
 }
 
