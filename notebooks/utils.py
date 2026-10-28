@@ -379,7 +379,7 @@ def _tile_shift(path, step, tile, size):
 def _match_points_png(prefix):
     """asp-plot's match-point figure for a stereo run in progress, as PNG bytes, or None.
 
-    parallel_stereo writes the matched features (<prefix>-L__R.match) early,
+    parallel_stereo writes the matched features (<prefix>-*.match) early,
     before it matches every pixel. StereoPlotter wants a DEM in the stereo
     directory, which doesn't exist yet; the match plot doesn't use it, so the
     left image stands in. Its notes and warnings are kept out of the notebook.
@@ -413,7 +413,7 @@ def _match_points_png(prefix):
         logger.setLevel(level)
 
 
-def run_stereo(cmd, prefix, log, step=4):
+def run_stereo(cmd, prefix, log, label="Stereo", step=4):
     """Run parallel_stereo, showing its progress and the tiles as they finish.
 
     `prefix` is the output prefix given to parallel_stereo. ASP's output goes
@@ -425,8 +425,10 @@ def run_stereo(cmd, prefix, log, step=4):
     the heights after triangulation. The map is drawn every `step` pixels, to
     keep it quick.
 
-    For orthorectified images only: the tiles are placed by their pixel
-    position in the left image, which is then the map grid.
+    The tiles are placed by their pixel position in the left image as stereo
+    sees it (<prefix>-L.tif). For orthorectified images that is the map grid;
+    otherwise it is the left image after ASP aligned it to the right one,
+    which may be rotated. `label` names the run in the status line.
     """
     import re
     import time
@@ -442,7 +444,7 @@ def run_stereo(cmd, prefix, log, step=4):
 
     print(_one_line(cmd))
     tail = display(_log_lines(""), display_id=True)
-    status = display(_markdown("⏳ **Stereo**: starting…"), display_id=True)
+    status = display(_markdown(f"⏳ **{label}**: starting…"), display_id=True)
     t0 = time.time()
     proc, out = _start(cmd, log)
 
@@ -457,7 +459,7 @@ def run_stereo(cmd, prefix, log, step=4):
         time.sleep(2)
         elapsed = time.time() - t0
         stage, done, total = _stereo_status(prefix)
-        text = f"⏳ **Stereo**: {_minutes(elapsed)} so far"
+        text = f"⏳ **{label}**: {_minutes(elapsed)} so far"
         # Once the tiles are triangulated, parallel_stereo joins each stage's
         # tiles into full-size outputs, and the status file cycles through the
         # stages again with 0 tiles done.
@@ -484,8 +486,9 @@ def run_stereo(cmd, prefix, log, step=4):
         tail.update(_log_lines(_tail(log)))
         status.update(_markdown(text + "."))
 
-        match_fn = Path(f"{prefix}-L__R.match")
-        if not matches_shown and match_fn.exists() and time.time() - match_fn.stat().st_mtime > 2:
+        # <prefix>-L__R.match for orthorectified images, <prefix>-<left>__<right>.match otherwise.
+        match_fn = next(iter(Path(prefix).parent.glob(f"{Path(prefix).name}-*.match")), None)
+        if not matches_shown and match_fn and time.time() - match_fn.stat().st_mtime > 2:
             matches_shown = True
             png = _match_points_png(prefix)
             if png:
@@ -554,4 +557,4 @@ def run_stereo(cmd, prefix, log, step=4):
             else:
                 plot.update(Image(data=buf.getvalue()))
 
-    _finish(proc, out, log, "Stereo", status, tail, time.time() - t0)
+    _finish(proc, out, log, label, status, tail, time.time() - t0)

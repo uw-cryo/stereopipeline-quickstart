@@ -1,7 +1,7 @@
 # 32. Fetch the stereo geometry plot's map tiles when the Codespace is built
 
 - **Date:** 2026-10-28
-- **Status:** Accepted; an exception to [0028](0028-tutorial-data-on-releases.md)'s "`onCreate.sh` downloads nothing"
+- **Status:** Accepted; an exception to [0028](0028-tutorial-data-on-releases.md)'s "`onCreate.sh` downloads nothing". Update 2026-10-28: extended to the WorldView tutorials' plots (one map for Tutorial 2, an overview and three pair maps for Tutorial 3); with the cache they take 0.9 s and 2.3 s locally
 - **Context doc:** `ARCHITECTURE.md` § ASTER tutorial
 
 ## Context

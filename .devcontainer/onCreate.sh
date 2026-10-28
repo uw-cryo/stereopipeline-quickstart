@@ -4,7 +4,7 @@
 #
 # What we do here:
 #   1. Confirm ASP and the python env are healthy.
-#   2. Fetch the background map tiles for Tutorial 1's stereo geometry plot.
+#   2. Fetch the background map tiles for the tutorials' stereo geometry plots.
 #   3. Print a short "what now?" message into the terminal.
 #
 # It downloads no data: each notebook's download cell fetches its own, from a
@@ -39,7 +39,7 @@ echo "--> asp_plot version:"
 # ---- 2. Basemap tiles ---------------------------------------------------------
 # Without them, the first stereo geometry plot fetches them itself (13-45 s).
 # Not fatal: the plot still works without the cache.
-echo "--> Fetching basemap tiles for Tutorial 1:"
+echo "--> Fetching basemap tiles for the stereo geometry plots:"
 timeout 120 /opt/conda/envs/asp/bin/python scripts/prefetch_basemap.py data/basemap_cache \
     || echo "Could not fetch the basemap tiles; the stereo geometry plot will fetch them itself."
 
