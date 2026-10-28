@@ -4,11 +4,13 @@
 #
 # What we do here:
 #   1. Confirm ASP and the python env are healthy.
-#   2. Print a short "what now?" message into the terminal.
+#   2. Fetch the background map tiles for Tutorial 1's stereo geometry plot.
+#   3. Print a short "what now?" message into the terminal.
 #
 # It downloads no data: each notebook's download cell fetches its own, from a
 # release of this repo, so a Codespace always gets the data its checked-out code
-# names (a prebuild made before a data change can't hand out stale files).
+# names (a prebuild made before a data change can't hand out stale files). The
+# map tiles are only the plot's background, so an older copy does no harm.
 
 set -euo pipefail
 
@@ -34,7 +36,14 @@ echo "--> asp_plot version:"
 # manipulation in lifecycle wrapping.
 /opt/conda/envs/asp/bin/python -c "import asp_plot; print(asp_plot.__version__)"
 
-# ---- 2. Friendly hello -------------------------------------------------------
+# ---- 2. Basemap tiles ---------------------------------------------------------
+# Without them, the first stereo geometry plot fetches them itself (13-45 s).
+# Not fatal: the plot still works without the cache.
+echo "--> Fetching basemap tiles for Tutorial 1:"
+timeout 120 /opt/conda/envs/asp/bin/python scripts/prefetch_basemap.py data/basemap_cache \
+    || echo "Could not fetch the basemap tiles; the stereo geometry plot will fetch them itself."
+
+# ---- 3. Friendly hello -------------------------------------------------------
 cat <<'EOF'
 
 ===============================================================
@@ -43,8 +52,8 @@ stereopipeline-quickstart
 ASP + asp_plot, ready to go.
 
 Next steps:
-  1. Open notebooks/01_aster_rainier.ipynb and click "Run All".
-     (Its first step downloads the data into data/aster_rainier/.)
+  1. Tutorial 1 (notebooks/01_aster_rainier.ipynb) opens and starts
+     running by itself. Scroll down to follow it.
   2. Or read docs/start/codespaces.md for an orientation tour.
 
 ===============================================================

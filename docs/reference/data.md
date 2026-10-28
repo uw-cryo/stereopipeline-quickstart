@@ -11,6 +11,7 @@ Release: [`aster-rainier-2026-10-27`](https://github.com/uw-cryo/stereopipeline-
 | ASTER L1A scene, 2017-07-31, Mt. Rainier | Copy of Zenodo record [10.5281/zenodo.7972223](https://doi.org/10.5281/zenodo.7972223) (Bhushan, Henderson and Shean) | CC BY 4.0 |
 | Reference DEM for the processing window | Copernicus GLO-30, clipped and converted to ellipsoid heights | Copernicus WorldDEM-30 licence (below) |
 | ICESat-2 ATL06-SR points and report figure selections | Computed by [SlideRule](https://slideruleearth.io/) from NASA ICESat-2 ATL03 data | NASA data, free to use with credit |
+| Background map in the stereo geometry plot | OpenStreetMap Humanitarian tiles, drawn by `asp-plot` through contextily; in a Codespace fetched when it is built, by `scripts/prefetch_basemap.py` | © OpenStreetMap contributors, ODbL |
 
 ## WorldView-3 tutorials
 
