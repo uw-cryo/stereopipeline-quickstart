@@ -148,6 +148,7 @@ def _one_line(cmd):
 
 def _start(cmd, log):
     """Start a shell command with its output going to `log`."""
+    import os
     import subprocess
     from pathlib import Path
 
@@ -155,18 +156,23 @@ def _start(cmd, log):
     out = open(log, "w")
     out.write(f"$ {_one_line(cmd)}\n\n")
     out.flush()
-    return subprocess.Popen(cmd, shell=True, executable="/bin/bash", stdout=out, stderr=subprocess.STDOUT), out
+    # ASP's Python wrappers (mapproject, parallel_stereo, asp_report) would
+    # otherwise hold their output back until they end, since it goes to a
+    # file, and the log tail in the notebook would not move.
+    env = {**os.environ, "PYTHONUNBUFFERED": "1"}
+    return subprocess.Popen(cmd, shell=True, executable="/bin/bash", stdout=out, stderr=subprocess.STDOUT, env=env), out
 
 
-def _finish(proc, out, log, label, status, elapsed):
+def _finish(proc, out, log, label, status, tail, elapsed):
     """Report how a command ended; on failure, show the end of its log and stop."""
     out.close()
+    tail.update(_log_lines(""))
     if proc.returncode == 0:
         status.update(_markdown(f"✅ **{label}**: done in {_minutes(elapsed)}. Full log: `{log}`"))
         return
-    tail = "".join(open(log).readlines()[-30:])
+    last = "".join(open(log, errors="replace").readlines()[-30:])
     status.update(_markdown(f"❌ **{label}** failed after {_minutes(elapsed)}. Last lines of `{log}`:"))
-    print(tail)
+    print(last)
     raise RuntimeError(f"{label} failed (exit code {proc.returncode}); see {log}")
 
 
@@ -176,24 +182,93 @@ def _markdown(text):
     return Markdown(text)
 
 
+def _tail(log, n=5, width=160):
+    """The last `n` lines of a log, with progress bars reduced to their latest state."""
+    try:
+        with open(log, "rb") as f:
+            f.seek(0, 2)
+            f.seek(max(f.tell() - 8192, 0))
+            text = f.read().decode(errors="replace")
+    except OSError:
+        return ""
+    # Progress bars redraw themselves with carriage returns; keep the last draw.
+    lines = [line.rstrip("\r").split("\r")[-1].rstrip() for line in text.split("\n")]
+    lines = [line[:width] for line in lines if line.strip()]
+    return "\n".join(lines[-n:])
+
+
+def _log_lines(text):
+    """The log tail as a small grey block, or an empty output once the step is done."""
+    from html import escape
+
+    from IPython.display import HTML
+
+    if not text:
+        return HTML("")
+    return HTML(f'<pre style="margin:0; opacity:0.6; font-size:0.85em; white-space:pre-wrap">{escape(text)}</pre>')
+
+
 def run(cmd, log, label):
     """Run a shell command, with its output in `log` and a one-line status in the notebook.
 
-    The status line shows the elapsed time while the command runs. If the
-    command fails, the last lines of the log are printed and the cell stops.
+    While the command runs, the last lines of its log and the elapsed time
+    are shown. If the command fails, the last lines of the log are printed and
+    the cell stops.
     """
     import time
 
     from IPython.display import display
 
     print(_one_line(cmd))
+    tail = display(_log_lines(""), display_id=True)
     status = display(_markdown(f"⏳ **{label}**…"), display_id=True)
     t0 = time.time()
     proc, out = _start(cmd, log)
     while proc.poll() is None:
+        tail.update(_log_lines(_tail(log)))
         status.update(_markdown(f"⏳ **{label}**: {_minutes(time.time() - t0)} so far"))
         time.sleep(1)
-    _finish(proc, out, log, label, status, time.time() - t0)
+    _finish(proc, out, log, label, status, tail, time.time() - t0)
+
+
+class timer:
+    """A status line with the elapsed time, for slow Python steps.
+
+    Use as `with timer("Plotting the stereo geometry"):`. The line ticks every
+    second while the block runs and says how long it took when it ends.
+    """
+
+    def __init__(self, label):
+        self.label = label
+
+    def __enter__(self):
+        import threading
+        import time
+
+        from IPython.display import display
+
+        self.t0 = time.time()
+        self.status = display(_markdown(f"⏳ **{self.label}**…"), display_id=True)
+        self.stop = threading.Event()
+
+        def tick():
+            while not self.stop.wait(1):
+                self.status.update(_markdown(f"⏳ **{self.label}**: {_minutes(time.time() - self.t0)} so far"))
+
+        self.thread = threading.Thread(target=tick, daemon=True)
+        self.thread.start()
+        return self
+
+    def __exit__(self, kind, error, traceback):
+        import time
+
+        self.stop.set()
+        self.thread.join()
+        elapsed = _minutes(time.time() - self.t0)
+        if kind is None:
+            self.status.update(_markdown(f"✅ **{self.label}**: done in {elapsed}"))
+        else:
+            self.status.update(_markdown(f"❌ **{self.label}** failed after {elapsed}"))
 
 
 # The stages parallel_stereo reports in <prefix>-stereo-status.txt, in run
@@ -303,11 +378,12 @@ def run_stereo(cmd, prefix, log, step=4):
     """Run parallel_stereo, showing its progress and the tiles as they finish.
 
     `prefix` is the output prefix given to parallel_stereo. ASP's output goes
-    to `log`. While it runs, the notebook shows the current stage, the tiles
-    done, the time so far and, after the first stage, an estimate of the time
-    left, and a map of the processing window that fills in tile by tile: the
-    shift between the images after matching, and the heights after
-    triangulation. The map is drawn every `step` pixels, to keep it quick.
+    to `log`. While it runs, the notebook shows the last lines of the log, the
+    current stage, the tiles done, the time so far and, after the first stage,
+    an estimate of the time left, and a map of the processing window that
+    fills in tile by tile: the shift between the images after matching, and
+    the heights after triangulation. The map is drawn every `step` pixels, to
+    keep it quick.
 
     For orthorectified images only: the tiles are placed by their pixel
     position in the left image, which is then the map grid.
@@ -325,6 +401,7 @@ def run_stereo(cmd, prefix, log, step=4):
     from osgeo import gdal
 
     print(_one_line(cmd))
+    tail = display(_log_lines(""), display_id=True)
     status = display(_markdown("⏳ **Stereo**: starting…"), display_id=True)
     t0 = time.time()
     proc, out = _start(cmd, log)
@@ -363,6 +440,7 @@ def run_stereo(cmd, prefix, log, step=4):
             remaining = _stereo_time_left(stage, done, total, in_stage, last_tile, rate)
             if remaining is not None:
                 text += f". About {_minutes(remaining)} left" if remaining >= 60 else ". Less than a minute left"
+        tail.update(_log_lines(_tail(log)))
         status.update(_markdown(text + "."))
 
         if shift is None:
@@ -428,4 +506,4 @@ def run_stereo(cmd, prefix, log, step=4):
             else:
                 plot.update(Image(data=buf.getvalue()))
 
-    _finish(proc, out, log, "Stereo", status, time.time() - t0)
+    _finish(proc, out, log, "Stereo", status, tail, time.time() - t0)
