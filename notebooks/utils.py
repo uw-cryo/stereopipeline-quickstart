@@ -274,19 +274,33 @@ class timer:
 
 
 # The stages parallel_stereo reports in <prefix>-stereo-status.txt, in run
-# order, with a plain description and their relative run time (seconds in a
-# local run of Tutorial 1; used only for the time-left estimate). The status
-# file still says stereo_pprc while the low-resolution matching runs, so that
-# is counted in stereo_pprc. Stages a run doesn't use, such as stereo_rfne with
-# asp_mgm, are skipped.
+# order, with a plain description. Stages a run doesn't use, such as
+# stereo_rfne with asp_mgm, are skipped.
 STEREO_STAGES = {
-    "stereo_pprc": ("Preparing the images and finding matching features", 40),
-    "stereo_corr": ("Matching every pixel between the two images", 74),
-    "stereo_rfne": ("Refining the matches", 0),
-    "stereo_blend": ("Blending the tile edges", 23),
-    "stereo_fltr": ("Removing bad matches", 5),
-    "stereo_tri": ("Turning the matches into 3D points", 39),
+    "stereo_pprc": "Preparing the images and finding matching features",
+    "stereo_corr": "Matching every pixel between the two images",
+    "stereo_rfne": "Refining the matches",
+    "stereo_blend": "Blending the tile edges",
+    "stereo_fltr": "Removing bad matches",
+    "stereo_tri": "Turning the matches into 3D points",
 }
+
+# Seconds per stage in local runs of each tutorial, used only for the
+# time-left estimate, which scales them to the machine. A run uses the first
+# entry whose key is in its output prefix. The stages' shares differ between
+# the tutorials: estimated with Tutorial 1's, Tutorial 2's time left came out
+# twice too long. The status file still says stereo_pprc while the
+# low-resolution matching runs, so that is counted in stereo_pprc.
+STAGE_SECONDS = {
+    "ucsd_soledad/stereo/": {"stereo_pprc": 47, "stereo_corr": 38, "stereo_blend": 3, "stereo_fltr": 5, "stereo_tri": 19},
+    "ucsd_soledad/pairs/": {"stereo_pprc": 30, "stereo_corr": 52, "stereo_blend": 4, "stereo_fltr": 6, "stereo_tri": 22},
+    "": {"stereo_pprc": 40, "stereo_corr": 74, "stereo_blend": 23, "stereo_fltr": 5, "stereo_tri": 39},
+}
+
+
+def _stage_seconds(prefix):
+    """The STAGE_SECONDS entry for a stereo run's output prefix."""
+    return next(seconds for key, seconds in STAGE_SECONDS.items() if key in str(prefix))
 
 
 def _stereo_status(prefix):
@@ -298,23 +312,24 @@ def _stereo_status(prefix):
         return None, 0, 0
 
 
-def _stereo_time_left(stage, done, total, in_stage, last_tile, rate):
+def _stereo_time_left(stage, done, total, in_stage, last_tile, rate, seconds):
     """Seconds of stereo left, or None before there is anything to go on.
 
     `in_stage` is the time spent in the current stage, `last_tile` the time
-    into the stage when its latest tile finished, and `rate` the seconds per
-    unit of STEREO_STAGES time, measured on the stages already finished. Once a
-    tile of the stage is done, the time per tile so far is used for the rest.
+    into the stage when its latest tile finished, `seconds` the run's
+    STAGE_SECONDS entry, and `rate` how much slower than those seconds the
+    finished stages ran. Once a tile of the stage is done, the time per tile
+    so far is used for the rest.
     """
     if stage not in STEREO_STAGES or rate is None:
         return None
     names = list(STEREO_STAGES)
-    later = sum(STEREO_STAGES[s][1] for s in names[names.index(stage) + 1 :]) * rate
+    later = sum(seconds.get(s, 0) for s in names[names.index(stage) + 1 :]) * rate
     if 0 < done < total:
         per_tile = last_tile / done
         tiles_left = total - done
         return max(per_tile * tiles_left - (in_stage - last_tile), per_tile * (tiles_left - 1)) + later
-    return max(STEREO_STAGES[stage][1] * rate - in_stage, 0) + later
+    return max(seconds.get(stage, 0) * rate - in_stage, 0) + later
 
 
 def _read_tile(path, bands, step):
@@ -452,6 +467,7 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
     drawn = set()
     plot = None
     matches_shown = False
+    seconds = _stage_seconds(prefix)
     stage_start = {}  # when each stage first showed up in the status file
     tile_end = {}  # when the latest tile of each stage finished
     finishing = False  # all tiles triangulated
@@ -472,15 +488,15 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
             stage_start.setdefault(stage, elapsed)
             if stage not in tile_end or tile_end[stage][0] != done:
                 tile_end[stage] = (done, elapsed)
-            text += f". {STEREO_STAGES[stage][0]}"
+            text += f". {STEREO_STAGES[stage]}"
             if total > 1:
                 text += f" (tile {min(done + 1, total)} of {total})"
             finished = [s for s in stage_start if s != stage]
-            units = sum(STEREO_STAGES[s][1] for s in finished)
+            units = sum(seconds.get(s, 0) for s in finished)
             rate = stage_start[stage] / units if units else None
             in_stage = elapsed - stage_start[stage]
             last_tile = tile_end[stage][1] - stage_start[stage]
-            remaining = _stereo_time_left(stage, done, total, in_stage, last_tile, rate)
+            remaining = _stereo_time_left(stage, done, total, in_stage, last_tile, rate, seconds)
             if remaining is not None:
                 text += f". About {_minutes(remaining)} left" if remaining >= 60 else ". Less than a minute left"
         tail.update(_log_lines(_tail(log)))
