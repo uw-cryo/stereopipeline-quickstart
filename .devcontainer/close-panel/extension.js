@@ -16,9 +16,12 @@
 // The first time Tutorial 1 opens, it runs all cells, so a new user doesn't
 // have to find Run All (globalState flag).
 //
-// When a tutorial's last cell writes its results zip (data/*/*_results.zip,
+// When a tutorial's last cell writes its results zip (data/*_results.zip,
 // utils.zip_results), a notification says it's ready and offers to show it
-// in the file explorer, where right-click → Download saves it.
+// in the file explorer, where right-click → Download saves it. devcontainer.json
+// excludes data/ from file watching (ASP writes thousands of files there),
+// which applies to recursive watchers only, so this watches data/ itself, one
+// level deep, and the zips are written there.
 
 const vscode = require("vscode");
 
@@ -28,7 +31,6 @@ const DELAYS_MS = [500, 2000, 5000];
 const FIRST_TUTORIAL = "/notebooks/01_aster_rainier.ipynb";
 const KERNEL_WAIT_MS = 5000;
 const COLLAPSE_DELAYS_MS = [0, 500, 1500];
-const RESULTS_ZIP = "**/data/*/*_results.zip";
 
 // Notebooks already collapsed while open, so the user can expand cells again.
 const collapsed = new Set();
@@ -118,7 +120,9 @@ async function announceResults(uri) {
 }
 
 exports.activate = function (context) {
-    const results = vscode.workspace.createFileSystemWatcher(RESULTS_ZIP);
+    const data = vscode.Uri.joinPath(vscode.workspace.workspaceFolders?.[0]?.uri ?? vscode.Uri.file("/"), "data");
+    vscode.workspace.fs.createDirectory(data);
+    const results = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(data, "*_results.zip"));
     context.subscriptions.push(
         results,
         results.onDidCreate(announceResults),
