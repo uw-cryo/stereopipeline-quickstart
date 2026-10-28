@@ -273,6 +273,39 @@ class timer:
             self.status.update(_markdown(f"❌ **{self.label}** failed after {elapsed}"))
 
 
+def zip_results(zip_path, files):
+    """Put a tutorial's results in one zip file, to download and open in a GIS.
+
+    Paths inside the zip are relative to the zip's folder. Files that don't
+    exist (a step was skipped or failed) are left out and listed. The zip is
+    written under a temporary name and renamed when complete, so that a
+    complete file is all that ever appears at `zip_path`: in a Codespace, the
+    close-panel extension shows a notification when it does.
+    """
+    import zipfile
+    from pathlib import Path
+
+    from IPython.display import display
+
+    zip_path = Path(zip_path)
+    base = zip_path.parent.resolve()
+    present = [Path(f) for f in files if Path(f).exists()]
+    missing = [str(f) for f in files if not Path(f).exists()]
+    partial = zip_path.with_name(zip_path.name + ".part")
+    with timer("Zipping the results"):
+        with zipfile.ZipFile(partial, "w", zipfile.ZIP_DEFLATED) as archive:
+            for path in present:
+                archive.write(path, path.resolve().relative_to(base))
+        partial.replace(zip_path)
+    if missing:
+        print("Not found, so not in the zip:\n  " + "\n  ".join(missing))
+    size = zip_path.stat().st_size / 1e6
+    display(_markdown(
+        f"### Results: `{zip_path}` ({size:.0f} MB, {len(present)} files)\n\n"
+        "To save it to your computer, right-click it in the file explorer on the left and choose **Download**."
+    ))
+
+
 # The stages parallel_stereo reports in <prefix>-stereo-status.txt, in run
 # order, with a plain description. Stages a run doesn't use, such as
 # stereo_rfne with asp_mgm, are skipped.

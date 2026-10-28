@@ -15,6 +15,10 @@
 // ignores the notebooks' jupyter.source_hidden metadata (microsoft/vscode#168807).
 // The first time Tutorial 1 opens, it runs all cells, so a new user doesn't
 // have to find Run All (globalState flag).
+//
+// When a tutorial's last cell writes its results zip (data/*/*_results.zip,
+// utils.zip_results), a notification says it's ready and offers to show it
+// in the file explorer, where right-click → Download saves it.
 
 const vscode = require("vscode");
 
@@ -24,6 +28,7 @@ const DELAYS_MS = [500, 2000, 5000];
 const FIRST_TUTORIAL = "/notebooks/01_aster_rainier.ipynb";
 const KERNEL_WAIT_MS = 5000;
 const COLLAPSE_DELAYS_MS = [0, 500, 1500];
+const RESULTS_ZIP = "**/data/*/*_results.zip";
 
 // Notebooks already collapsed while open, so the user can expand cells again.
 const collapsed = new Set();
@@ -92,8 +97,32 @@ async function closePanel(context) {
     await context.globalState.update(DONE, true);
 }
 
+// zip_results renames the finished zip into place, which can be reported as a
+// create and a change; one notification per zip per few seconds.
+const notified = new Map();
+
+async function announceResults(uri) {
+    const now = Date.now();
+    if (now - (notified.get(uri.toString()) ?? 0) < 5000) {
+        return;
+    }
+    notified.set(uri.toString(), now);
+    const name = vscode.workspace.asRelativePath(uri);
+    const choice = await vscode.window.showInformationMessage(
+        `Your results are ready: ${name}. To save them, right-click the file in the explorer and choose Download.`,
+        "Show in Explorer",
+    );
+    if (choice) {
+        await vscode.commands.executeCommand("revealInExplorer", uri);
+    }
+}
+
 exports.activate = function (context) {
+    const results = vscode.workspace.createFileSystemWatcher(RESULTS_ZIP);
     context.subscriptions.push(
+        results,
+        results.onDidCreate(announceResults),
+        results.onDidChange(announceResults),
         vscode.window.onDidChangeVisibleNotebookEditors((editors) => onVisible(context, editors)),
         vscode.workspace.onDidCloseNotebookDocument((notebook) => collapsed.delete(notebook.uri.toString())),
     );
