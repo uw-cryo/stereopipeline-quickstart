@@ -37,7 +37,7 @@ Open one of the notebooks under `notebooks/`:
 
 Each notebook has a "Run All" button at the top; Tutorial 1 also starts by itself the first time it opens in a new Codespace. Cells are small enough to run them step by step. The code cells open collapsed to one line; click one to see its code.
 
-In Tutorial 1, while a step runs, its cell shows the command, the last few lines of ASP's output and a status line with the time so far. The full output of each step goes to a log file in `data/aster_rainier/logs/`; if a step fails, the cell shows the end of its log. During stereo, a map of the processing window fills in tile by tile.
+While a step runs, its cell shows the command, the last few lines of ASP's output and a status line with the time so far. The full output of each step goes to a log file in the tutorial's `data/<dataset>/logs/` folder; if a step fails, the cell shows the end of its log. During stereo, a map of the processing window fills in tile by tile.
 
 If a cell fails, [open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml) with the error output.
 

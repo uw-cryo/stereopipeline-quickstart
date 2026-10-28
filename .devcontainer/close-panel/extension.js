@@ -23,6 +23,7 @@ const STARTED = "stereopipeline-quickstart.tutorialStarted";
 const DELAYS_MS = [500, 2000, 5000];
 const FIRST_TUTORIAL = "/notebooks/01_aster_rainier.ipynb";
 const KERNEL_WAIT_MS = 5000;
+const COLLAPSE_DELAYS_MS = [0, 500, 1500];
 
 // Notebooks already collapsed while open, so the user can expand cells again.
 const collapsed = new Set();
@@ -31,12 +32,18 @@ function isTutorial(notebook) {
     return notebook.notebookType === "jupyter-notebook" && notebook.uri.path.includes("/notebooks/");
 }
 
+// A notebook opened after this extension started is reported visible before
+// its editor is ready, and the collapse command then does nothing, so it is
+// repeated over the first seconds. Collapsing a collapsed cell does nothing.
 async function collapseCode(notebook) {
     const ranges = notebook
         .getCells()
         .filter((cell) => cell.kind === vscode.NotebookCellKind.Code)
         .map((cell) => ({ start: cell.index, end: cell.index + 1 }));
-    await vscode.commands.executeCommand("notebook.cell.collapseCellInput", { ranges, document: notebook.uri });
+    for (const ms of COLLAPSE_DELAYS_MS) {
+        await new Promise((resolve) => setTimeout(resolve, ms));
+        await vscode.commands.executeCommand("notebook.cell.collapseCellInput", { ranges, document: notebook.uri });
+    }
 }
 
 async function startFirstTutorial(context, notebook) {

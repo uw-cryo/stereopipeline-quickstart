@@ -72,7 +72,7 @@ stereopipeline-quickstart/
 │   ├── download_aster.sh              # all ASTER data from release aster-rainier-* (L1A, ICESat-2, COP30) + unzip
 │   ├── download_worldview_ucsd.sh     # WV3 NTF + XML from SpaceNet's bucket over HTTPS; ICESat-2 + COP30 from release ucsd-soledad-*
 │   ├── fetch_cop_dem.py               # COP30 from AWS, local geoid→ellipsoid shift
-│   └── prefetch_basemap.py            # Tutorial 1's stereo geometry map tiles, run by onCreate.sh
+│   └── prefetch_basemap.py            # the tutorials' stereo geometry map tiles, run by onCreate.sh
 └── CLAUDE/                            # gitignored; local session/design scratch notes
 ```
 
@@ -247,7 +247,7 @@ The no-chdir `DATA` pattern itself is an editing rule in `AGENTS.md`. Earlier it
 
 `notebooks/utils.py` holds `average_crop()` (see § WV3 window, crops and resolution) and the plotting helpers the notebooks call (`show_image_pair`, `show_dem_hillshade`, `show_hillshades`, `show_report_figures`), so cells show `asp-plot` calls without matplotlib boilerplate.
 
-It also holds the run helpers, which keep ASP's verbose output out of the notebook (Tutorial 1 so far; [ADR-0031](architecture/0031-status-lines-and-logs.md)):
+It also holds the run helpers, which keep ASP's verbose output out of the notebook (all three tutorials; [ADR-0031](architecture/0031-status-lines-and-logs.md)):
 
 - `run(cmd, log, label)` prints the command, sends all output to `log` (under `data/<tutorial>/logs/`), and shows the last 5 lines of the log (small grey text, lines starting with "Warning:" left out) and a status line with the time so far, both updated every second. When the command ends, the tail is cleared and the status line says ✅ with the time, or ❌ with the last 30 log lines, and the cell stops. Commands run with `PYTHONUNBUFFERED=1`, or ASP's Python wrappers hold their output back while it goes to a file. `parallel_stereo` and `mapproject` still collect each tile's output and print it when the tile ends, so within a tile the tail doesn't move.
 - `run_stereo(cmd, prefix, log)` does the same for `parallel_stereo`, with the stage and tile from `<prefix>-stereo-status.txt` and a time-left estimate. The estimate starts after the first stage: it scales the later stages' laptop times (`STEREO_STAGES`) by how much slower the finished stages ran, and within a stage uses the time per tile so far. The status file says `stereo_pprc` while the low-resolution matching runs, and goes through `stereo_corr`, `stereo_blend` and `stereo_tri` again with 0 tiles done while the tiles are joined at the end; the status line says "Writing the full-size outputs" then. Once `<prefix>-L__R.match` exists, it shows `asp-plot`'s match-point figure (`StereoPlotter` won't start without a DEM in the stereo directory, though the match plot doesn't read it, so the left image is passed as `dem_fn`). Then a two-panel map fills in as tiles finish: each tile's `-D.tif` shift (its collar cut off) and `-PC.tif` heights (ECEF to ellipsoid height with pyproj), drawn every 4 pixels and placed by pixel position in the orthorectified left image. Tile folders are deleted when `parallel_stereo` ends, so the map is drawn while it runs. Tutorial 1 uses `--job-size-w 1280 --job-size-h 1202`: four equal tiles at the same run time as the default 2048 px tiles, which split the 2560 × 2404 window unevenly.
