@@ -71,7 +71,8 @@ stereopipeline-quickstart/
 ├── scripts/
 │   ├── download_aster.sh              # all ASTER data from release aster-rainier-* (L1A, ICESat-2, COP30) + unzip
 │   ├── download_worldview_ucsd.sh     # WV3 NTF + XML from SpaceNet's bucket over HTTPS; ICESat-2 + COP30 from release ucsd-soledad-*
-│   └── fetch_cop_dem.py               # COP30 from AWS, local geoid→ellipsoid shift
+│   ├── fetch_cop_dem.py               # COP30 from AWS, local geoid→ellipsoid shift
+│   └── prefetch_basemap.py            # Tutorial 1's stereo geometry map tiles, run by onCreate.sh
 └── CLAUDE/                            # gitignored; local session/design scratch notes
 ```
 
@@ -189,7 +190,7 @@ One-time setup: repo Settings → Actions → General → Workflow permissions, 
 
 See [ADR-0027](architecture/0027-single-aster-tutorial.md), which supersedes the two-notebook split of [ADR-0023](architecture/0023-split-aster-tutorial.md) and the two-report design of [ADR-0008](architecture/0008-aster-cop30-two-reports.md). One notebook, `01_aster_rainier.ipynb`, runs the standard workflow on a processing window around the summit and shows the data after each step with `asp-plot` calls in the cells:
 
-1. `download_aster.sh`: the L1A archive (a copy of the Zenodo record), the shipped ICESat-2 data and the COP30 reference DEM (`ref/cop30_rainier.tif`, the window plus 2 km, made once with `fetch_cop_dem.py` and rewritten with `gdal_translate -a_srs EPSG:32610`, so its CRS is inside the GeoTIFF rather than in an `.aux.xml` sidecar the release wouldn't carry) from release `aster-rainier-2026-10-27`, about 55 MB, so the tutorial needs no host but GitHub, no SlideRule request and no AWS fetch. The notebook's first step runs it; Codespace startup doesn't pre-fetch ([ADR-0028](architecture/0028-tutorial-data-on-releases.md)). Then `aster2asp`.
+1. `download_aster.sh`: the L1A archive (a copy of the Zenodo record), the shipped ICESat-2 data and the COP30 reference DEM (`ref/cop30_rainier.tif`, the window plus 2 km, made once with `fetch_cop_dem.py` and rewritten with `gdal_translate -a_srs EPSG:32610`, so its CRS is inside the GeoTIFF rather than in an `.aux.xml` sidecar the release wouldn't carry) from release `aster-rainier-2026-10-27`, about 55 MB, so the tutorial needs no host but GitHub, no SlideRule request and no AWS fetch. The notebook's first step runs it; Codespace startup doesn't pre-fetch it ([ADR-0028](architecture/0028-tutorial-data-on-releases.md)); it fetches only the background map tiles for the stereo geometry plot, with `prefetch_basemap.py`, into `data/basemap_cache/`, which the notebook points contextily at (contextily otherwise caches tiles in a new temporary folder per Python process, and fetching them took 13-45 s). Then `aster2asp`.
 2. Stereo geometry: `StereoGeometryPlotter(inputs=[out-Band3N.xml, out-Band3B.xml]).stereo_geom_plot()` (skyplot + footprint map; the basemap needs internet).
 3. Raw images: `Raster(fn, downsample=8).read_array()` drawn with `Plotter().plot_array()`, through a small `show_pair()` defined in the cell.
 4. `mapproject` both views onto COP30 at 15 m with `--t_projwin 577305 5172975 615705 5209035` (`T_PROJWIN`, UTM 10N, about 38 × 36 km), one cell of its own.
