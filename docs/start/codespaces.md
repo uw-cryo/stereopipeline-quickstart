@@ -13,14 +13,9 @@
 
 2. GitHub pulls a pre-built container image from [GHCR](https://ghcr.io/bpurinton/stereopipeline-quickstart). ASP binaries and the `asp-plot` conda env are already installed in it. (If the image isn't accessible from your fork, the devcontainer.json includes a commented-out `build:` block you can flip on for a from-source build.)
 
-3. When VS Code opens in your browser, the terminal shows a banner:
+3. When VS Code opens in your browser, it asks "Do you trust the authors of the files in this folder?". Click **Trust Folder & Continue**.
 
-   ```
-   stereopipeline-quickstart
-   ASP + asp-plot, ready to go.
-   Next steps:
-     1. Open notebooks/01_aster_rainier.ipynb and click "Run All".
-   ```
+4. Tutorial 1 (`notebooks/01_aster_rainier.ipynb`) opens and, the first time, starts running by itself. Scroll down to follow it.
 
 ## Machine size
 
@@ -40,7 +35,9 @@ Open one of the notebooks under `notebooks/`:
 | `02_worldview_ucsd.ipynb` | WorldView-3 pair → bundle adjusted, orthorectified 2.4 m DEM of Mount Soledad (~10 min) |
 | `03_worldview_ucsd_blend.ipynb` | Three WorldView-3 images → three pair DEMs blended into one (~16 min after Tutorial 2) |
 
-Each notebook has a "Run All" button at the top. Cells are small enough to run them step by step.
+Each notebook has a "Run All" button at the top; Tutorial 1 also starts by itself the first time it opens in a new Codespace. Cells are small enough to run them step by step. The code cells open collapsed to one line; click one to see its code.
+
+In Tutorial 1, while a step runs, its cell shows the command, the last few lines of ASP's output and a status line with the time so far. The full output of each step goes to a log file in `data/aster_rainier/logs/`; if a step fails, the cell shows the end of its log. During stereo, a map of the processing window fills in tile by tile.
 
 If a cell fails, [open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml) with the error output.
 

@@ -30,7 +30,7 @@ What ASP does, what a stereo pipeline is, and how the tools fit together. Start 
 :::{grid-item-card} Ready to run something?
 :link: start/codespaces
 :link-type: doc
-Launch the Codespace, open a notebook, hit Run All.
+Launch the Codespace: Tutorial 1 opens and starts running by itself.
 :::
 
 :::{grid-item-card} Want a deeper concept primer?

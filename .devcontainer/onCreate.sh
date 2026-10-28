@@ -52,8 +52,8 @@ stereopipeline-quickstart
 ASP + asp_plot, ready to go.
 
 Next steps:
-  1. Open notebooks/01_aster_rainier.ipynb and click "Run All".
-     (Its first step downloads the data into data/aster_rainier/.)
+  1. Tutorial 1 (notebooks/01_aster_rainier.ipynb) opens and starts
+     running by itself. Scroll down to follow it.
   2. Or read docs/start/codespaces.md for an orientation tour.
 
 ===============================================================

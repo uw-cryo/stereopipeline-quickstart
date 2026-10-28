@@ -24,7 +24,7 @@ stereopipeline-quickstart/
 │   ├── environment.yml                # conda env spec (python 3.12)
 │   ├── onCreate.sh                    # ASP/asp_plot health check (runs in prebuilds; no data download)
 │   ├── postAttach.sh                  # opens Tutorial 1 once VS Code attaches (after the trust prompt), installs close-panel/
-│   ├── close-panel/                   # tiny VS Code extension: closes the terminal panel and clears notifications once on first launch
+│   ├── close-panel/                   # tiny VS Code extension: closes the terminal panel and clears notifications once on first launch, collapses code cells, starts Tutorial 1 once
 │   └── postStart.sh                   # (stashed; not active)
 ├── .github/
 │   ├── ISSUE_TEMPLATE/
@@ -67,7 +67,7 @@ stereopipeline-quickstart/
 │   ├── 01_aster_rainier.ipynb         # ASTER: L1A → skyplot → mapproject onto COP30 → asp_mgm 30 m DEM (summit window) + report
 │   ├── 02_worldview_ucsd.ipynb        # WV3 Mount Soledad pair: cam2rpc crops → BA → mapproject → asp_mgm 2.4 m DEM + report
 │   ├── 03_worldview_ucsd_blend.ipynb  # WV3 three crops → BA → three raw pairs → dem_mosaic blend + report
-│   └── utils.py                       # average_crop (crop + RPC rescale) and plotting helpers
+│   └── utils.py                       # run/run_stereo (status lines, logs, live tile map), timer, average_crop, plotting helpers
 ├── scripts/
 │   ├── download_aster.sh              # all ASTER data from release aster-rainier-* (L1A, ICESat-2, COP30) + unzip
 │   ├── download_worldview_ucsd.sh     # WV3 NTF + XML from SpaceNet's bucket over HTTPS; ICESat-2 + COP30 from release ucsd-soledad-*
@@ -246,6 +246,14 @@ The no-chdir `DATA` pattern itself is an editing rule in `AGENTS.md`. Earlier it
 - It hides what's actually happening. With explicit paths in every cell, the reader sees the layout.
 
 `notebooks/utils.py` holds `average_crop()` (see § WV3 window, crops and resolution) and the plotting helpers the notebooks call (`show_image_pair`, `show_dem_hillshade`, `show_hillshades`, `show_report_figures`), so cells show `asp-plot` calls without matplotlib boilerplate.
+
+It also holds the run helpers, which keep ASP's verbose output out of the notebook (Tutorial 1 so far):
+
+- `run(cmd, log, label)` prints the command, sends all output to `log` (under `data/<tutorial>/logs/`), and shows the last 5 lines of the log (small grey text, lines starting with "Warning:" left out) and a status line with the time so far, both updated every second. When the command ends, the tail is cleared and the status line says ✅ with the time, or ❌ with the last 30 log lines, and the cell stops. Commands run with `PYTHONUNBUFFERED=1`, or ASP's Python wrappers hold their output back while it goes to a file. `parallel_stereo` and `mapproject` still collect each tile's output and print it when the tile ends, so within a tile the tail doesn't move.
+- `run_stereo(cmd, prefix, log)` does the same for `parallel_stereo`, with the stage and tile from `<prefix>-stereo-status.txt` and a time-left estimate. The estimate starts after the first stage: it scales the later stages' laptop times (`STEREO_STAGES`) by how much slower the finished stages ran, and within a stage uses the time per tile so far. The status file says `stereo_pprc` while the low-resolution matching runs, and goes through `stereo_corr`, `stereo_blend` and `stereo_tri` again with 0 tiles done while the tiles are joined at the end; the status line says "Writing the full-size outputs" then. Once `<prefix>-L__R.match` exists, it shows `asp-plot`'s match-point figure (`StereoPlotter` won't start without a DEM in the stereo directory, though the match plot doesn't read it, so the left image is passed as `dem_fn`). Then a two-panel map fills in as tiles finish: each tile's `-D.tif` shift (its collar cut off) and `-PC.tif` heights (ECEF to ellipsoid height with pyproj), drawn every 4 pixels and placed by pixel position in the orthorectified left image. Tile folders are deleted when `parallel_stereo` ends, so the map is drawn while it runs. Tutorial 1 uses `--job-size-w 1280 --job-size-h 1202`: four equal tiles at the same run time as the default 2048 px tiles, which split the 2560 × 2404 window unevenly.
+- `timer(label)` shows the same status line for a slow Python step, from a background thread (the stereo geometry plot).
+
+The close-panel extension collapses each tutorial's code cells when it opens (`notebook.cell.collapseCellInput`; VS Code ignores the notebooks' `jupyter.source_hidden` metadata), and the first time Tutorial 1 opens it runs all cells, after the Python extension has found the environments and 5 s more, so the `asp` kernel is attached and no kernel picker opens. Scrolling to each cell as it starts was tried and dropped ([ADR-0030](architecture/0030-no-scroll-to-running-cell.md)); the notebook tells the user to scroll.
 
 ### Sentinel files per step
 
