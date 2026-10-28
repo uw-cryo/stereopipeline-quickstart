@@ -36,3 +36,5 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0028 — Tutorial data on this repo's releases, fetched by the notebooks](0028-tutorial-data-on-releases.md) — *extends 0022*
 - [0029 — WorldView tutorials on Mount Soledad crops: one pair, then three pairs blended](0029-ucsd-soledad-tutorials.md) — *supersedes 0011 and 0012*
 - [0030 — Start Tutorial 1 by itself; don't scroll to the running cell](0030-no-scroll-to-running-cell.md)
+- [0031 — ASP output to log files; a status line, log tail and live map in the notebook](0031-status-lines-and-logs.md)
+- [0032 — Fetch the stereo geometry plot's map tiles when the Codespace is built](0032-prefetch-basemap-tiles.md) — *an exception to 0028*
