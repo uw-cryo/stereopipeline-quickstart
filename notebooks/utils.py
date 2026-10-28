@@ -183,7 +183,7 @@ def _markdown(text):
 
 
 def _tail(log, n=5, width=160):
-    """The last `n` lines of a log, with progress bars reduced to their latest state."""
+    """The last `n` lines of a log, without warnings and with progress bars reduced to their latest state."""
     try:
         with open(log, "rb") as f:
             f.seek(0, 2)
@@ -193,7 +193,9 @@ def _tail(log, n=5, width=160):
         return ""
     # Progress bars redraw themselves with carriage returns; keep the last draw.
     lines = [line.rstrip("\r").split("\r")[-1].rstrip() for line in text.split("\n")]
-    lines = [line[:width] for line in lines if line.strip()]
+    # Warnings stay in the log but are left out here; most are routine
+    # notes on memory use or settings and would worry a new user.
+    lines = [line[:width] for line in lines if line.strip() and not line.lstrip().lower().startswith("warning")]
     return "\n".join(lines[-n:])
 
 
@@ -374,13 +376,51 @@ def _tile_shift(path, step, tile, size):
     return dx
 
 
+def _match_points_png(prefix):
+    """asp-plot's match-point figure for a stereo run in progress, as PNG bytes, or None.
+
+    parallel_stereo writes the matched features (<prefix>-L__R.match) early,
+    before it matches every pixel. StereoPlotter wants a DEM in the stereo
+    directory, which doesn't exist yet; the match plot doesn't use it, so the
+    left image stands in. Its notes and warnings are kept out of the notebook.
+    """
+    import contextlib
+    import io
+    import logging
+    from pathlib import Path
+
+    import matplotlib.pyplot as plt
+    from asp_plot.stereo import StereoPlotter
+
+    stereo_dir = Path(prefix).parent
+    quiet = io.StringIO()
+    logger = logging.getLogger("asp_plot")
+    level = logger.level
+    logger.setLevel(logging.ERROR)
+    try:
+        with contextlib.redirect_stdout(quiet), contextlib.redirect_stderr(quiet):
+            plotter = StereoPlotter(str(stereo_dir.parent), stereo_dir.name, dem_fn=f"{Path(prefix).name}-L_sub.tif")
+            plotter.title = "Features found in each image (blue) and matched between them (red)"
+            plotter.plot_match_points()
+        fig = plt.gcf()
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", dpi=80)
+        return buf.getvalue()
+    except Exception:
+        return None
+    finally:
+        plt.close("all")
+        logger.setLevel(level)
+
+
 def run_stereo(cmd, prefix, log, step=4):
     """Run parallel_stereo, showing its progress and the tiles as they finish.
 
     `prefix` is the output prefix given to parallel_stereo. ASP's output goes
     to `log`. While it runs, the notebook shows the last lines of the log, the
     current stage, the tiles done, the time so far and, after the first stage,
-    an estimate of the time left, and a map of the processing window that
+    an estimate of the time left. Once the features are matched, it shows
+    asp-plot's match-point figure, and then a map of the processing window that
     fills in tile by tile: the shift between the images after matching, and
     the heights after triangulation. The map is drawn every `step` pixels, to
     keep it quick.
@@ -409,6 +449,7 @@ def run_stereo(cmd, prefix, log, step=4):
     shift = heights = None  # window-sized arrays, made once the left image exists
     drawn = set()
     plot = None
+    matches_shown = False
     stage_start = {}  # when each stage first showed up in the status file
     tile_end = {}  # when the latest tile of each stage finished
     finishing = False  # all tiles triangulated
@@ -442,6 +483,13 @@ def run_stereo(cmd, prefix, log, step=4):
                 text += f". About {_minutes(remaining)} left" if remaining >= 60 else ". Less than a minute left"
         tail.update(_log_lines(_tail(log)))
         status.update(_markdown(text + "."))
+
+        match_fn = Path(f"{prefix}-L__R.match")
+        if not matches_shown and match_fn.exists() and time.time() - match_fn.stat().st_mtime > 2:
+            matches_shown = True
+            png = _match_points_png(prefix)
+            if png:
+                display(Image(data=png))
 
         if shift is None:
             left = _read_tile(f"{prefix}-L.tif", (1,), step)
