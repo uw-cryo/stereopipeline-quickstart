@@ -37,7 +37,9 @@ On a machine with more than 4 cores, raise `--processes` in the `parallel_stereo
 | `02_worldview_ucsd.ipynb` | A 2.4 m DEM of Mount Soledad from a WorldView-3 pair, compared with ICESat-2 | about 10 min |
 | `03_worldview_ucsd_blend.ipynb` | Three WorldView-3 pairs of the same window, blended into one DEM | about 16 min more |
 
-Tutorial 1 starts by itself the first time a new Codespace opens. For the others, open the notebook from the explorer and click **Run All** at the top, then scroll down to follow it. The code cells are shown as one line; click one to see its code.
+Tutorial 1 starts by itself the first time a new Codespace opens. For the others, or if Tutorial 1 hasn't started after a couple of minutes, open the notebook from the explorer and click **Run All** in the toolbar at the top, then scroll down to follow it. The code cells are shown as one line; click one to see its code.
+
+![The notebook toolbar, with the Run All button boxed](figures/run-all.png)
 
 While a step runs, its cell shows the command, the last few lines of its output and the time so far; ASP's full output goes to a log file in `data/<dataset>/logs/`. During stereo matching, a pop-up may say "High codespace CPU (100%) utilization detected": that's expected, since stereo uses every core. Close it.
 

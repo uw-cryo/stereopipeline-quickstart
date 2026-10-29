@@ -65,11 +65,13 @@ What to expect:
 2. The last step's result line: the zip's name and size.
 3. The zip itself, at the top of the file explorer: right-click it and choose **Download**.
 
-To run it again, click **Run All** at the top of the notebook.
+If nothing has started after a couple of minutes, or to run it again later, click **Run All** in the toolbar at the top of the notebook:
+
+![The notebook toolbar, with the Run All button boxed](start/figures/run-all.png)
 
 ## 5. Then
 
-- **Tutorials 2 and 3** use sharper WorldView-3 images of a hill in San Diego. Open them from the explorer and click **Run All**: [about the tutorials](tutorials/index.md).
+- **Tutorials 2 and 3** use sharper WorldView-3 images of a hill in San Diego. They don't start by themselves: open one from the explorer and click **Run All**, the button shown above. [About the tutorials](tutorials/index.md).
 - **What just happened?** [What ASP is](start/what-is-asp.md) and [the pipeline, step by step](concepts/pipeline-overview.md).
 - **Your results:** the last step of each tutorial puts them in one zip file to download and open in QGIS or ArcGIS.
 - **Your workspace** stays as you left it. GitHub stops it after half an hour of inactivity and deletes it after 30 days; the free monthly hours and other details are on [the Codespaces page](start/codespaces.md).
