@@ -61,6 +61,10 @@ What to expect:
 
 ![The end of Tutorial 1: the report link, the results line and the zip in the explorer](start/figures/launch-done.png)
 
+1. The link that opens the PDF report.
+2. The last step's result line: the zip's name and size.
+3. The zip itself, at the top of the file explorer: right-click it and choose **Download**.
+
 To run it again, click **Run All** at the top of the notebook.
 
 ## 5. Then

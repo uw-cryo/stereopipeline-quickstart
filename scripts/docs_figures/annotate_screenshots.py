@@ -25,8 +25,8 @@ SCREENSHOTS = {
     # Cropped below GitHub's header, which shows the account's avatar.
     "create.png": ("launch-create.png", (0, 66, 1512, 600), [("", 783, 439, 997, 495)]),
     "trust.png": ("launch-trust.png", None, []),
-    # The end of the run: the report heading, the results line and the zip in the explorer.
-    "done.png": ("launch-done.png", None, []),
+    # The end of the run: the report heading, the results line, the zip in the explorer.
+    "done.png": ("launch-done.png", None, [("1", 400, 68, 800, 124), ("2", 406, 488, 1030, 540), ("3", 56, 200, 250, 230)]),
     # The explorer, the notebook text, the first step's status line.
     "running.png": ("launch-running.png", None, [("1", 50, 38, 342, 198), ("2", 384, 222, 1442, 378), ("3", 352, 400, 1442, 628)]),
 }
