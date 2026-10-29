@@ -6,8 +6,6 @@ so a contributor familiar with one repo can navigate the other.
 
 from __future__ import annotations
 
-import shutil
-from pathlib import Path
 
 # -- Project information -----------------------------------------------------
 project = "stereopipeline-quickstart"
@@ -39,10 +37,10 @@ source_suffix = {
     ".ipynb": "myst-nb",
 }
 
-# Don't actually execute notebooks at doc build time. Tutorials are heavy
+# Don't execute notebooks at doc build time. Tutorials are heavy
 # (parallel_stereo runs) and rendering must work on RTD which has no ASP
-# installed. Notebooks are executed locally / in Codespaces and committed
-# with their outputs.
+# installed. docs/tutorials/*.ipynb are executed copies of notebooks/*.ipynb,
+# made by scripts/execute_tutorials.py and committed (ADR-0035).
 nb_execution_mode = "off"
 
 # Allow MyST extensions used in the prose pages.
@@ -95,18 +93,3 @@ exclude_patterns = [
     ".DS_Store",
     "**/.ipynb_checkpoints",
 ]
-
-
-# Mirror notebooks/*.ipynb into docs/tutorials/ at the start of every build.
-# RTD does this via .readthedocs.yaml pre_build; this hook makes local
-# `sphinx-build` behave the same so edits to notebooks/ flow through.
-def _copy_notebooks(app):
-    src = Path(app.srcdir).parent / "notebooks"
-    dst = Path(app.srcdir) / "tutorials"
-    dst.mkdir(exist_ok=True)
-    for nb in src.glob("*.ipynb"):
-        shutil.copy2(nb, dst / nb.name)
-
-
-def setup(app):
-    app.connect("builder-inited", _copy_notebooks)

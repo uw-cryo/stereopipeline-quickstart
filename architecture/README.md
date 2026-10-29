@@ -40,3 +40,4 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0032 — Fetch the stereo geometry plot's map tiles when the Codespace is built](0032-prefetch-basemap-tiles.md) — *an exception to 0028*
 - [0033 — The docs' data figures are made by a script in this repo](0033-docs-figure-scripts-in-repo.md) — *amends 0018*
 - [0034 — The notebooks' prose is for beginners; the docs site carries the detail](0034-beginner-notebook-prose.md)
+- [0035 — The site renders executed copies of the notebooks, committed in docs/tutorials/](0035-executed-notebooks-for-the-site.md) — *amends 0003*
