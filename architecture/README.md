@@ -41,3 +41,4 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0033 — The docs' data figures are made by a script in this repo](0033-docs-figure-scripts-in-repo.md) — *amends 0018*
 - [0034 — The notebooks' prose is for beginners; the docs site carries the detail](0034-beginner-notebook-prose.md)
 - [0035 — The site renders executed copies of the notebooks, committed in docs/tutorials/](0035-executed-notebooks-for-the-site.md) — *amends 0003*
+- [0036 — The docs home page is the beginner path, with screenshots of the launch](0036-beginner-landing-page.md)

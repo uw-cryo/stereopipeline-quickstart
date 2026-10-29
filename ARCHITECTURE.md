@@ -38,11 +38,11 @@ stereopipeline-quickstart/
 │   ├── requirements.txt               # RTD-only deps
 │   ├── _static/css/custom.css
 │   ├── _static/js/external-links.js   # external links open in a new tab
-│   ├── index.md
+│   ├── index.md                       # the beginner path: five steps with screenshots (ADR-0036); large type via a page-local style block
 │   ├── start/
 │   │   ├── what-is-asp.md             # fully authored; history/toolchain/CLI-vs-GUI framing
 │   │   ├── codespaces.md
-│   │   └── figures/                   # authored SVG diagrams (asp-timeline, asp-toolchain, parallax)
+│   │   └── figures/                   # authored SVG diagrams (asp-timeline, asp-toolchain, parallax) + launch-*.png screenshots for the home page
 │   ├── concepts/
 │   │   ├── pipeline-overview.md
 │   │   ├── figures/                   # authored SVG diagrams + data-figure PNGs from real runs
@@ -73,7 +73,7 @@ stereopipeline-quickstart/
 │   ├── download_aster.sh              # all ASTER data from release aster-rainier-* (L1A, ICESat-2, COP30) + unzip
 │   ├── download_worldview_ucsd.sh     # WV3 NTF + XML from SpaceNet's bucket over HTTPS; ICESat-2 + COP30 from release ucsd-soledad-*
 │   ├── fetch_cop_dem.py               # COP30 from AWS, local geoid→ellipsoid shift
-│   ├── docs_figures/                  # make_figures.py remakes docs/concepts/figures/*.png from local runs; run_aster_*.sh, run_comparisons.sh (+ setsm_inputs.py, cars_config.yaml): the extra runs it needs
+│   ├── docs_figures/                  # make_figures.py remakes docs/concepts/figures/*.png from local runs; run_aster_*.sh, run_comparisons.sh (+ setsm_inputs.py, cars_config.yaml): the extra runs it needs; annotate_screenshots.py labels the home page's Tutorial 1 screenshot
 │   └── prefetch_basemap.py            # the tutorials' stereo geometry map tiles, run by onCreate.sh
 └── CLAUDE/                            # gitignored; local session/design scratch notes
 ```
@@ -95,7 +95,7 @@ Import gotcha: RTD's auto-detect can flag a public repo as "private" when its ca
 
 ### Docs content state
 
-See [ADR-0004](architecture/0004-docs-wip-skeleton.md) (skeleton phase), [ADR-0017](architecture/0017-retire-per-page-wip-admonitions.md) (admonitions retired), and [ADR-0020](architecture/0020-soften-banner-issue-form.md) (banner softened). The concept/intro pages shipped as a WIP skeleton and have since been fleshed out with prose and figures (issue #6); the site-wide banner (`announcement` in `docs/conf.py`) now reads "In development, but ready for usage" rather than flagging a WIP. Reader contact is the GitHub issue form (`.github/ISSUE_TEMPLATE/problem-report.yml`), linked from the banner, the landing page's "Reporting problems" section, the Codespace page, and the tutorials index. Figures that still need full processing runs are marked by the remaining HTML comments `<!-- FIGURE IDEA: ... -->`.
+See [ADR-0004](architecture/0004-docs-wip-skeleton.md) (skeleton phase), [ADR-0017](architecture/0017-retire-per-page-wip-admonitions.md) (admonitions retired), and [ADR-0020](architecture/0020-soften-banner-issue-form.md) (banner softened). The concept/intro pages shipped as a WIP skeleton and have since been fleshed out with prose and figures (issue #6); the site-wide banner (`announcement` in `docs/conf.py`) read "In development, but ready for usage" until 2026-10-29 and now says only "Please report issues here", with the link on "here". Reader contact is the GitHub issue form (`.github/ISSUE_TEMPLATE/problem-report.yml`), linked from the banner, the landing page's "Reporting problems" section, the Codespace page, and the tutorials index. Figures that still need full processing runs are marked by the remaining HTML comments `<!-- FIGURE IDEA: ... -->`.
 
 Figure conventions are in [ADR-0018](architecture/0018-docs-figure-conventions.md): conceptual diagrams are hand-written SVGs in a `figures/` dir next to the page, drawn on an opaque light surface so one file reads on both themes; data-backed figures are matplotlib/asp_plot PNGs from real runs, with provenance stated in the page prose. The data figures in `concepts/figures/` are made by `scripts/docs_figures/make_figures.py` from local runs of Tutorials 1 and 2 with their final settings, plus two extra runs it needs: `run_aster_raw.sh` (Tutorial 1's stereo on the raw ASTER images, for the raw-vs-orthorectified and GoodPixelMap figures) `run_aster_align.sh` (Tutorial 1's DEM aligned to COP30, for the alignment page's before-and-after maps) and `run_comparisons.sh` (SETSM and CARS in Docker on Tutorial 2's crops, for the comparison pages; `setsm_inputs.py` builds the camera files SETSM needs). Its docstring has the commands; see [ADR-0033](architecture/0033-docs-figure-scripts-in-repo.md). The figures were last remade on 2026-10-29; the earlier ones came from the tutorial configurations before [ADR-0027](architecture/0027-single-aster-tutorial.md), with scripts that were never committed.
 

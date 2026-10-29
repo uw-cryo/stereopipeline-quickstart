@@ -1,82 +1,96 @@
-# stereopipeline-quickstart
+# Make a 3D map from satellite images
 
-A guide to the NASA Ames Stereo Pipeline (ASP), runnable in a pre-configured GitHub Codespace with ASP and [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) installed.
+```{raw} html
+<style>
+/* This page only: larger type and roomier steps for a first-time reader. */
+article.bd-article { font-size: 1.2rem; line-height: 1.6; }
+article.bd-article h2 { font-size: 1.9rem; margin-top: 2.2rem; }
+article.bd-article .sd-btn { font-size: 1.35rem; padding: 0.8em 1.2em; }
+article.bd-article img {
+  border: 1px solid var(--pst-color-border, #ccc);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  margin: 0.8em 0 1.2em;
+}
+</style>
+```
+
+In about 10 minutes, in your browser, with nothing to install. This guide runs the [NASA Ames Stereo Pipeline (ASP)](https://stereopipeline.readthedocs.io/) on real satellite images and shows you the result: a 3D model of the terrain (a DEM) and a PDF report.
+
+## 1. Sign in to GitHub
+
+You need a free GitHub account. If you don't have one, [create one](https://github.com/signup), then sign in.
+
+## 2. Click the button
 
 ```{button-link} https://codespaces.new/uw-cryo/stereopipeline-quickstart?quickstart=1
 :color: primary
 :expand:
-Open this repo in a GitHub Codespace
+Open in GitHub Codespaces
 ```
 
-This site is the static companion to the [GitHub repo](https://github.com/uw-cryo/stereopipeline-quickstart). The repo contains the notebooks; this site explains why each step exists.
+A GitHub page opens with a green **Create new codespace** button. Click it.
 
-## Pick your path
+![GitHub's "Create a new codespace" page, with the green button labelled](start/figures/launch-create.png)
 
-::::{grid} 1 1 2 3
-:gutter: 3
+GitHub then builds a workspace for you with everything installed: a page says "Setting up your codespace", and then VS Code appears in your browser with a message at the bottom right while it connects. **Nothing asks you to do anything for between 30 seconds and a minute.**
 
-:::{grid-item-card} Just want to see ASP run?
-:link: tutorials/01_aster_rainier
-:link-type: doc
-Open the Codespace and run Tutorial 1, the ASTER tutorial: about 10 minutes from raw satellite images to a DEM and a PDF report.
-:::
+![GitHub's "Setting up your codespace" page, then VS Code connecting](start/figures/launch-building.png)
 
-:::{grid-item-card} New to stereo photogrammetry?
-:link: start/what-is-asp
-:link-type: doc
-What ASP does, what a stereo pipeline is, and how the tools fit together. Start here if you are new to stereo photogrammetry.
-:::
+## 3. Click "Trust Folder & Continue"
 
-:::{grid-item-card} Ready to run something?
-:link: start/codespaces
-:link-type: doc
-Launch the Codespace: Tutorial 1 opens and starts running by itself.
-:::
+A box asks "Do you trust the authors of the files in this folder?". Every new workspace asks this once. Click **Trust Folder & Continue**.
 
-:::{grid-item-card} Want a deeper concept primer?
-:link: concepts/pipeline-overview
-:link-type: doc
-The end-to-end flow from raw imagery to aligned DEM, with diagrams.
-:::
+![The trust dialog, with the "Trust Folder & Continue" button](start/figures/launch-trust.png)
 
-:::{grid-item-card} Want to run the tutorials?
-:link: tutorials/index
-:link-type: doc
-Four walkthroughs, two on ASTER (medium-res) and two on WorldView-3 (high-res), 6 to 20 minutes each. All fully open.
-:::
+## 4. Watch Tutorial 1 run
 
-:::{grid-item-card} Need to look something up?
-:link: reference/glossary
-:link-type: doc
-Glossary, ASP output-file naming, the local install guide, and further reading.
-:::
+Tutorial 1 opens within a few seconds and, **between 30 seconds and a minute later**, starts running by itself. You don't have to click anything.
 
-:::{grid-item-card} Want diagnostic plots from your run?
-:link: concepts/visualization
-:link-type: doc
-How `asp-plot` produces diagnostic figures, PDF reports, and ICESat-2 comparisons.
-:::
+![Tutorial 1 just after it opens, with the parts of the window labelled](start/figures/launch-running.png)
 
-:::{grid-item-card} Other open-source stereo pipelines?
-:link: comparisons/index
-:link-type: doc
-The same WorldView-3 pair run through three open-source stereo pipelines, side by side.
-:::
-::::
+1. The file explorer: `notebooks/` holds the three tutorials, and `data/` fills with the images and results.
+2. The tutorial itself: each step has a short explanation and how long it takes.
+3. The step that is running: its code (shown as one line; click it to see it all), the command, the last lines of its output and the time so far. When it finishes, its figures appear with a caption. **Scroll down to follow it.**
 
-## What this is not
+What to expect:
 
-A replacement for the [official ASP documentation](https://stereopipeline.readthedocs.io/). ASP has hundreds of options for dozens of sensors. This guide covers one straightforward path: two openly available datasets, a small set of parameters, and explanations of why each step exists. The official docs are the authoritative reference.
+- **About 10 minutes in all, sometimes 15.** The longest step, matching the two images, takes most of it and fills in a map of the mountain as it goes.
+- **A pop-up may say "High codespace CPU (100%) utilization detected"** while the images are matched. That's expected (stereo uses every core); close it.
+- **When it's done,** the end of the notebook shows figures from the report and a large link to open the PDF; a notification at the bottom right says the results zip is ready, and the zip appears at the top of the file explorer.
+
+![The end of Tutorial 1: the report link, the results line and the zip in the explorer](start/figures/launch-done.png)
+
+1. The link that opens the PDF report.
+2. The last step's result line: the zip's name and size.
+3. The zip itself, at the top of the file explorer: right-click it and choose **Download**.
+
+To run it again, click **Run All** at the top of the notebook.
+
+## 5. Then
+
+- **Tutorials 2 and 3** use sharper WorldView-3 images of a hill in San Diego. Open them from the explorer and click **Run All**: [about the tutorials](tutorials/index.md).
+- **What just happened?** [What ASP is](start/what-is-asp.md) and [the pipeline, step by step](concepts/pipeline-overview.md).
+- **Your results:** the last step of each tutorial puts them in one zip file to download and open in QGIS or ArcGIS.
+- **Your workspace** stays as you left it. GitHub stops it after half an hour of inactivity and deletes it after 30 days; the free monthly hours and other details are on [the Codespaces page](start/codespaces.md).
+
+## More
+
+- [Tutorials](tutorials/index.md): the three notebooks, with their outputs.
+- [What ASP is](start/what-is-asp.md) and the concept pages: [the pipeline](concepts/pipeline-overview.md), [stereo photogrammetry](concepts/stereo-photogrammetry.md), [bundle adjustment](concepts/bundle-adjustment.md), [orthorectification](concepts/orthorectification.md), [alignment](concepts/alignment.md), [visualization with `asp-plot`](concepts/visualization.md).
+- [Other open-source stereo pipelines](comparisons/index.md): the same images through SETSM and CARS.
+- Reference: [glossary](reference/glossary.md), [ASP output files](reference/output-files.md), [local install](reference/installation.md), [data sources and licences](reference/data.md), [further reading](reference/further-reading.md).
+
+This guide covers one straightforward path through ASP, which has hundreds of options for dozens of sensors; the [official ASP documentation](https://stereopipeline.readthedocs.io/) is the reference.
 
 ## Reporting problems
 
-The point of contact for this guide is the repo's [issue board](https://github.com/uw-cryo/stereopipeline-quickstart/issues). For anything broken, wrong, or unclear, [open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml); the form asks for the few details needed to follow up. Questions about ASP itself belong on the [ASP support forum](https://groups.google.com/g/ames-stereo-pipeline-support).
-
-## Contents
+For anything broken, wrong or unclear, [open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml); the form asks for the few details needed to follow up. Questions about ASP itself belong on the [ASP support forum](https://groups.google.com/g/ames-stereo-pipeline-support).
 
 ```{toctree}
 :maxdepth: 2
 :caption: Get started
+:hidden:
 
 start/what-is-asp
 start/codespaces
@@ -85,6 +99,7 @@ start/codespaces
 ```{toctree}
 :maxdepth: 2
 :caption: Concepts
+:hidden:
 
 concepts/pipeline-overview
 concepts/stereo-photogrammetry
@@ -97,6 +112,7 @@ concepts/visualization
 ```{toctree}
 :maxdepth: 2
 :caption: Tutorials
+:hidden:
 
 tutorials/index
 tutorials/01_aster_rainier
@@ -107,6 +123,7 @@ tutorials/03_worldview_ucsd_blend
 ```{toctree}
 :maxdepth: 2
 :caption: Comparisons
+:hidden:
 
 comparisons/index
 ```
@@ -114,6 +131,7 @@ comparisons/index
 ```{toctree}
 :maxdepth: 2
 :caption: Reference
+:hidden:
 
 reference/glossary
 reference/output-files
