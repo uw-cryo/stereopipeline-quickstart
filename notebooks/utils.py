@@ -420,8 +420,11 @@ def _tile_heights(path, step):
     return height
 
 
-def _tile_shift(path, step, tile, size):
-    """The horizontal shift between the images in a tile's disparity (<tile>-D.tif), every `step` pixels.
+def _tile_offsets(path, step, tile, size):
+    """The pixel offsets between the images in a tile's disparity (<tile>-D.tif), every `step` pixels.
+
+    Returns (dx, dy): how far each pixel of the left image sits from its
+    match in the right one, horizontally and vertically.
 
     The disparity also covers a margin (collar) around the tile on each side
     that borders another tile; it is cut off here. `tile` is the tile's
@@ -440,11 +443,29 @@ def _tile_shift(path, step, tile, size):
             pads.append((extent - length) // sides if start > 0 else 0)
         win = dict(xoff=pads[0], yoff=pads[1], win_xsize=w, win_ysize=h, buf_xsize=w // step, buf_ysize=h // step)
         dx = ds.GetRasterBand(1).ReadAsArray(**win).astype("float64")
+        dy = ds.GetRasterBand(2).ReadAsArray(**win).astype("float64")
         valid = ds.GetRasterBand(3).ReadAsArray(**win)
     except RuntimeError:
         return None
     dx[valid == 0] = np.nan
-    return dx
+    dy[valid == 0] = np.nan
+    return dx, dy
+
+
+def _tile_grid(cmd, size):
+    """The tile boundaries parallel_stereo will use: x edges and y edges in pixels of the left image.
+
+    From --job-size-w/-h in the command (ASP's default is 1024). The grid is
+    drawn before any tile finishes, so the map shows what to expect.
+    """
+    import re
+
+    edges = []
+    for flag, extent in (("--job-size-w", size[0]), ("--job-size-h", size[1])):
+        m = re.search(rf"{flag}\s+(\d+)", cmd)
+        job = int(m.group(1)) if m else 1024
+        edges.append(list(range(job, extent, job)))
+    return edges
 
 
 def _match_points_png(prefix):
@@ -491,8 +512,9 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
     to `log`. While it runs, the notebook shows the last lines of the log, the
     current stage, the tiles done, the time so far and, after the first stage,
     an estimate of the time left. Once the features are matched, it shows
-    asp-plot's match-point figure, and then a map of the processing window that
-    fills in tile by tile: the shift between the images after matching, and
+    asp-plot's match-point figure, and then a map of the processing window
+    with the tile boundaries dashed, which fills in tile by tile: the pixel
+    offsets between the images after matching (horizontal and vertical), and
     the heights after triangulation. The map is drawn every `step` pixels, to
     keep it quick.
 
@@ -519,9 +541,10 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
     t0 = time.time()
     proc, out = _start(cmd, log)
 
-    shift = heights = None  # window-sized arrays, made once the left image exists
+    dx = dy = heights = None  # window-sized arrays, made once the left image exists
     drawn = set()
     plot = None
+    grid_drawn = False
     matches_shown = False
     seconds = _stage_seconds(prefix)
     stage_start = {}  # when each stage first showed up in the status file
@@ -566,17 +589,21 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
             if png:
                 display(Image(data=png))
 
-        if shift is None:
+        if dx is None:
             left = _read_tile(f"{prefix}-L.tif", (1,), step)
             if left is None:
                 continue
             shape = left[0][0].shape
-            shift, heights = np.full(shape, np.nan), np.full(shape, np.nan)
+            dx, dy, heights = (np.full(shape, np.nan) for _ in range(3))
             left_image = gdal.Open(f"{prefix}-L.tif")
             size = (left_image.RasterXSize, left_image.RasterYSize)
             spacing = abs(left_image.GetGeoTransform()[1]) * step
-
+            grid = _tile_grid(cmd, size)
         new = False
+        if not grid_drawn and matches_shown:
+            # The empty map with its tile grid, under the match figure, before
+            # any tile is done, so the filling-in has a visible frame.
+            grid_drawn = new = True
         for tile_dir in Path(prefix).parent.glob(f"{Path(prefix).name}-*_*_*_*"):
             m = re.fullmatch(r".*-(\d+)_(\d+)_(\d+)_(\d+)", tile_dir.name)
             if not m:
@@ -585,40 +612,50 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
             x0, y0 = window[0] // step, window[1] // step
             tile = tile_dir / tile_dir.name.split("-", 1)[1]
             readers = (
-                ("D", lambda path: _tile_shift(path, step, window, size), shift),
-                ("PC", lambda path: _tile_heights(path, step), heights),
+                ("D", lambda path: _tile_offsets(path, step, window, size), (dx, dy)),
+                ("PC", lambda path: (_tile_heights(path, step),), (heights,)),
             )
-            for key, read, target in readers:
+            for key, read, targets in readers:
                 path = Path(f"{tile}-{key}.tif")
                 if (tile_dir.name, key) in drawn or not path.exists() or time.time() - path.stat().st_mtime < 2:
                     continue
                 values = read(path)
-                if values is None:
+                if values is None or values[0] is None:
                     continue
-                h, w = values.shape
-                target[y0 : y0 + h, x0 : x0 + w] = values[: target.shape[0] - y0, : target.shape[1] - x0]
+                for target, array in zip(targets, values):
+                    h, w = array.shape
+                    target[y0 : y0 + h, x0 : x0 + w] = array[: target.shape[0] - y0, : target.shape[1] - x0]
                 drawn.add((tile_dir.name, key))
                 new = True
 
         if new:
-            fig = Figure(figsize=(11, 5))
-            ax1, ax2 = fig.subplots(1, 2)
-            if np.isfinite(shift).any():
-                lo, hi = np.nanpercentile(shift, (2, 98))
-                im = ax1.imshow(shift, cmap="magma", vmin=lo, vmax=hi)
-                fig.colorbar(im, ax=ax1, shrink=0.7, label="Shift (pixels)")
-            ax1.set_title("After matching: shift between the images")
+            fig = Figure(figsize=(15, 5))
+            axes = fig.subplots(1, 3)
+            for ax, array, title in zip(axes[:2], (dx, dy), ("horizontal (dx)", "vertical (dy)")):
+                if np.isfinite(array).any():
+                    lo, hi = np.nanpercentile(array, (2, 98))
+                    im = ax.imshow(array, cmap="magma", vmin=lo, vmax=hi)
+                    fig.colorbar(im, ax=ax, shrink=0.7, label="Offset (pixels)")
+                ax.set_title(f"Pixel offsets between the images: {title}", fontsize=10)
+            ax = axes[2]
             if np.isfinite(heights).any():
                 lo, hi = np.nanpercentile(heights, (2, 98))
                 shade = LightSource(azdeg=315, altdeg=45).hillshade(np.nan_to_num(heights, nan=np.nanmedian(heights)), dx=spacing, dy=spacing)
                 shade[np.isnan(heights)] = np.nan
-                ax2.imshow(shade, cmap="gray")
-                im = ax2.imshow(heights, cmap="viridis", vmin=lo, vmax=hi, alpha=0.5)
-                fig.colorbar(im, ax=ax2, shrink=0.7, label="Height (m)")
-            ax2.set_title("After triangulation: heights")
-            for ax in (ax1, ax2):
-                ax.set_xlim(0, shift.shape[1])
-                ax.set_ylim(shift.shape[0], 0)
+                ax.imshow(shade, cmap="gray")
+                im = ax.imshow(heights, cmap="viridis", vmin=lo, vmax=hi, alpha=0.5)
+                fig.colorbar(im, ax=ax, shrink=0.7, label="Height (m)")
+            ax.set_title("After triangulation: heights", fontsize=10)
+            for ax in axes:
+                # The tiles parallel_stereo works through, so the map's filling in makes sense:
+                # white on the dark offset maps, dark on the hillshade.
+                color = "white" if ax is not axes[2] else "0.2"
+                for x in grid[0]:
+                    ax.axvline(x / step, color=color, linestyle="--", linewidth=1.2)
+                for y in grid[1]:
+                    ax.axhline(y / step, color=color, linestyle="--", linewidth=1.2)
+                ax.set_xlim(0, dx.shape[1])
+                ax.set_ylim(dx.shape[0], 0)
                 ax.set_xticks([])
                 ax.set_yticks([])
             fig.tight_layout()

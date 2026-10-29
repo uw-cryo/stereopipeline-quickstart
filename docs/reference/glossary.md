@@ -91,6 +91,9 @@ NMAD
 NTF
   NITF (National Imagery Transmission Format). Image format used by some commercial sensors.
 
+relief displacement
+  The shift of a point's position in an image caused by its height: a point above or below the surrounding ground lands in a different place than it would on flat ground, the more so the higher it stands and the more oblique the view. Different in the two images of a stereo pair, which is what stereo matching measures; orthorectification onto a reference DEM removes most of it before matching. See [Orthorectification](../concepts/orthorectification.md).
+
 orthorectification
   Resampling input imagery onto a regular geographic grid using a coarse reference DEM. Greatly reduces the disparity search range for stereo matching. ASP's tool for this is `mapproject`, and ASP docs call the step "mapprojection". See [Orthorectification](../concepts/orthorectification.md).
 
