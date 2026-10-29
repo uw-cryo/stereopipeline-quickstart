@@ -20,9 +20,13 @@ The Community Sensor Model ({term}`CSM`) is a community standard interface for r
 
 ## Matcher and subpixel mode
 
-The matcher (`--stereo-algorithm`) and the subpixel refiner (`--subpixel-mode`) are the two parameters that most affect quality and runtime. The same 800 m crop of the WorldView tutorial pair, run four ways (`asp_bm` does not support subpixel mode 9, so its quality mode here is 2):
+The matcher (`--stereo-algorithm`) and the subpixel refiner (`--subpixel-mode`) are the two settings that most affect quality and runtime.
 
-![The same WorldView crop run with two matchers and two subpixel modes](figures/wv3-stereo-knobs.png) `asp_bm` is ASP's classic block matcher, fast and effective on well-textured images; `asp_mgm` costs more compute and memory and does better where texture is poor or repetitive. The tutorials use `asp_mgm` with `--subpixel-mode 9` throughout; the [ASP correlation docs](https://stereopipeline.readthedocs.io/en/latest/correlation.html) describe the full menu.
+- `asp_bm`, ASP's classic block matcher, is fast and works well on well-textured images, which makes it a good choice for a quick first look. Pair it with `--subpixel-mode 1` (fast) or `2` (slower, more accurate).
+- `asp_mgm` adds a smoothness constraint across neighboring pixels, so it does better where texture is poor or repetitive, at more compute and memory. Pair it with `--subpixel-mode 9`, which works only with `asp_mgm` and `asp_sgm`.
+- The time and memory `asp_mgm` needs grow with the range it searches, so orthorectify the images first (see [Orthorectification](orthorectification.md)) to keep that range small.
+
+The tutorials use `asp_mgm` with `--subpixel-mode 9` throughout. The [ASP correlation docs](https://stereopipeline.readthedocs.io/en/latest/correlation.html) describe all the options.
 
 ## Viewing geometry
 
@@ -36,9 +40,9 @@ The skyplot (left) shows where each satellite sat in the sky when it imaged the 
 
 ## Where matching fails
 
-Featureless surfaces (open water, fresh snow, sand), repetitive texture, occlusion (one camera sees a slope face the other cannot), clouds, and illumination differences between acquisitions all break the matcher. Failures show up as red in `run-GoodPixelMap.tif` (successful matches are gray) and as voids in the DEM. The maps below are from the two tutorials' raw first runs:
+Featureless surfaces (open water, fresh snow, sand), repetitive texture, occlusion (one camera sees a slope face the other cannot), clouds, and illumination differences between acquisitions all break the matcher. Failures show up as red in `run-GoodPixelMap.tif` (successful matches are gray) and as voids in the DEM. The maps below are from two runs on images that were not orthorectified first: the ASTER tutorial's pair, and the WorldView pair from the blending tutorial with the most failures. At Rainier the failures are on the snow-covered summit and in the steep, dark terrain north of it; at Mount Soledad they are mostly on shadowed slopes. Red along the edges is mostly where the two images don't overlap.
 
-![GoodPixelMaps from the two tutorials: snow and shadow failures at Rainier, ocean and occlusion failures at UCSD](figures/goodpixelmap-failures.png)
+![GoodPixelMaps: failures on the summit and steep terrain at Mount Rainier, and on shadowed slopes at Mount Soledad](figures/goodpixelmap-failures.png)
 
 Voids in reasonable places are normal; voids everywhere usually mean a geometry or preprocessing problem, not a matching problem.
 

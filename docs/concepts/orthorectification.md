@@ -12,7 +12,7 @@ Raw images of the same terrain from two viewpoints differ a lot: the satellite g
 
 ![Orthorectification shrinks the search range stereo matching must cover](figures/ortho-search-range.svg)
 
-Measured on the ASTER tutorial pair, run both ways: the {term}`disparity <disparity map>` spread the correlator has to cover drops from tens of pixels to about one.
+Measured on the ASTER tutorial pair over the tutorial's window, run both ways with the tutorial's matcher settings: the spread of horizontal {term}`disparity <disparity map>` the correlator has to cover (1st to 99th percentile) drops from about 140 pixels to about one.
 
 ![Disparity histograms for the same ASTER pair, raw vs orthorectified](figures/aster-disparity-hist.png)
 
@@ -41,9 +41,9 @@ When you have no good reference DEM, produce one: run a coarse first stereo pass
 
 ![Two-pass recipe: a coarse first DEM feeds orthorectification for a refined second pass](figures/two-pass-flow.svg)
 
-The [ASTER tutorial](../tutorials/01_aster_rainier.ipynb) skips the first pass and orthorectifies straight onto COP30. The {term}`hillshades <hillshade>` below are two runs of the same ASTER scene over the Mount Rainier massif, without and with orthorectification: the raw run loses the snow-covered upper mountain and smears the valleys; the orthorectified run recovers both.
+The [ASTER tutorial](../tutorials/01_aster_rainier.ipynb) skips the first pass and orthorectifies straight onto COP30. The {term}`hillshades <hillshade>` below are the same two runs over the Mount Rainier massif, without and with orthorectification: the raw run has holes around the summit and on the east side, and smooths out the ridges and valleys; the orthorectified run keeps them.
 
-![Hillshades of the ASTER tutorial's pass-1 and pass-2 DEMs over Mount Rainier](figures/aster-two-pass-hillshade.png)
+![Hillshades of DEMs from the ASTER tutorial's raw and orthorectified images over Mount Rainier](figures/aster-raw-vs-ortho-hillshade.png)
 
 ## Where to read more
 

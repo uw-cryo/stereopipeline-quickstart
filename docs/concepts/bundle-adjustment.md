@@ -20,7 +20,7 @@ From a `bundle_adjust` run on the [WorldView tutorial's](../tutorials/02_worldvi
 
 ![Histograms of initial and final bundle adjustment residuals from the WorldView tutorial](figures/wv3-ba-residuals-hist.png)
 
-The same residuals in map view over the scene footprint (initial values above 10 px are shown clipped):
+The same residuals in map view over the window, on satellite imagery, with one color scale for both panels:
 
 ![Map view of initial and final bundle adjustment residuals](figures/wv3-ba-residuals-map.png)
 
