@@ -424,7 +424,7 @@ def _tile_offsets(path, step, tile, size):
     """The pixel offsets between the images in a tile's disparity (<tile>-D.tif), every `step` pixels.
 
     Returns (dx, dy): how far each pixel of the left image sits from its
-    match in the right one, horizontally and vertically.
+    match in the right one, along the image's columns and rows.
 
     The disparity also covers a margin (collar) around the tile on each side
     that borders another tile; it is cut off here. `tile` is the tile's
@@ -513,9 +513,10 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
     current stage, the tiles done, the time so far and, after the first stage,
     an estimate of the time left. Once the features are matched, it shows
     asp-plot's match-point figure, and then a map of the processing window
-    with the tile boundaries dashed, which fills in tile by tile: the pixel
-    offsets between the images after matching (horizontal and vertical), and
-    the heights after triangulation. The map is drawn every `step` pixels, to
+    with the tile boundaries dashed, which fills in tile by tile: the offsets
+    between the images after matching (east-west and north-south on the map
+    grid; along rows and columns otherwise), and the heights after
+    triangulation. The map is drawn every `step` pixels, to
     keep it quick.
 
     The tiles are placed by their pixel position in the left image as stereo
@@ -599,6 +600,10 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
             size = (left_image.RasterXSize, left_image.RasterYSize)
             spacing = abs(left_image.GetGeoTransform()[1]) * step
             grid = _tile_grid(cmd, size)
+            # Orthorectified images sit on the map grid, so the offsets run
+            # east-west and north-south; otherwise along the image's own axes.
+            on_map = bool(left_image.GetProjection())
+            directions = ("east-west", "north-south") if on_map else ("along rows", "along columns")
         new = False
         if not grid_drawn and matches_shown:
             # The empty map with its tile grid, under the match figure, before
@@ -631,12 +636,12 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
         if new:
             fig = Figure(figsize=(15, 5))
             axes = fig.subplots(1, 3)
-            for ax, array, title in zip(axes[:2], (dx, dy), ("horizontal (dx)", "vertical (dy)")):
+            for ax, array, title in zip(axes[:2], (dx, dy), directions):
                 if np.isfinite(array).any():
                     lo, hi = np.nanpercentile(array, (2, 98))
                     im = ax.imshow(array, cmap="magma", vmin=lo, vmax=hi)
                     fig.colorbar(im, ax=ax, shrink=0.7, label="Offset (pixels)")
-                ax.set_title(f"Pixel offsets between the images: {title}", fontsize=10)
+                ax.set_title(f"Offset between the images: {title}", fontsize=10)
             ax = axes[2]
             if np.isfinite(heights).any():
                 lo, hi = np.nanpercentile(heights, (2, 98))
