@@ -16,12 +16,11 @@
 // The first time Tutorial 1 opens, it runs all cells, so a new user doesn't
 // have to find Run All (globalState flag).
 //
-// When a tutorial's last cell writes its results zip (data/*_results.zip,
-// utils.zip_results), a notification says it's ready and offers to show it
-// in the file explorer, where right-click → Download saves it. devcontainer.json
-// excludes data/ from file watching (ASP writes thousands of files there), and
-// in a Codespace no file watcher, not even one limited to data/ itself, saw
-// the zips, so this lists data/ every few seconds instead.
+// When a tutorial's last cell writes its results zip (*_results.zip in the
+// top folder, utils.zip_results), a notification says it's ready and offers
+// to show it in the file explorer, where right-click → Download saves it. The
+// folder is listed every few seconds: a file watcher didn't see zips written
+// in data/, which devcontainer.json excludes from watching.
 
 const vscode = require("vscode");
 
@@ -105,25 +104,25 @@ const RESULTS_POLL_MS = 3000;
 // the extension started, so a zip is announced once each time it is written.
 const seen = new Map();
 
-async function findResults(data) {
+async function findResults(folder) {
     let entries = [];
     try {
-        entries = await vscode.workspace.fs.readDirectory(data);
+        entries = await vscode.workspace.fs.readDirectory(folder);
     } catch {
-        return []; // no data/ yet
+        return [];
     }
     const found = [];
     for (const [name, type] of entries) {
         if (type === vscode.FileType.File && name.endsWith("_results.zip")) {
-            const uri = vscode.Uri.joinPath(data, name);
+            const uri = vscode.Uri.joinPath(folder, name);
             found.push([uri, (await vscode.workspace.fs.stat(uri)).mtime]);
         }
     }
     return found;
 }
 
-async function pollResults(data) {
-    for (const [uri, mtime] of await findResults(data)) {
+async function pollResults(folder) {
+    for (const [uri, mtime] of await findResults(folder)) {
         if (seen.get(uri.toString()) !== mtime) {
             seen.set(uri.toString(), mtime);
             announceResults(uri);
@@ -138,8 +137,8 @@ async function announceResults(uri) {
         "Show in Explorer",
     );
     if (choice) {
-        // The explorer doesn't see new files in data/ (not watched) until it
-        // refreshes, and can't reveal a file it doesn't know about.
+        // In case the explorer hasn't picked up the new file yet: it can't
+        // reveal a file it doesn't know about.
         await vscode.commands.executeCommand("workbench.files.action.refreshFilesExplorer");
         await vscode.commands.executeCommand("revealInExplorer", uri);
     }
@@ -148,10 +147,9 @@ async function announceResults(uri) {
 exports.activate = function (context) {
     const workspace = vscode.workspace.workspaceFolders?.[0];
     if (workspace) {
-        const data = vscode.Uri.joinPath(workspace.uri, "data");
-        findResults(data).then((found) => {
+        findResults(workspace.uri).then((found) => {
             found.forEach(([uri, mtime]) => seen.set(uri.toString(), mtime));
-            const timer = setInterval(() => pollResults(data), RESULTS_POLL_MS);
+            const timer = setInterval(() => pollResults(workspace.uri), RESULTS_POLL_MS);
             context.subscriptions.push({ dispose: () => clearInterval(timer) });
         });
     }

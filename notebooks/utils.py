@@ -276,7 +276,7 @@ class timer:
 def zip_results(zip_path, files):
     """Put a tutorial's results in one zip file, to download and open in a GIS.
 
-    Paths inside the zip are relative to the zip's folder. Files that don't
+    Paths inside the zip are relative to the files' common folder. Files that don't
     exist (a step was skipped or failed) are left out and listed. The zip is
     written under a temporary name and renamed when complete, so that a
     complete file is all that ever appears at `zip_path`: in a Codespace, the
@@ -287,9 +287,11 @@ def zip_results(zip_path, files):
 
     from IPython.display import display
 
+    import os
+
     zip_path = Path(zip_path)
-    base = zip_path.parent.resolve()
     present = [Path(f) for f in files if Path(f).exists()]
+    base = Path(os.path.commonpath([p.resolve().parent for p in present])) if present else Path.cwd()
     missing = [str(f) for f in files if not Path(f).exists()]
     partial = zip_path.with_name(zip_path.name + ".part")
     with timer("Zipping the results"):
@@ -300,8 +302,11 @@ def zip_results(zip_path, files):
     if missing:
         print("Not found, so not in the zip:\n  " + "\n  ".join(missing))
     size = zip_path.stat().st_size / 1e6
+    # The path as the file explorer shows it: from the repository's top folder,
+    # the one above notebooks/.
+    shown = os.path.relpath(zip_path.resolve(), Path.cwd().parent)
     display(_markdown(
-        f"### Results: `{zip_path}` ({size:.0f} MB, {len(present)} files)\n\n"
+        f"### Results: `{shown}` ({size:.0f} MB, {len(present)} files)\n\n"
         "To save it to your computer, right-click it in the file explorer on the left and choose **Download**."
     ))
 
