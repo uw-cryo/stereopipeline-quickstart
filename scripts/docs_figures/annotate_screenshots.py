@@ -27,8 +27,8 @@ SCREENSHOTS = [
     ("trust.png", "launch-trust.png", None, 1, []),
     # The end of the run: the report heading, the results line, the zip in the explorer.
     ("done.png", "launch-done.png", None, 1, [("1", 400, 68, 800, 124), ("2", 406, 488, 1030, 540), ("3", 56, 200, 250, 230)]),
-    # The notebook toolbar with Run All, enlarged.
-    ("done.png", "run-all.png", (362, 34, 1010, 70), 2, [("", 370, 4, 534, 68)]),
+    # The top of the window: the explorer, the notebook's tab and its toolbar, with Run All boxed.
+    ("done.png", "run-all.png", (0, 0, 1512, 130), 1, [("", 546, 36, 630, 68)]),
     ("running.png", "launch-running.png", None, 1, [("1", 50, 38, 342, 198), ("2", 384, 222, 1442, 378), ("3", 352, 400, 1442, 628)]),
 ]
 COLOR = (227, 66, 52)

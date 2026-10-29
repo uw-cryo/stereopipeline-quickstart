@@ -67,7 +67,7 @@ What to expect:
 
 If nothing has started after a couple of minutes, or to run it again later, click **Run All** in the toolbar at the top of the notebook:
 
-![The notebook toolbar, with the Run All button boxed](start/figures/run-all.png)
+![The top of the window: the notebook's toolbar, with the Run All button boxed](start/figures/run-all.png)
 
 ## 5. Then
 

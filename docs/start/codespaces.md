@@ -39,7 +39,7 @@ On a machine with more than 4 cores, raise `--processes` in the `parallel_stereo
 
 Tutorial 1 starts by itself the first time a new Codespace opens. For the others, or if Tutorial 1 hasn't started after a couple of minutes, open the notebook from the explorer and click **Run All** in the toolbar at the top, then scroll down to follow it. The code cells are shown as one line; click one to see its code.
 
-![The notebook toolbar, with the Run All button boxed](figures/run-all.png)
+![The top of the window: the notebook's toolbar, with the Run All button boxed](figures/run-all.png)
 
 While a step runs, its cell shows the command, the last few lines of its output and the time so far; ASP's full output goes to a log file in `data/<dataset>/logs/`. During stereo matching, a pop-up may say "High codespace CPU (100%) utilization detected": that's expected, since stereo uses every core. Close it.
 
