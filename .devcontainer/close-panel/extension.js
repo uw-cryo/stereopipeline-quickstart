@@ -138,6 +138,9 @@ async function announceResults(uri) {
         "Show in Explorer",
     );
     if (choice) {
+        // The explorer doesn't see new files in data/ (not watched) until it
+        // refreshes, and can't reveal a file it doesn't know about.
+        await vscode.commands.executeCommand("workbench.files.action.refreshFilesExplorer");
         await vscode.commands.executeCommand("revealInExplorer", uri);
     }
 }
