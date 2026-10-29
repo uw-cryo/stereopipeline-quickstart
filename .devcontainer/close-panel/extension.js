@@ -29,7 +29,7 @@ const STARTED = "stereopipeline-quickstart.tutorialStarted";
 const DELAYS_MS = [500, 2000, 5000];
 const FIRST_TUTORIAL = "/notebooks/01_aster_rainier.ipynb";
 const KERNEL_WAIT_MS = 5000;
-const COLLAPSE_DELAYS_MS = [0, 500, 1500];
+const COLLAPSE_DELAYS_MS = [0, 500, 1500, 4000, 8000, 15000];
 
 // Notebooks already collapsed while open, so the user can expand cells again.
 const collapsed = new Set();
@@ -40,7 +40,9 @@ function isTutorial(notebook) {
 
 // A notebook opened after this extension started is reported visible before
 // its editor is ready, and the collapse command then does nothing, so it is
-// repeated over the first seconds. Collapsing a collapsed cell does nothing.
+// repeated over the first 15 seconds: when no README preview opens before
+// Tutorial 1, its editor took more than 2 s to be ready. Collapsing a
+// collapsed cell does nothing.
 async function collapseCode(notebook) {
     const ranges = notebook
         .getCells()
