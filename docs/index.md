@@ -33,6 +33,12 @@ A GitHub page opens with a green **Create new codespace** button. Click it.
 
 ![GitHub's "Create a new codespace" page, with the green button labelled](start/figures/launch-create.png)
 
+**Used this before?** Then the page says "Resume codespace" instead, with your previous workspace listed. (1) **Create a new one** starts fresh: an options page follows; leave its settings as they are and click **Create codespace**. (2) **Resume this codespace** picks up where you left off, with your files; Tutorial 1 won't start again by itself there, so click **Run All** (shown below).
+
+![GitHub's "Resume codespace" page, with its two buttons labelled](start/figures/launch-resume.png)
+
+![The options page after "Create a new one", with the "Create codespace" button boxed](start/figures/launch-options.png)
+
 GitHub then builds a workspace for you with everything installed: a page says "Setting up your codespace", and then VS Code appears in your browser with a message at the bottom right while it connects. **Nothing asks you to do anything for between 30 seconds and a minute.**
 
 ![GitHub's "Setting up your codespace" page, then VS Code connecting](start/figures/launch-building.png)
@@ -64,6 +70,10 @@ What to expect:
 1. The link that opens the PDF report.
 2. The last step's result line: the zip's name and size.
 3. The zip itself, at the top of the file explorer: right-click it and choose **Download**.
+
+The first time you right-click in the explorer, your browser may ask whether the page can see your clipboard. Click **Allow** or **Block**, whichever you prefer; the menu with **Download** appears either way.
+
+![The browser's clipboard question, with Block and Allow buttons](start/figures/clipboard-prompt.png)
 
 If nothing has started after a couple of minutes, or to run it again later, click **Run All** in the toolbar at the top of the notebook:
 

@@ -9,7 +9,7 @@ The tutorials run in [GitHub Codespaces](https://docs.github.com/en/codespaces):
 Open in GitHub Codespaces
 ```
 
-1. Sign in to GitHub, click the button, then the green **Create new codespace** button on the page that opens.
+1. Sign in to GitHub, click the button, then the green **Create new codespace** button on the page that opens. If you have used it before, the page offers to resume your previous Codespace instead: **Resume this codespace** picks up where you left off (click **Run All** to run a tutorial again), and **Create a new one** starts fresh, after an options page where you click **Create codespace**.
 2. Wait between 30 seconds and a minute: a page says "Setting up your codespace", then VS Code appears in your browser while it connects.
 3. A box asks "Do you trust the authors of the files in this folder?". Every new Codespace asks this once. Click **Trust Folder & Continue**.
 
@@ -48,7 +48,7 @@ If a step fails, the cell shows the end of its log. [Open a problem report](http
 ## Storage and persistence
 
 - The files in your Codespace stay as long as the Codespace exists. GitHub stops it after 30 minutes without activity (your files are kept) and deletes it after 30 days without use.
-- To keep results, download them: the last step of each tutorial zips them for you, and any file can be downloaded from the explorer with a right-click.
+- To keep results, download them: the last step of each tutorial zips them for you, and any file can be downloaded from the explorer with a right-click and **Download**. The first time you right-click there, your browser may ask whether the page can see your clipboard; **Allow** or **Block**, either works.
 - The `data/` folder holds the images and results and can grow to a few GB. It is not under version control.
 
 ## Costs

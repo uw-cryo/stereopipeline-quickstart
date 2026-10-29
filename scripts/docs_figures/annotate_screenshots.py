@@ -24,7 +24,13 @@ from PIL import Image, ImageDraw, ImageFont
 SCREENSHOTS = [
     # Cropped below GitHub's header, which shows the account's avatar.
     ("create.png", "launch-create.png", (0, 66, 1512, 600), 1, [("", 783, 439, 997, 495)]),
+    # The pages a returning user sees instead: "Resume codespace" (both buttons boxed),
+    # then the options page after "Create a new one". Cropped below GitHub's header.
+    ("resume.png", "launch-resume.png", (0, 66, 1456, 650), 1, [("1", 505, 516, 648, 552), ("2", 767, 516, 950, 552)]),
+    ("options.png", "launch-options.png", (0, 66, 1456, 560), 1, [("", 937, 432, 1093, 468)]),
     ("trust.png", "launch-trust.png", None, 1, []),
+    # The browser's clipboard prompt on the first right-click in the explorer (Chrome, dark theme).
+    ("clipboard.png", "clipboard-prompt.png", (170, 75, 810, 520), 1, []),
     # The end of the run: the report heading, the results line, the zip in the explorer.
     ("done.png", "launch-done.png", None, 1, [("1", 400, 68, 800, 124), ("2", 406, 488, 1030, 540), ("3", 56, 200, 250, 230)]),
     # The top of the window: the explorer, the notebook's tab and its toolbar, with Run All boxed.
