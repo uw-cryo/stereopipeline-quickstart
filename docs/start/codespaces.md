@@ -1,58 +1,46 @@
-# Run the tutorials in a Codespace
+# Codespaces: machine size, costs and storage
 
-[GitHub Codespaces](https://docs.github.com/en/codespaces) gives you a Linux VM with VS Code in your browser. The Codespace boots with ASP and [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) already installed.
+The tutorials run in [GitHub Codespaces](https://docs.github.com/en/codespaces): a Linux machine with VS Code in your browser, which starts with ASP and [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) already installed. [The home page](../index.md) walks through the launch: sign in, click the button, click **Trust Folder & Continue**, and Tutorial 1 runs by itself. This page has the details.
 
-## Launch
-
-1. Click the badge below (or the **Code → Codespaces → Create codespace** menu on the GitHub repo).
-
-   ```{button-link} https://codespaces.new/uw-cryo/stereopipeline-quickstart?quickstart=1
-   :color: primary
-   Open in GitHub Codespaces
-   ```
-
-2. GitHub pulls a pre-built container image from [GHCR](https://ghcr.io/bpurinton/stereopipeline-quickstart). ASP binaries and the `asp-plot` conda env are already installed in it. (If the image isn't accessible from your fork, the devcontainer.json includes a commented-out `build:` block you can flip on for a from-source build.)
-
-3. When VS Code opens in your browser, it asks "Do you trust the authors of the files in this folder?". Click **Trust Folder & Continue**.
-
-4. Tutorial 1 (`notebooks/01_aster_rainier.ipynb`) opens and, the first time, starts running by itself. Scroll down to follow it.
+```{button-link} https://codespaces.new/uw-cryo/stereopipeline-quickstart?quickstart=1
+:color: primary
+Open in GitHub Codespaces
+```
 
 ## Machine size
 
-The minimum Codespace machine type for this repo is 4-core / 16 GB / 32 GB storage (set in `.devcontainer/devcontainer.json`). 4-core is the floor every GitHub account can launch without extra billing setup. You can pick a larger machine at launch time via the "Create codespace with options" menu; stereo correlation is parallel and runs faster with more cores. Larger machines are billed at higher rates; see [Codespaces pricing](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces).
+The default machine is 4-core, 16 GB of memory, 32 GB of disk, which every GitHub account can launch. The run times in the tutorials are for it. The "Create codespace with options" menu on the repo's **Code → Codespaces** tab offers larger machines; stereo matching runs faster with more cores, and larger machines are billed at higher rates ([Codespaces pricing](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces)).
 
 ```{tip}
-If you select a machine larger than 4 cores, bump the `--processes` flag in the `parallel_stereo` calls (and `--threads` in `bundle_adjust` / `mapproject`) to match your core count.
+On a machine with more than 4 cores, raise `--processes` in the `parallel_stereo` commands (and `--threads` in `bundle_adjust` and `mapproject`) to match.
 ```
 
-## Run a tutorial
+## Running the tutorials
 
-Open one of the notebooks under `notebooks/`:
+| Notebook | What it makes | Time |
+|---|---|---|
+| `01_aster_rainier.ipynb` | A 30 m DEM of Mount Rainier from two ASTER images, and a PDF report | about 10 min |
+| `02_worldview_ucsd.ipynb` | A 2.4 m DEM of Mount Soledad from a WorldView-3 pair, compared with ICESat-2 | about 10 min |
+| `03_worldview_ucsd_blend.ipynb` | Three WorldView-3 pairs of the same window, blended into one DEM | about 16 min more |
 
-| File | What it does |
-|---|---|
-| `01_aster_rainier.ipynb` | ASTER L1A → orthorectified 30 m DEM of Mt. Rainier (~10 min) |
-| `02_worldview_ucsd.ipynb` | WorldView-3 pair → bundle adjusted, orthorectified 2.4 m DEM of Mount Soledad (~10 min) |
-| `03_worldview_ucsd_blend.ipynb` | Three WorldView-3 images → three pair DEMs blended into one (~16 min after Tutorial 2) |
+Tutorial 1 starts by itself the first time a new Codespace opens. For the others, open the notebook from the explorer and click **Run All** at the top, then scroll down to follow it. The code cells are shown as one line; click one to see its code.
 
-Each notebook has a "Run All" button at the top; Tutorial 1 also starts by itself the first time it opens in a new Codespace. Cells are small enough to run them step by step. The code cells open collapsed to one line; click one to see its code.
+While a step runs, its cell shows the command, the last few lines of its output and the time so far; ASP's full output goes to a log file in `data/<dataset>/logs/`. During stereo matching, a pop-up may say "High codespace CPU (100%) utilization detected": that's expected, since stereo uses every core. Close it.
 
-While a step runs, its cell shows the command, the last few lines of ASP's output and a status line with the time so far. The full output of each step goes to a log file in the tutorial's `data/<dataset>/logs/` folder; if a step fails, the cell shows the end of its log. During stereo, a map of the processing window fills in tile by tile.
+If a step fails, the cell shows the end of its log. [Open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml) with it.
 
-If a cell fails, [open a problem report](https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml) with the error output.
+## Storage and persistence
 
-## Persistence and storage
-
-- Files in your Codespace persist between sessions as long as the Codespace exists.
-- Codespaces are deleted after 30 days of inactivity by default. Commit anything important to git or download it.
-- The `data/` directory is gitignored, since it can grow quite large with imagery and processed results.
+- The files in your Codespace stay as long as the Codespace exists. GitHub stops it after 30 minutes without activity (your files are kept) and deletes it after 30 days without use.
+- To keep results, download them: the last step of each tutorial zips them for you, and any file can be downloaded from the explorer with a right-click.
+- The `data/` folder holds the images and results and can grow to a few GB. It is not under version control.
 
 ## Costs
 
-GitHub gives every personal account a monthly Codespaces allowance for free — see the [Codespaces billing page](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces) for the current numbers.
+GitHub gives every personal account a monthly Codespaces allowance for free; see the [Codespaces billing page](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces) for the current numbers. Stopping a Codespace stops the hours; deleting it frees the storage. Both are on the repo's **Code → Codespaces** tab and at [github.com/codespaces](https://github.com/codespaces).
 
 ```{tip}
-Students and educators with a `.edu` email get a larger allowance. Apply to the [GitHub Student Developer Pack](https://education.github.com/pack) or [GitHub for Teachers](https://education.github.com/teachers).
+Students and educators with a `.edu` email get a larger allowance through the [GitHub Student Developer Pack](https://education.github.com/pack) or [GitHub for Teachers](https://education.github.com/teachers).
 ```
 
 If you'd rather not use Codespaces, see [the local install guide](../reference/installation.md).

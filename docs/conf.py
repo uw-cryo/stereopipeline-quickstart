@@ -58,7 +58,7 @@ html_theme = "sphinx_book_theme"
 html_title = "stereopipeline-quickstart"
 html_theme_options = {
     "announcement": (
-        "In development, but ready for usage. Please report issues "
+        "Please report issues "
         '<a href="https://github.com/uw-cryo/stereopipeline-quickstart/issues/new?template=problem-report.yml" '
         'target="_blank" rel="noopener noreferrer">here</a>.'
     ),
