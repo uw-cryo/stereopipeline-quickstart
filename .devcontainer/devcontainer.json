@@ -40,7 +40,8 @@
 
   "customizations": {
     // Open nothing at creation. Without this, Codespaces opens the README
-    // preview, which sits on screen until the trust dialog and Tutorial 1.
+    // preview, which sat on screen until the trust dialog and Tutorial 1.
+    // An empty list opens nothing (tested 2026-10-29).
     "codespaces": {
       "openFiles": []
     },
