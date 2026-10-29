@@ -29,6 +29,19 @@ const STARTED = "stereopipeline-quickstart.tutorialStarted";
 const DELAYS_MS = [500, 2000, 5000];
 const FIRST_TUTORIAL = "/notebooks/01_aster_rainier.ipynb";
 const KERNEL_WAIT_MS = 5000;
+// Run All is tried again until a cell is seen running: once, it did nothing
+// in a new Codespace (the panel closed and the cells collapsed, so the
+// extension ran; no kernel picker appeared) and the user had to click it.
+const RUN_TRIES = 4;
+const RUN_CHECK_MS = 15000;
+
+// "Quickstart launch" in the Output panel: what the extension did and when,
+// for when a launch doesn't go as it should.
+let log;
+
+function note(message) {
+    log?.appendLine(`${new Date().toISOString()} ${message}`);
+}
 const COLLAPSE_DELAYS_MS = [0, 500, 1500, 4000, 8000, 15000];
 
 // Notebooks already collapsed while open, so the user can expand cells again.
@@ -54,26 +67,56 @@ async function collapseCode(notebook) {
     }
 }
 
+function hasStarted(notebook) {
+    return notebook.getCells().some(
+        (cell) => cell.kind === vscode.NotebookCellKind.Code && cell.executionSummary?.timing?.startTime,
+    );
+}
+
 async function startFirstTutorial(context, notebook) {
     if (context.globalState.get(STARTED) || !notebook.uri.path.endsWith(FIRST_TUTORIAL)) {
         return;
     }
-    await context.globalState.update(STARTED, true);
+    note("Tutorial 1 is open; waiting for the Python and Jupyter extensions");
     // Run All only once the asp kernel is attached, or VS Code opens a "Select
     // Kernel" picker. The Jupyter extension attaches it after the Python
     // extension has found the conda environments, and a few seconds later.
-    const python = vscode.extensions.getExtension("ms-python.python");
-    if (python) {
-        const api = await python.activate();
-        await api?.ready;
-        await api?.environments?.refreshEnvironments();
-    }
-    const jupyter = vscode.extensions.getExtension("ms-toolsai.jupyter");
-    if (jupyter) {
-        await jupyter.activate();
+    try {
+        const python = vscode.extensions.getExtension("ms-python.python");
+        if (python) {
+            const api = await python.activate();
+            await api?.ready;
+            await api?.environments?.refreshEnvironments();
+        }
+        const jupyter = vscode.extensions.getExtension("ms-toolsai.jupyter");
+        if (jupyter) {
+            await jupyter.activate();
+        }
+        note("the Python and Jupyter extensions are ready");
+    } catch (error) {
+        note(`waiting for the extensions failed: ${error}`);
     }
     await new Promise((resolve) => setTimeout(resolve, KERNEL_WAIT_MS));
-    vscode.commands.executeCommand("notebook.execute", notebook.uri);
+    for (let attempt = 1; attempt <= RUN_TRIES; attempt++) {
+        note(`Run All, attempt ${attempt}`);
+        try {
+            await vscode.commands.executeCommand("notebook.execute", notebook.uri);
+        } catch (error) {
+            note(`notebook.execute failed: ${error}`);
+        }
+        const deadline = Date.now() + RUN_CHECK_MS;
+        while (Date.now() < deadline) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            if (hasStarted(notebook)) {
+                note("a cell is running");
+                await context.globalState.update(STARTED, true);
+                return;
+            }
+        }
+        note("no cell started");
+    }
+    note("gave up; Run All at the top of the notebook starts it");
+    await context.globalState.update(STARTED, true);
 }
 
 async function onVisible(context, editors) {
@@ -83,6 +126,7 @@ async function onVisible(context, editors) {
             continue;
         }
         collapsed.add(key);
+        note(`collapsing the code cells of ${editor.notebook.uri.path}`);
         await collapseCode(editor.notebook);
         await startFirstTutorial(context, editor.notebook);
     }
@@ -147,6 +191,9 @@ async function announceResults(uri) {
 }
 
 exports.activate = function (context) {
+    log = vscode.window.createOutputChannel("Quickstart launch");
+    context.subscriptions.push(log);
+    note("extension activated");
     const workspace = vscode.workspace.workspaceFolders?.[0];
     if (workspace) {
         findResults(workspace.uri).then((found) => {
