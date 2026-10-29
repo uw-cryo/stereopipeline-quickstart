@@ -39,6 +39,11 @@
   },
 
   "customizations": {
+    // Open nothing at creation. Without this, Codespaces opens the README
+    // preview, which sits on screen until the trust dialog and Tutorial 1.
+    "codespaces": {
+      "openFiles": []
+    },
     "vscode": {
       "extensions": [
         "ms-python.python",
