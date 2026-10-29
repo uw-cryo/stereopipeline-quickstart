@@ -85,6 +85,9 @@
         "window.commandCenter": false,
         "breadcrumbs.enabled": false,
         "editor.minimap.enabled": false,
+        // Larger text in the notebooks, for reading rather than coding.
+        "notebook.markup.fontSize": 17,
+        "notebook.output.fontSize": 15,
         "explorer.openEditors.visible": 0,
         "terminal.integrated.defaultProfile.linux": "bash",
         "files.watcherExclude": {

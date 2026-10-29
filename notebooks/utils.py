@@ -128,8 +128,8 @@ def show_report_figures(figures_dir, figures=REPORT_FIGURES, max_width=1400):
                 im = im.resize((max_width, round(im.height * max_width / im.width)))
             buf = BytesIO()
             im.save(buf, format="PNG")
-        display(Markdown(f"**Report figure {int(fig.name[:2])}.** {caption}"))
         display(Image(data=buf.getvalue()))
+        display(Markdown(f"**Report figure {int(fig.name[:2])}.** {caption}"))
         shown += 1
     if not shown:
         print(f"No report figures in {figures_dir}. Delete the report PDF and rerun this cell to make them.")
