@@ -1,15 +1,29 @@
 # Codespaces: machine size, costs and storage
 
-The tutorials run in [GitHub Codespaces](https://docs.github.com/en/codespaces): a Linux machine with VS Code in your browser, which starts with ASP and [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) already installed. [The home page](../index.md) walks through the launch: sign in, click the button, click **Trust Folder & Continue**, and Tutorial 1 runs by itself. This page has the details.
+The tutorials run in [GitHub Codespaces](https://docs.github.com/en/codespaces): a Linux machine with VS Code in your browser, which starts with ASP and [`asp-plot`](https://asp-plot.readthedocs.io/en/latest/) already installed. You need a free [GitHub account](https://github.com/signup) and nothing else. [The home page](../index.md) walks through the launch with a screenshot of every click; this page has the short version and the details.
+
+## Launch
 
 ```{button-link} https://codespaces.new/uw-cryo/stereopipeline-quickstart?quickstart=1
 :color: primary
 Open in GitHub Codespaces
 ```
 
+1. Sign in to GitHub, click the button, then the green **Create new codespace** button on the page that opens.
+2. Wait between 30 seconds and a minute: a page says "Setting up your codespace", then VS Code appears in your browser while it connects.
+3. A box asks "Do you trust the authors of the files in this folder?". Every new Codespace asks this once. Click **Trust Folder & Continue**.
+
+   ![The trust dialog, with the "Trust Folder & Continue" button](figures/launch-trust.png)
+
+4. Tutorial 1 opens within a few seconds and, between 30 seconds and a minute later, starts running by itself. Scroll down to follow it: (1) the file explorer, (2) each step's text, (3) the step that is running, with its command, the last lines of its output and the time so far.
+
+   ![Tutorial 1 just after it opens, with the parts of the window labelled](figures/launch-running.png)
+
+The whole of Tutorial 1 takes about 10 minutes, sometimes 15. The repo's **Code → Codespaces** tab also creates a Codespace; the "Create codespace with options" entry there lets you pick a larger machine.
+
 ## Machine size
 
-The default machine is 4-core, 16 GB of memory, 32 GB of disk, which every GitHub account can launch. The run times in the tutorials are for it. The "Create codespace with options" menu on the repo's **Code → Codespaces** tab offers larger machines; stereo matching runs faster with more cores, and larger machines are billed at higher rates ([Codespaces pricing](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces)).
+The default machine is 4-core, 16 GB of memory, 32 GB of disk, which every GitHub account can launch. The run times in the tutorials are for it. Larger machines run stereo matching faster, since it uses every core, and are billed at higher rates ([Codespaces pricing](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces)).
 
 ```{tip}
 On a machine with more than 4 cores, raise `--processes` in the `parallel_stereo` commands (and `--threads` in `bundle_adjust` and `mapproject`) to match.
