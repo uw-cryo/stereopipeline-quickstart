@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
 
 
 def average_crop(image, camera, out_image, out_camera, factor):
@@ -56,10 +57,29 @@ def show_image_pair(left, right, titles, downsample=8):
     plt.show()
 
 
-def show_dem_hillshade(dem_fn, title="Stereo DEM"):
-    """Show a DEM as a hillshade with elevation in color on top.
+def multidirectional_hillshade(dem_fn, out_fn=None):
+    """A multi-directional hillshade of a DEM (gdaldem's, lit from four directions).
 
-    Uses asp_plot's `Raster.hillshade` and `Plotter.plot_array`.
+    Returns the array (no-data masked). With `out_fn`, also writes it as a
+    GeoTIFF; the file is reused on later calls.
+    """
+    import numpy as np
+    from osgeo import gdal
+
+    gdal.UseExceptions()
+    if out_fn and Path(out_fn).exists():
+        ds = gdal.Open(str(out_fn))
+    else:
+        ds = gdal.DEMProcessing(str(out_fn) if out_fn else "", str(dem_fn), "hillshade",
+                                format="GTiff" if out_fn else "MEM", multiDirectional=True, computeEdges=True,
+                                creationOptions=["COMPRESS=DEFLATE", "TILED=YES"] if out_fn else [])
+    return np.ma.masked_equal(ds.ReadAsArray(), 0)
+
+
+def show_dem_hillshade(dem_fn, title="Stereo DEM", hillshade_fn=None):
+    """Show a DEM as a multi-directional hillshade with elevation in color on top.
+
+    With `hillshade_fn`, the hillshade is written there too, for the results zip.
     """
     import matplotlib.pyplot as plt
     from asp_plot.utils import Plotter, Raster
@@ -67,7 +87,7 @@ def show_dem_hillshade(dem_fn, title="Stereo DEM"):
     dem = Raster(dem_fn)
     plotter = Plotter()
     fig, ax = plt.subplots(figsize=(8, 7))
-    plotter.plot_array(ax, dem.hillshade(), cmap="gray", add_cbar=False)
+    plotter.plot_array(ax, multidirectional_hillshade(dem_fn, hillshade_fn), cmap="gray", add_cbar=False)
     plotter.plot_array(ax, dem.read_array(), cmap="viridis", alpha=0.5, cbar_label="Elevation (m HAE)")
     ax.set_title(title)
     ax.set_axis_off()
@@ -273,49 +293,142 @@ class timer:
             self.status.update(_markdown(f"❌ **{self.label}** failed after {elapsed}"))
 
 
-def zip_results(zip_path, files, eight_bit=()):
+def _cog(src, dst, eight_bit=False):
+    """Write `src` as a Cloud Optimized GeoTIFF with averaged overviews, 8-bit if asked.
+
+    The 8-bit copy (for orthoimages saved as 32-bit floats) scales linearly
+    from the image's minimum and maximum to 1-255, with 0 for no data.
+    """
+    from osgeo import gdal
+
+    gdal.UseExceptions()
+    image = gdal.Open(str(src))
+    floating = image.GetRasterBand(1).DataType in (gdal.GDT_Float32, gdal.GDT_Float64) and not eight_bit
+    options = dict(format="COG", creationOptions=[
+        "COMPRESS=DEFLATE", f"PREDICTOR={3 if floating else 2}", "OVERVIEW_RESAMPLING=AVERAGE", "NUM_THREADS=ALL_CPUS"])
+    if eight_bit:
+        low, high = image.GetRasterBand(1).ComputeRasterMinMax(False)
+        options.update(outputType=gdal.GDT_Byte, scaleParams=[[low, high, 1, 255]], noData=0)
+    gdal.Translate(str(dst), image, **options)
+
+
+def _qgis_project(path, layers, title):
+    """Write a QGIS project (.qgs) with the given rasters, by relative path, so the zip opens with one click.
+
+    `layers` is a list of (file name, layer name, kind), kind one of "dem",
+    "hillshade", "error", "image", "pdf"; PDFs are left out. The hillshade
+    goes under the DEM, which is drawn half-transparent with a colour ramp.
+    """
+    from osgeo import gdal, osr
+    from xml.sax.saxutils import escape
+
+    gdal.UseExceptions()
+    rasters = [(f, n, k) for f, n, k in layers if k != "pdf"]
+    # Draw order: images at the bottom, then the hillshade, the DEM, the error map on top.
+    order = {"image": 0, "hillshade": 1, "dem": 2, "error": 3}
+    rasters.sort(key=lambda r: order[r[2]])
+    first = gdal.Open(str(Path(path).parent / rasters[0][0]))
+    srs = osr.SpatialReference(wkt=first.GetProjection())
+    auth = f"{srs.GetAuthorityName(None)}:{srs.GetAuthorityCode(None)}" if srs.GetAuthorityCode(None) else ""
+    wkt = escape(first.GetProjection())
+    gt = first.GetGeoTransform()
+    xmin, ymax = gt[0], gt[3]
+    xmax, ymin = xmin + gt[1] * first.RasterXSize, ymax + gt[5] * first.RasterYSize
+
+    def renderer(fn, kind):
+        ds = gdal.Open(str(Path(path).parent / fn))
+        band = ds.GetRasterBand(1)
+        if kind == "hillshade":
+            return '<rasterrenderer type="singlebandgray" band="1" gradient="BlackToWhite" opacity="1"><contrastEnhancement><minValue>1</minValue><maxValue>255</maxValue><algorithm>StretchToMinimumMaximum</algorithm></contrastEnhancement></rasterrenderer>'
+        if kind == "image":
+            lo, hi = band.ComputeRasterMinMax(True)
+            return f'<rasterrenderer type="singlebandgray" band="1" gradient="BlackToWhite" opacity="1"><contrastEnhancement><minValue>{lo}</minValue><maxValue>{hi}</maxValue><algorithm>StretchToMinimumMaximum</algorithm></contrastEnhancement></rasterrenderer>'
+        stats = band.GetStatistics(True, True)
+        lo, hi = stats[0], stats[1]
+        if kind == "error":
+            lo, hi = 0, stats[2] + 2 * stats[3]
+            ramp = [(lo, "#000004"), ((lo + hi) / 2, "#b63679"), (hi, "#fcfdbf")]
+            opacity = 1
+        else:
+            ramp = [(lo, "#440154"), ((lo + hi) / 2, "#21918c"), (hi, "#fde725")]
+            opacity = 0.5
+        items = "".join(f'<item value="{v}" label="{v:.0f}" color="{c}" alpha="255"/>' for v, c in ramp)
+        return (f'<rasterrenderer type="singlebandpseudocolor" band="1" classificationMin="{lo}" classificationMax="{hi}" opacity="{opacity}">'
+                f'<rastershader><colorrampshader colorRampType="INTERPOLATED" minimumValue="{lo}" maximumValue="{hi}" clip="0">{items}</colorrampshader></rastershader></rasterrenderer>')
+
+    layer_xml, order_xml, tree_xml = [], [], []
+    for i, (fn, name, kind) in enumerate(rasters):
+        lid = f"layer_{i}"
+        checked = "Qt::Unchecked" if kind == "error" else "Qt::Checked"
+        tree_xml.append(f'<layer-tree-layer id="{lid}" name="{escape(name)}" source="./{escape(fn)}" providerKey="gdal" checked="{checked}" expanded="0"/>')
+        order_xml.append(f'<layer id="{lid}"/>')
+        layer_xml.append(
+            f'<maplayer type="raster" hasScaleBasedVisibilityFlag="0"><id>{lid}</id><datasource>./{escape(fn)}</datasource>'
+            f'<layername>{escape(name)}</layername><srs><spatialrefsys><wkt>{wkt}</wkt><authid>{auth}</authid></spatialrefsys></srs>'
+            f'<provider>gdal</provider><pipe>{renderer(fn, kind)}<rasterresampler zoomedInResamplingMethod="bilinear" zoomedOutResamplingMethod="bilinear" maxOversampling="2"/></pipe></maplayer>')
+    # QGIS draws the layer tree top to bottom, so the last in draw order comes first.
+    tree_xml.reverse()
+    xml = f"""<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis version="3.40" projectname="{escape(title)}">
+  <title>{escape(title)}</title>
+  <projectCrs><spatialrefsys><wkt>{wkt}</wkt><authid>{auth}</authid></spatialrefsys></projectCrs>
+  <layer-tree-group>
+    {"".join(tree_xml)}
+    <custom-order enabled="0">{"".join(order_xml)}</custom-order>
+  </layer-tree-group>
+  <mapcanvas name="theMapCanvas" annotationsVisible="1">
+    <extent><xmin>{xmin}</xmin><ymin>{ymin}</ymin><xmax>{xmax}</xmax><ymax>{ymax}</ymax></extent>
+    <destinationsrs><spatialrefsys><wkt>{wkt}</wkt><authid>{auth}</authid></spatialrefsys></destinationsrs>
+  </mapcanvas>
+  <projectlayers>{"".join(layer_xml)}</projectlayers>
+  <properties><Paths><Absolute type="bool">false</Absolute></Paths></properties>
+</qgis>
+"""
+    Path(path).write_text(xml)
+
+
+def zip_results(zip_path, results, title):
     """Put a tutorial's results in one zip file, to download and open in a GIS.
 
-    Paths inside the zip are relative to the files' common folder. Files that don't
-    exist (a step was skipped or failed) are left out and listed. The files in
-    `eight_bit` (the orthoimages, saved as 32-bit floats) go in as 8-bit copies,
-    scaled linearly from their minimum and maximum to 1-255, with 0 for no data.
-    That keeps each zip under 32 MB: VS Code in the browser downloads larger
-    files by asking for write access to a local folder, and Chrome refuses
-    ~/Downloads for that. The zip is written under a temporary name and renamed
-    when complete, so that a complete file is all that ever appears at
-    `zip_path`: in a Codespace, the close-panel extension shows a notification
-    when it does.
+    `results` lists (source path, name in the zip, kind), kind one of "dem",
+    "hillshade", "error", "image", "pdf". Every raster is rewritten as a
+    Cloud Optimized GeoTIFF with averaged overviews, flat in the zip under its
+    new name; images (orthoimages saved as 32-bit floats) become 8-bit, which
+    keeps each zip under 32 MB (VS Code in the browser downloads larger files
+    by asking for write access to a local folder, and Chrome refuses
+    ~/Downloads for that). A QGIS project (<title>.qgs) with every raster by
+    relative path goes in too, so the zip opens with one click. Sources that
+    don't exist (a step was skipped or failed) are left out and listed. The
+    zip is written under a temporary name and renamed when complete, so that a
+    complete file is all that ever appears at `zip_path`: in a Codespace, the
+    close-panel extension shows a notification when it does.
     """
     import os
     import tempfile
     import zipfile
-    from pathlib import Path
 
     from IPython.display import display
-    from osgeo import gdal
 
-    gdal.UseExceptions()
     zip_path = Path(zip_path)
-    present = [Path(f) for f in files if Path(f).exists()]
-    base = Path(os.path.commonpath([p.resolve().parent for p in present])) if present else Path.cwd()
-    missing = [str(f) for f in files if not Path(f).exists()]
-    eight_bit = {Path(f).resolve() for f in eight_bit}
+    present = [(Path(src), name, kind) for src, name, kind in results if Path(src).exists()]
+    missing = [str(src) for src, _, _ in results if not Path(src).exists()]
     partial = zip_path.with_name(zip_path.name + ".part")
     with timer("Zipping the results"), tempfile.TemporaryDirectory() as tmp:
+        staged = []
+        for src, name, kind in present:
+            dst = Path(tmp) / name
+            if kind == "pdf":
+                dst = src
+            else:
+                _cog(src, dst, eight_bit=(kind == "image"))
+            staged.append((dst, name, kind))
+        project = Path(tmp) / f"{title}.qgs"
+        if any(k != "pdf" for _, _, k in staged):
+            _qgis_project(project, [(n, Path(n).stem, k) for _, n, k in staged], title)
+            staged.append((project, project.name, "project"))
         with zipfile.ZipFile(partial, "w", zipfile.ZIP_DEFLATED) as archive:
-            for path in present:
-                source = path
-                if path.resolve() in eight_bit:
-                    source = Path(tmp) / path.name
-                    image = gdal.Open(str(path))
-                    low, high = image.GetRasterBand(1).ComputeRasterMinMax(False)
-                    gdal.Translate(
-                        str(source), image, outputType=gdal.GDT_Byte,
-                        scaleParams=[[low, high, 1, 255]], noData=0,
-                        creationOptions=["COMPRESS=DEFLATE", "PREDICTOR=2", "TILED=YES"],
-                    )
-                archive.write(source, path.resolve().relative_to(base))
+            for dst, name, _ in staged:
+                archive.write(dst, name)
         partial.replace(zip_path)
     if missing:
         print("Not found, so not in the zip:\n  " + "\n  ".join(missing))
@@ -323,9 +436,11 @@ def zip_results(zip_path, files, eight_bit=()):
     # The path as the file explorer shows it: from the repository's top folder,
     # the one above notebooks/.
     shown = os.path.relpath(zip_path.resolve(), Path.cwd().parent)
+    listing = "\n".join(f"- `{name}`" for _, name, _ in staged)
     display(_markdown(
-        f"### Results: `{shown}` ({size:.0f} MB, {len(present)} files)\n\n"
-        "To save it to your computer, right-click it in the file explorer on the left and choose **Download**."
+        f"### Results: `{shown}` ({size:.0f} MB, {len(staged)} files)\n\n{listing}\n\n"
+        "To save it to your computer, right-click it in the file explorer on the left and choose **Download**. "
+        f"Unzip it and open `{title}.qgs` in QGIS to see everything at once."
     ))
 
 
