@@ -57,7 +57,8 @@ stereopipeline-quickstart/
 │   │   ├── setsm.md                   # SETSM (OSU/PGC) run + hillshade comparison
 │   │   └── figures/                   # soledad-{asp,cars,setsm}-hillshade.png, from scripts/docs_figures/
 │   ├── tutorials/
-│   │   └── index.md                   # tutorial gallery; notebooks copied here at build
+│   │   ├── index.md                   # tutorial gallery
+│   │   └── 0*.ipynb                   # executed copies of notebooks/, for the site (scripts/execute_tutorials.py)
 │   └── reference/
 │       ├── glossary.md
 │       ├── output-files.md
@@ -81,12 +82,7 @@ stereopipeline-quickstart/
 
 ### Sphinx + myst-nb
 
-Same stack as `asp_plot`; see [ADR-0003](architecture/0003-sphinx-myst-nb-docs.md). Notebooks live in `notebooks/` and are mirrored into `docs/tutorials/` at build time:
-
-- On RTD: `.readthedocs.yaml` `pre_build` runs `cp notebooks/*.ipynb docs/tutorials/`.
-- Locally: a `builder-inited` hook in `docs/conf.py` does the same, so `sphinx-build docs docs/_build/html` works with no preamble.
-
-`docs/tutorials/*.ipynb` is gitignored — the copies are build artifacts, not source.
+Same stack as `asp_plot`; see [ADR-0003](architecture/0003-sphinx-myst-nb-docs.md). The notebooks in `notebooks/` have no outputs (a clean start in a Codespace, readable diffs). The site renders executed copies, `docs/tutorials/*.ipynb`, which `scripts/execute_tutorials.py` makes by running the notebooks in a fresh run folder and which are committed; see [ADR-0035](architecture/0035-executed-notebooks-for-the-site.md). They are remade when a tutorial changes. `nb_execution_mode = "off"` in `docs/conf.py`: RTD has no ASP, and the runs take half an hour.
 
 Site is live at https://stereopipeline-quickstart.readthedocs.io/. RTD installs a GitHub webhook on import; pushes to `main` auto-rebuild.
 
