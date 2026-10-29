@@ -1,0 +1,17 @@
+input:
+  sensors:
+    left:
+      image: /input/104001000496A100_P001.tif
+    right:
+      image: /input/10400100071D8800_P001.tif
+
+output:
+  directory: /output/results
+  resolution: 2.4
+  epsg: 32611
+  geoid: false
+
+orchestrator:
+  mode: multiprocessing
+  nb_workers: 4
+  max_ram_per_worker: 2000

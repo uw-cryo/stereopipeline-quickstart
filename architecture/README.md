@@ -38,3 +38,4 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0030 — Start Tutorial 1 by itself; don't scroll to the running cell](0030-no-scroll-to-running-cell.md)
 - [0031 — ASP output to log files; a status line, log tail and live map in the notebook](0031-status-lines-and-logs.md)
 - [0032 — Fetch the stereo geometry plot's map tiles when the Codespace is built](0032-prefetch-basemap-tiles.md) — *an exception to 0028*
+- [0033 — The docs' data figures are made by a script in this repo](0033-docs-figure-scripts-in-repo.md) — *amends 0018*

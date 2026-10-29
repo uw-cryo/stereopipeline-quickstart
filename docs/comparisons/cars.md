@@ -1,8 +1,8 @@
-# CARS — SpaceNet UCSD WorldView-3
+# CARS — WorldView-3, Mount Soledad
 
 Compare DEMs produced by ASP and CARS on the same WorldView-3 stereo pair:
 
-- **ASP** (NASA Ames Stereo Pipeline) — processed in the [UCSD notebook](https://asp-plot.readthedocs.io/en/latest/examples/notebooks/worldview_spacenet_ucsd_stereo.html)
+- **ASP** (NASA Ames Stereo Pipeline) — processed in [Tutorial 2](../tutorials/02_worldview_ucsd.ipynb)
 - **[CARS](https://github.com/CNES/cars)** (CNES open-source stereo pipeline)
 
 ## About CARS
@@ -17,39 +17,26 @@ CARS is an open-source Python tool developed by CNES (French Space Agency) for p
 
 ## Source Data
 
-Same WorldView-3 stereo pair as the [SETSM comparison](setsm):
+The same WorldView-3 pair as the [SETSM comparison](setsm) and [Tutorial 2](../tutorials/02_worldview_ucsd.ipynb), as the tutorial prepares it: a 3 × 3 km window around the summit of Mount Soledad, cut from each image with `cam2rpc` and averaged to 1.2 m pixels (the native 0.31 m pixels, 4 × 4 at a time). Both images come from the IARPA CORE3D SpaceNet UCSD dataset.
 
-| Catalog ID | Date | Off-nadir | Image size |
+| Catalog ID | Date | Off-nadir | Crop size |
 |---|---|---|---|
-| 1040010007A93700 | 2015-02-12 | 8.4° | 43008 × 46080 px |
-| 1040010007CA4D00 | 2015-02-24 | 12.9° | 43008 × 46080 px |
+| 104001000496A100 | 2014-11-09 | 1.1° | 2738 × 2805 px |
+| 10400100071D8800 | 2015-01-24 | 16.3° | 2623 × 2645 px |
 
-This is the same pair (`21deg_12d`, convergence 21.2°) used in the [scene-selection notebook](https://asp-plot.readthedocs.io/en/latest/examples/notebooks/worldview_spacenet_ucsd_stereo_scene_selection.html) and the [ASP processing notebook](https://asp-plot.readthedocs.io/en/latest/examples/notebooks/worldview_spacenet_ucsd_stereo.html).
+The pair's convergence angle is 16.8°. Each tool gets the same two crops and their RPC cameras, and writes a 2.4 m DEM, the tutorial's output grid. ASP's DEM is the tutorial's own, made from the orthorectified crops after bundle adjustment, as the notebook describes.
 
-## Processing Approach: ROI on Full Images
+## Inputs
 
-CARS supports two approaches for sub-scene processing:
-
-1. **`cars-extractroi`** — pre-crops images and writes adjusted RPCs as `.RPB` sidecar files.
-2. **`roi` config parameter** — uses full images for sparse matching / grid correction but only runs dense matching within the specified ROI.
-
-We use approach 2 (`roi`) because full images give CARS more context for SIFT tie-point matching and epipolar grid correction, with no manual RPC adjustment needed.
-
-The ROI matches the ASP processing crop area (UCSD campus region, ~4 km × 4 km):
-
-```
-Lon: -117.262 to -117.219
-Lat:  32.854 to  32.890
-```
+CARS reads the RPC from the crops' GeoTIFF tags (through [Shareloc](https://github.com/CNES/shareloc)), so the tutorial's crops go in as they are, with no camera file. The crops already cover the window, so the config gives no region of interest. (CARS 1.3.0 fails with `unsupported operand type(s) for /: 'list' and 'float'` when `roi` is set together with a single `resolution`; it keeps the resolution as a pair internally.)
 
 ## Running CARS via Docker
 
 ```bash
 docker pull cnes/cars
 
-docker run --platform linux/amd64 --rm \
-    --cpus 6 \
-    -v /path/to/input_images:/input:ro \
+docker run --platform linux/amd64 --rm --memory 11g --cpus 6 \
+    -v /path/to/data/ucsd_soledad/crops:/input:ro \
     -v /path/to/output:/output \
     cnes/cars /output/config.yaml
 ```
@@ -61,39 +48,27 @@ docker run --platform linux/amd64 --rm \
 input:
   sensors:
     left:
-      image: /input/1040010007A93700_P001.tif
+      image: /input/104001000496A100_P001.tif
     right:
-      image: /input/1040010007CA4D00_P001.tif
-  roi:
-    type: FeatureCollection
-    features:
-      - type: Feature
-        properties: {}
-        geometry:
-          type: Polygon
-          coordinates:
-            - - [-117.262, 32.854]
-              - [-117.219, 32.854]
-              - [-117.219, 32.890]
-              - [-117.262, 32.890]
-              - [-117.262, 32.854]
+      image: /input/10400100071D8800_P001.tif
 
 output:
   directory: /output/results
-  resolution: 2.0
+  resolution: 2.4
   epsg: 32611
+  geoid: false
 
 orchestrator:
   mode: multiprocessing
-  nb_workers: 2
-  max_ram_per_worker: 1500
+  nb_workers: 4
+  max_ram_per_worker: 2000
 ```
 
 Key parameters:
-- `output.resolution: 2.0` — 2 m output to match ASP processing
-- `output.epsg: 32611` — UTM 11N (same CRS as ASP DEM)
-- `orchestrator.nb_workers: 2` — limit parallelism for 16 GB laptop
-- `orchestrator.max_ram_per_worker: 1500` — 1.5 GB per worker
+- `output.resolution: 2.4` — the tutorial's DEM grid
+- `output.epsg: 32611` — UTM 11N, the tutorial's CRS
+- `output.geoid: false` — heights above the ellipsoid, as ASP writes them (CARS's default is the EGM96 geoid)
+- `orchestrator.nb_workers: 4`, `max_ram_per_worker: 2000` — four workers of 2 GB, for a 16 GB laptop whose Docker VM has 12 GB
 :::
 
 Expected outputs in `results/`:
@@ -104,7 +79,6 @@ Expected outputs in `results/`:
 :::{dropdown} Notes on configuration
 :icon: light-bulb
 
-- **Vertical reference**: CARS defaults to EGM96 geoid heights. For comparison with ASP (ellipsoidal heights), set `geoid: false` in the output config or convert afterwards.
 - **Matching preset**: Default is `census_sgm_default` (Census5, P1=8, P2=32). For urban areas, `census_sgm_urban` (Census11, P1=20, P2=80) may perform better.
 - **Initial elevation**: Providing a coarse DEM via `input.initial_elevation.dem` narrows the disparity search range and speeds processing.
 :::
@@ -113,39 +87,36 @@ Expected outputs in `results/`:
 
 | Metric | Value |
 |---|---|
-| Computation time | ~17 h 18 min |
-| Peak memory | ~10.3 GB (hit CARS' `RAM available < 500 Mb` warnings near the end) |
+| Computation time | 7 min 38 s (Apple M-series laptop, amd64 emulation, 6 CPUs) |
 | Docker `--memory` limit | 11 GB |
-| Output DSM | 2017 × 2001 px, 2 m, EPSG:32611 + EGM96 |
-| Output std dev (raw) | 134.6 m (inflated by edge blunders outside the 3 km comparison box) |
-| Output std dev (3 km comparison crop) | 48.7 m |
-| Convergence angle | 21.2° |
+| Output DSM | 1410 × 1447 px (the crops' overlap), 2.4 m, EPSG:32611 |
+| Convergence angle | 16.8° |
 
-CARS is slower than SETSM, primarily because Pandora's per-tile Census + SGM matching is done in pure Python multiprocessing with two workers at 1.5 GB each. The run reports `RAM available < 500 Mb` warnings during the final `texture / dsm / dsm_weights` passes but completes successfully. The raw DSM carries some edge blunders (min −321 m, max 1273 m) outside the canonical 3 km comparison area; inside the comparison crop the range narrows to approximately −200 m to +200 m with outliers concentrated at the seaward edge.
+Two of the 68 rasterization tiles failed on CARS's second pass over them (`ERROR Pipeline will pursue without failed tiles` in the log); the DSM over the 3 km window is complete. The DSM's extreme values (down to −377 m) are blunders at the edge of the overlap, outside the window.
 
 ## Hillshade Comparison
 
-CARS resolves the urban structure cleanly: buildings, streets, and the I-5 freeway on the east. Natural valleys and sea cliffs are also resolved, comparable to ASP in detail. CARS does attempt to correlate more pixels, including over the ocean surface. Areas with more heavy vegetation are also correlated, whereas these are left as voids in the ASP DEM. Some of these correlated pixels appear to be blunders (pits and mounds) on close inspection. In general, ASP (with the [processing parameters used in the ASP notebook](https://asp-plot.readthedocs.io/en/latest/examples/notebooks/worldview_spacenet_ucsd_stereo.html)) appears to take a more conservative approach to correlation.
+CARS resolves the same hills, canyons, streets and blocks of houses as ASP, with sharper building edges, and fills the window with no voids where ASP has a few (0.8%, mostly at the freeway interchange and along building edges). Its surface is noisier in open ground, which shows as speckle in the hillshade, with some pits and mounds along building edges. Like SETSM, CARS uses the vendor RPCs as they are, so its DSM sits 9.5 m below ASP's (median difference); Tutorial 2's bundle adjustment ties the cameras to COP30 heights. Apart from that offset the two agree to 1.1 m (NMAD).
 
 ::::{grid} 2
 :::{grid-item}
-![ASP 2m](figures/ucsd-asp2m-hillshade.png)
-**ASP 2m DEM**
+![ASP 2.4 m](figures/soledad-asp-hillshade.png)
+**ASP 2.4 m DEM**
 <div class="fullres-btns">
-  <a class="fullres-btn" href="../_images/ucsd-asp2m-hillshade.png" target="_blank" rel="noopener noreferrer">Open at full resolution ↗</a>
+  <a class="fullres-btn" href="../_images/soledad-asp-hillshade.png" target="_blank" rel="noopener noreferrer">Open at full resolution ↗</a>
 </div>
 :::
 :::{grid-item}
-![CARS 2m](figures/ucsd-cars2m-hillshade.png)
-**CARS 2m DEM**
+![CARS 2.4 m](figures/soledad-cars-hillshade.png)
+**CARS 2.4 m DSM**
 <div class="fullres-btns">
-  <a class="fullres-btn" href="../_images/ucsd-cars2m-hillshade.png" target="_blank" rel="noopener noreferrer">Open at full resolution ↗</a>
+  <a class="fullres-btn" href="../_images/soledad-cars-hillshade.png" target="_blank" rel="noopener noreferrer">Open at full resolution ↗</a>
 </div>
 :::
 ::::
 
 ```{raw} html
-<a href="https://maps.google.com/?ll=32.8718,-117.2405&z=14&t=k" target="_blank" rel="noopener noreferrer">View the comparison area in Google Maps</a>
+<a href="https://maps.google.com/?ll=32.8396,-117.2413&z=15&t=k" target="_blank" rel="noopener noreferrer">View the comparison area in Google Maps</a>
 ```
 
 ## References

@@ -1,6 +1,6 @@
 # Alternative Open-Source Stereo Pipelines
 
-Comparisons of ASP with other widely used open-source stereo photogrammetry pipelines, using the [SpaceNet UCSD WorldView-3 example](https://asp-plot.readthedocs.io/en/latest/examples/notebooks/worldview_spacenet_ucsd_stereo.html) as a common test case.
+Comparisons of ASP with other widely used open-source stereo photogrammetry pipelines, on the WorldView-3 pair of [Tutorial 2](../tutorials/02_worldview_ucsd.ipynb) (Mount Soledad, San Diego), prepared as the tutorial prepares it.
 
 ```{note}
 This is not a comprehensive comparison of processing parameters between ASP, CARS, and SETSM. We make no quantitative ranking between DEM outputs.

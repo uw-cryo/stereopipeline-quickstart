@@ -14,27 +14,29 @@ The algorithm is iterative closest point ({term}`ICP`): pair each point of your 
 
 ## When it helps and when it doesn't
 
-`pc_align` fixes what a rigid move can fix: near-uniform bias and small global tilt. It cannot fix localized blunders, matching noise, or non-rigid warp; those need attention upstream (better bundle adjustment, better stereo parameters, or better input imagery). The difference-to-reference maps below, both from tutorial runs, show the two cases:
+`pc_align` fixes what a rigid move can fix: near-uniform bias and small global tilt. It cannot fix localized blunders, matching noise, or non-rigid warp; those need attention upstream (better bundle adjustment, better stereo parameters, or better input imagery). The difference maps below show both, for the ASTER tutorial's DEM against its COP30 reference, before and after aligning it to COP30 with `pc_align`:
 
-![Difference maps: a near-uniform offset alignment can fix, and spatially varying error it cannot](figures/dh-rigid-vs-varying.png)
+![The ASTER tutorial's DEM minus COP30, before and after alignment](figures/dh-before-after-alignment.png)
+
+Before alignment, the difference follows the slopes: positive on slopes facing one way and negative on those facing the other, which is what a horizontal offset looks like. A rigid shift of 39 m removes that pattern and the median offset (−7.3 m to −0.5 m). What remains, such as the higher heights around the summit, is not a rigid offset; it is probably snow and ice that changed between the two datasets' dates, and alignment cannot remove it. The tutorial's own report aligns this DEM to ICESat-2 points instead, which gives a different, smaller shift (15 m): the result depends on the reference.
 
 If the difference map against the reference still shows structure after alignment, the problem is not alignment.
 
 ## Reading the alignment report
 
-`pc_align` prints percentile breakdowns of the point-to-reference distances before and after alignment, plus the transformation it applied. From a run of the WorldView tutorial's DEM against its {term}`COP30 <Copernicus DEM (COP30)>` reference:
+`pc_align` prints percentile breakdowns of the point-to-reference distances before and after alignment, plus the transformation it applied. From the WorldView tutorial's report, which aligns its DEM to {term}`ICESat-2` points:
 
 ```text
-Input:  error percentile of smallest errors (meters): 16%: 3.87315,  50%: 7.13745, 84%: 11.2421
-Output: error percentile of smallest errors (meters): 16%: 0.574244, 50%: 2.08287, 84%: 5.95369
-Translation vector (North-East-Down, meters): Vector3(2.1610355,3.4450347,7.0166972)
-Translation vector magnitude (meters): 8.1100172
+Input:  error percentile of smallest errors (meters): 16%: 0.433324, 50%: 1.36121, 84%: 3.16269
+Output: error percentile of smallest errors (meters): 16%: 0.296353, 50%: 1.21818, 84%: 3.28416
+Translation vector (North-East-Down, meters): Vector3(-1.2293,-0.015487776,0.67589126)
+Translation vector magnitude (meters): 1.4029424
 ```
 
 Three things to check:
 
-- The 50% lines are the main metric: the median point-to-reference distance dropped from about 7 m to about 2 m.
-- The translation vector says where the DEM moved: here mostly down by 7 m, with a couple of meters horizontally. It should be a plausible magnitude for your sensor.
+- The 50% lines are the main metric: the median point-to-reference distance dropped from 1.36 m to 1.22 m. That is a small change, because the tutorial's bundle adjustment already tied the cameras to the COP30 heights, which removed most of the offset.
+- The translation vector says where the DEM moved: here 1.2 m south and 0.7 m down. It should be a plausible magnitude for your sensor.
 - A median that barely drops, or a huge translation, means the DEM and reference disagree in a way ICP cannot reconcile; check the vertical datums and the overlap area first.
 
 ## Alignment inside `asp-plot`
