@@ -19,9 +19,9 @@
 // When a tutorial's last cell writes its results zip (data/*_results.zip,
 // utils.zip_results), a notification says it's ready and offers to show it
 // in the file explorer, where right-click → Download saves it. devcontainer.json
-// excludes data/ from file watching (ASP writes thousands of files there),
-// which applies to recursive watchers only, so this watches data/ itself, one
-// level deep, and the zips are written there.
+// excludes data/ from file watching (ASP writes thousands of files there), and
+// in a Codespace no file watcher, not even one limited to data/ itself, saw
+// the zips, so this lists data/ every few seconds instead.
 
 const vscode = require("vscode");
 
@@ -99,16 +99,39 @@ async function closePanel(context) {
     await context.globalState.update(DONE, true);
 }
 
-// zip_results renames the finished zip into place, which can be reported as a
-// create and a change; one notification per zip per few seconds.
-const notified = new Map();
+const RESULTS_POLL_MS = 3000;
+
+// The modification time of each results zip already announced, or there when
+// the extension started, so a zip is announced once each time it is written.
+const seen = new Map();
+
+async function findResults(data) {
+    let entries = [];
+    try {
+        entries = await vscode.workspace.fs.readDirectory(data);
+    } catch {
+        return []; // no data/ yet
+    }
+    const found = [];
+    for (const [name, type] of entries) {
+        if (type === vscode.FileType.File && name.endsWith("_results.zip")) {
+            const uri = vscode.Uri.joinPath(data, name);
+            found.push([uri, (await vscode.workspace.fs.stat(uri)).mtime]);
+        }
+    }
+    return found;
+}
+
+async function pollResults(data) {
+    for (const [uri, mtime] of await findResults(data)) {
+        if (seen.get(uri.toString()) !== mtime) {
+            seen.set(uri.toString(), mtime);
+            announceResults(uri);
+        }
+    }
+}
 
 async function announceResults(uri) {
-    const now = Date.now();
-    if (now - (notified.get(uri.toString()) ?? 0) < 5000) {
-        return;
-    }
-    notified.set(uri.toString(), now);
     const name = vscode.workspace.asRelativePath(uri);
     const choice = await vscode.window.showInformationMessage(
         `Your results are ready: ${name}. To save them, right-click the file in the explorer and choose Download.`,
@@ -120,13 +143,16 @@ async function announceResults(uri) {
 }
 
 exports.activate = function (context) {
-    const data = vscode.Uri.joinPath(vscode.workspace.workspaceFolders?.[0]?.uri ?? vscode.Uri.file("/"), "data");
-    vscode.workspace.fs.createDirectory(data);
-    const results = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(data, "*_results.zip"));
+    const workspace = vscode.workspace.workspaceFolders?.[0];
+    if (workspace) {
+        const data = vscode.Uri.joinPath(workspace.uri, "data");
+        findResults(data).then((found) => {
+            found.forEach(([uri, mtime]) => seen.set(uri.toString(), mtime));
+            const timer = setInterval(() => pollResults(data), RESULTS_POLL_MS);
+            context.subscriptions.push({ dispose: () => clearInterval(timer) });
+        });
+    }
     context.subscriptions.push(
-        results,
-        results.onDidCreate(announceResults),
-        results.onDidChange(announceResults),
         vscode.window.onDidChangeVisibleNotebookEditors((editors) => onVisible(context, editors)),
         vscode.workspace.onDidCloseNotebookDocument((notebook) => collapsed.delete(notebook.uri.toString())),
     );
