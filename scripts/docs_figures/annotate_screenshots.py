@@ -17,19 +17,20 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-# raw name -> (output name, crop, boxes). The crop (left, top, right, bottom)
-# is applied first and the boxes are in the cropped image; None keeps it all.
-# A box is (label, left, top, right, bottom); an empty label draws the box
-# alone. Numbered as docs/index.md lists them.
-SCREENSHOTS = {
+# (raw name, output name, crop, scale, boxes). The crop (left, top, right,
+# bottom) is applied first, then the scale, and the boxes are in the result;
+# None keeps the whole capture. A box is (label, left, top, right, bottom); an
+# empty label draws the box alone. Numbered as docs/index.md lists them.
+SCREENSHOTS = [
     # Cropped below GitHub's header, which shows the account's avatar.
-    "create.png": ("launch-create.png", (0, 66, 1512, 600), [("", 783, 439, 997, 495)]),
-    "trust.png": ("launch-trust.png", None, []),
+    ("create.png", "launch-create.png", (0, 66, 1512, 600), 1, [("", 783, 439, 997, 495)]),
+    ("trust.png", "launch-trust.png", None, 1, []),
     # The end of the run: the report heading, the results line, the zip in the explorer.
-    "done.png": ("launch-done.png", None, [("1", 400, 68, 800, 124), ("2", 406, 488, 1030, 540), ("3", 56, 200, 250, 230)]),
-    # The explorer, the notebook text, the first step's status line.
-    "running.png": ("launch-running.png", None, [("1", 50, 38, 342, 198), ("2", 384, 222, 1442, 378), ("3", 352, 400, 1442, 628)]),
-}
+    ("done.png", "launch-done.png", None, 1, [("1", 400, 68, 800, 124), ("2", 406, 488, 1030, 540), ("3", 56, 200, 250, 230)]),
+    # The top of the window: the explorer, the notebook's tab and its toolbar, with Run All boxed.
+    ("done.png", "run-all.png", (0, 0, 1512, 130), 1, [("", 546, 36, 630, 68)]),
+    ("running.png", "launch-running.png", None, 1, [("1", 50, 38, 342, 198), ("2", 384, 222, 1442, 378), ("3", 352, 400, 1442, 628)]),
+]
 COLOR = (227, 66, 52)
 WIDTH = 4
 RADIUS = 22
@@ -44,10 +45,12 @@ def font(size):
     return ImageFont.load_default()
 
 
-def annotate(src, out, crop, boxes):
+def annotate(src, out, crop, scale, boxes):
     image = Image.open(src).convert("RGB")
     if crop:
         image = image.crop(crop)
+    if scale != 1:
+        image = image.resize((image.width * scale, image.height * scale), Image.LANCZOS)
     draw = ImageDraw.Draw(image)
     label_font = font(28)
     for label, left, top, right, bottom in boxes:
@@ -78,9 +81,9 @@ def main():
     # GitHub's "Setting up your codespace" page, then VS Code connecting.
     if (raw / "building-a.png").exists() and (raw / "building-b.png").exists():
         side_by_side(raw / "building-a.png", raw / "building-b.png", figures / "launch-building.png")
-    for name, (out, crop, boxes) in SCREENSHOTS.items():
+    for name, out, crop, scale, boxes in SCREENSHOTS:
         if (raw / name).exists():
-            annotate(raw / name, figures / out, crop, boxes)
+            annotate(raw / name, figures / out, crop, scale, boxes)
         else:
             print(f"no {raw / name}, skipped")
 
