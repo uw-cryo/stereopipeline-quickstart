@@ -15,6 +15,12 @@
 // ignores the notebooks' jupyter.source_hidden metadata (microsoft/vscode#168807).
 // The first time Tutorial 1 opens, it runs all cells, so a new user doesn't
 // have to find Run All (globalState flag).
+//
+// When a tutorial's last cell writes its results zip (*_results.zip in the
+// top folder, utils.zip_results), a notification says it's ready and offers
+// to show it in the file explorer, where right-click → Download saves it. The
+// folder is listed every few seconds: a file watcher didn't see zips written
+// in data/, which devcontainer.json excludes from watching.
 
 const vscode = require("vscode");
 
@@ -92,7 +98,61 @@ async function closePanel(context) {
     await context.globalState.update(DONE, true);
 }
 
+const RESULTS_POLL_MS = 3000;
+
+// The modification time of each results zip already announced, or there when
+// the extension started, so a zip is announced once each time it is written.
+const seen = new Map();
+
+async function findResults(folder) {
+    let entries = [];
+    try {
+        entries = await vscode.workspace.fs.readDirectory(folder);
+    } catch {
+        return [];
+    }
+    const found = [];
+    for (const [name, type] of entries) {
+        if (type === vscode.FileType.File && name.endsWith("_results.zip")) {
+            const uri = vscode.Uri.joinPath(folder, name);
+            found.push([uri, (await vscode.workspace.fs.stat(uri)).mtime]);
+        }
+    }
+    return found;
+}
+
+async function pollResults(folder) {
+    for (const [uri, mtime] of await findResults(folder)) {
+        if (seen.get(uri.toString()) !== mtime) {
+            seen.set(uri.toString(), mtime);
+            announceResults(uri);
+        }
+    }
+}
+
+async function announceResults(uri) {
+    const name = vscode.workspace.asRelativePath(uri);
+    const choice = await vscode.window.showInformationMessage(
+        `Your results are ready: ${name}. To save them, right-click the file in the explorer and choose Download.`,
+        "Show in Explorer",
+    );
+    if (choice) {
+        // In case the explorer hasn't picked up the new file yet: it can't
+        // reveal a file it doesn't know about.
+        await vscode.commands.executeCommand("workbench.files.action.refreshFilesExplorer");
+        await vscode.commands.executeCommand("revealInExplorer", uri);
+    }
+}
+
 exports.activate = function (context) {
+    const workspace = vscode.workspace.workspaceFolders?.[0];
+    if (workspace) {
+        findResults(workspace.uri).then((found) => {
+            found.forEach(([uri, mtime]) => seen.set(uri.toString(), mtime));
+            const timer = setInterval(() => pollResults(workspace.uri), RESULTS_POLL_MS);
+            context.subscriptions.push({ dispose: () => clearInterval(timer) });
+        });
+    }
     context.subscriptions.push(
         vscode.window.onDidChangeVisibleNotebookEditors((editors) => onVisible(context, editors)),
         vscode.workspace.onDidCloseNotebookDocument((notebook) => collapsed.delete(notebook.uri.toString())),

@@ -51,3 +51,7 @@ venv/
 # Logs
 *.log
 *.profraw
+
+# Results zips the tutorials write for download (notebooks/utils.py zip_results)
+/*_results.zip
+/*_results.zip.part

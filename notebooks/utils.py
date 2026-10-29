@@ -273,6 +273,62 @@ class timer:
             self.status.update(_markdown(f"❌ **{self.label}** failed after {elapsed}"))
 
 
+def zip_results(zip_path, files, eight_bit=()):
+    """Put a tutorial's results in one zip file, to download and open in a GIS.
+
+    Paths inside the zip are relative to the files' common folder. Files that don't
+    exist (a step was skipped or failed) are left out and listed. The files in
+    `eight_bit` (the orthoimages, saved as 32-bit floats) go in as 8-bit copies,
+    scaled linearly from their minimum and maximum to 1-255, with 0 for no data.
+    That keeps each zip under 32 MB: VS Code in the browser downloads larger
+    files by asking for write access to a local folder, and Chrome refuses
+    ~/Downloads for that. The zip is written under a temporary name and renamed
+    when complete, so that a complete file is all that ever appears at
+    `zip_path`: in a Codespace, the close-panel extension shows a notification
+    when it does.
+    """
+    import os
+    import tempfile
+    import zipfile
+    from pathlib import Path
+
+    from IPython.display import display
+    from osgeo import gdal
+
+    gdal.UseExceptions()
+    zip_path = Path(zip_path)
+    present = [Path(f) for f in files if Path(f).exists()]
+    base = Path(os.path.commonpath([p.resolve().parent for p in present])) if present else Path.cwd()
+    missing = [str(f) for f in files if not Path(f).exists()]
+    eight_bit = {Path(f).resolve() for f in eight_bit}
+    partial = zip_path.with_name(zip_path.name + ".part")
+    with timer("Zipping the results"), tempfile.TemporaryDirectory() as tmp:
+        with zipfile.ZipFile(partial, "w", zipfile.ZIP_DEFLATED) as archive:
+            for path in present:
+                source = path
+                if path.resolve() in eight_bit:
+                    source = Path(tmp) / path.name
+                    image = gdal.Open(str(path))
+                    low, high = image.GetRasterBand(1).ComputeRasterMinMax(False)
+                    gdal.Translate(
+                        str(source), image, outputType=gdal.GDT_Byte,
+                        scaleParams=[[low, high, 1, 255]], noData=0,
+                        creationOptions=["COMPRESS=DEFLATE", "PREDICTOR=2", "TILED=YES"],
+                    )
+                archive.write(source, path.resolve().relative_to(base))
+        partial.replace(zip_path)
+    if missing:
+        print("Not found, so not in the zip:\n  " + "\n  ".join(missing))
+    size = zip_path.stat().st_size / 1e6
+    # The path as the file explorer shows it: from the repository's top folder,
+    # the one above notebooks/.
+    shown = os.path.relpath(zip_path.resolve(), Path.cwd().parent)
+    display(_markdown(
+        f"### Results: `{shown}` ({size:.0f} MB, {len(present)} files)\n\n"
+        "To save it to your computer, right-click it in the file explorer on the left and choose **Download**."
+    ))
+
+
 # The stages parallel_stereo reports in <prefix>-stereo-status.txt, in run
 # order, with a plain description. Stages a run doesn't use, such as
 # stereo_rfne with asp_mgm, are skipped.
