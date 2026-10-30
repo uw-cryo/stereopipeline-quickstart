@@ -315,6 +315,9 @@ def _cog(src, dst, eight_bit=False):
 def _qgis_project(path, layers, title):
     """Write a QGIS project (.qgs) with the given rasters, by relative path, so the zip opens with one click.
 
+    No version attribute: QGIS then treats the file as current and shows no
+    "saved by an older version" message (checked with QGIS 4.0).
+
     `layers` is a list of (file name, layer name, kind), kind one of "dem",
     "hillshade", "error", "image", "pdf"; PDFs are left out. The hillshade
     goes under the DEM, which is drawn half-transparent with a colour ramp.
@@ -369,7 +372,7 @@ def _qgis_project(path, layers, title):
     # QGIS draws the layer tree top to bottom, so the last in draw order comes first.
     tree_xml.reverse()
     xml = f"""<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis version="3.40" projectname="{escape(title)}">
+<qgis projectname="{escape(title)}">
   <title>{escape(title)}</title>
   <projectCrs><spatialrefsys><wkt>{wkt}</wkt><authid>{auth}</authid></spatialrefsys></projectCrs>
   <layer-tree-group>
@@ -749,36 +752,34 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
                 new = True
 
         if new:
-            fig = Figure(figsize=(15, 5))
+            # Every panel gets a colorbar axis from the first frame (empty until
+            # there is data), so the maps keep their size as tiles arrive.
+            fig = Figure(figsize=(15, 5), constrained_layout=True)
             axes = fig.subplots(1, 3)
-            for ax, array, title in zip(axes[:2], (dx, dy), directions):
-                if np.isfinite(array).any():
-                    lo, hi = np.nanpercentile(array, (2, 98))
-                    im = ax.imshow(array, cmap="magma", vmin=lo, vmax=hi)
-                    fig.colorbar(im, ax=ax, shrink=0.7, label="Offset (pixels)")
-                ax.set_title(f"Offset between the images: {title}", fontsize=10)
-            ax = axes[2]
-            if np.isfinite(heights).any():
-                lo, hi = np.nanpercentile(heights, (2, 98))
-                shade = LightSource(azdeg=315, altdeg=45).hillshade(np.nan_to_num(heights, nan=np.nanmedian(heights)), dx=spacing, dy=spacing)
-                shade[np.isnan(heights)] = np.nan
-                ax.imshow(shade, cmap="gray")
-                im = ax.imshow(heights, cmap="viridis", vmin=lo, vmax=hi, alpha=0.5)
-                fig.colorbar(im, ax=ax, shrink=0.7, label="Height (m)")
-            ax.set_title("After triangulation: heights", fontsize=10)
-            for ax in axes:
-                # The tiles parallel_stereo works through, so the map's filling in makes sense:
-                # white on the dark offset maps, dark on the hillshade.
-                color = "white" if ax is not axes[2] else "0.2"
+            panels = [(axes[0], dx, f"Offset between the images: {directions[0]}", "magma", "Offset (pixels)"),
+                      (axes[1], dy, f"Offset between the images: {directions[1]}", "magma", "Offset (pixels)"),
+                      (axes[2], heights, "After triangulation: heights", "viridis", "Height (m)")]
+            for ax, array, title, cmap, label in panels:
+                has_data = np.isfinite(array).any()
+                lo, hi = np.nanpercentile(array, (2, 98)) if has_data else (0, 1)
+                if ax is axes[2] and has_data:
+                    shade = LightSource(azdeg=315, altdeg=45).hillshade(np.nan_to_num(heights, nan=np.nanmedian(heights)), dx=spacing, dy=spacing)
+                    shade[np.isnan(heights)] = np.nan
+                    ax.imshow(shade, cmap="gray")
+                im = ax.imshow(array, cmap=cmap, vmin=lo, vmax=hi, alpha=0.5 if ax is axes[2] else 1)
+                cbar = fig.colorbar(im, ax=ax, shrink=0.7, label=label)
+                if not has_data:
+                    cbar.ax.set_visible(False)
+                ax.set_title(title, fontsize=10)
+                # The tiles parallel_stereo works through, so the map's filling in makes sense.
                 for x in grid[0]:
-                    ax.axvline(x / step, color=color, linestyle="--", linewidth=1.2)
+                    ax.axvline(x / step, color="black", linestyle="--", linewidth=1.2)
                 for y in grid[1]:
-                    ax.axhline(y / step, color=color, linestyle="--", linewidth=1.2)
+                    ax.axhline(y / step, color="black", linestyle="--", linewidth=1.2)
                 ax.set_xlim(0, dx.shape[1])
                 ax.set_ylim(dx.shape[0], 0)
                 ax.set_xticks([])
                 ax.set_yticks([])
-            fig.tight_layout()
             buf = BytesIO()
             fig.savefig(buf, format="png", dpi=80)
             if plot is None:
