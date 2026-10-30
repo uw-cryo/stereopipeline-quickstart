@@ -8,7 +8,7 @@ Resampling each input image onto a reference DEM grid before stereo turns a wide
 
 ## Why it helps
 
-Raw images of the same terrain from two viewpoints differ a lot: the satellite geometry shifts every pixel, and relief shifts them further. To find a pixel's match, the correlator has to search a wide range, which is slow and error-prone. Orthorectifying both images onto the same reference DEM removes most of that geometric difference up front, so the correlator only searches a small range around each pixel.
+Raw images of the same terrain from two viewpoints differ a lot: the satellite geometry shifts every pixel, and relief shifts them further. That second effect is {term}`relief displacement`: two views from different directions place the same point in different spots in their images, by an amount that depends on the point's height and on how far each camera is from straight overhead. It is what stereo measures, and also what makes matching hard when it is large. To find a pixel's match, the correlator has to search a wide range, which is slow and error-prone. Orthorectifying both images onto the same reference DEM removes most of that geometric difference up front, so the correlator only searches a small range around each pixel.
 
 ![Orthorectification shrinks the search range stereo matching must cover](figures/ortho-search-range.svg)
 
@@ -16,7 +16,7 @@ Measured on the ASTER tutorial pair over the tutorial's window, run both ways wi
 
 ![Disparity histograms for the same ASTER pair, raw vs orthorectified](figures/aster-disparity-hist.png)
 
-After orthorectification, the residual disparity is dominated by error in the reference DEM (small) rather than satellite geometry (large).
+After orthorectification, what remains is the relief displacement the reference DEM didn't account for (buildings, trees, and terrain finer than its grid) plus any residual error in the cameras, which shows as a shift that is the same over the whole image.
 
 ## When you can skip it
 
@@ -26,7 +26,7 @@ Very flat terrain, missing reference DEMs, or quick first passes can use ASP's `
 
 | Reference | Coverage | Notes |
 |---|---|---|
-| [Copernicus GLO-30](https://registry.opendata.aws/copernicus-dem/) | global | free on AWS Open Data; what the tutorials use (see [Data sources and licences](../reference/data.md) for the required notice) |
+| [Copernicus GLO-30](https://registry.opendata.aws/copernicus-dem/) | global | free on AWS Open Data; what the tutorials use (see [Data sources and licenses](../reference/data.md) for the required notice) |
 | [USGS 3DEP](https://www.usgs.gov/3d-elevation-program) | United States | lidar-derived, high resolution |
 | [ArcticDEM](https://www.pgc.umn.edu/data/arcticdem/) | Arctic | WorldView-derived strips and mosaics |
 | [REMA](https://www.pgc.umn.edu/data/rema/) | Antarctica | WorldView-derived strips and mosaics |

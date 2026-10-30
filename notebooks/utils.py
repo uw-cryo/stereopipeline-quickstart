@@ -2,38 +2,7 @@
 from __future__ import annotations
 
 import re
-
-
-def average_crop(image, camera, out_image, out_camera, factor):
-    """Average `factor` x `factor` pixel blocks of a cam2rpc crop, and rescale its RPC camera to match.
-
-    Writes `out_image` as compressed UInt16 (WorldView panchromatic data is
-    11-bit integer) and `out_camera` as the RPC camera of the smaller image.
-    ASP puts pixel centres at whole numbers, so new pixel j is centred on old
-    pixel factor*j + (factor-1)/2: the RPC line and sample offsets become
-    (offset - (factor-1)/2) / factor and their scales scale / factor.
-    """
-    from osgeo import gdal
-
-    src = gdal.Open(str(image))
-    w, h = src.RasterXSize // factor, src.RasterYSize // factor
-    gdal.Translate(
-        str(out_image), src, srcWin=[0, 0, w * factor, h * factor], width=w, height=h,
-        resampleAlg="average", outputType=gdal.GDT_UInt16,
-        creationOptions=["COMPRESS=DEFLATE", "PREDICTOR=2", "TILED=YES"],
-    )
-    src = None
-
-    xml = open(camera).read()
-    for key in ("LINE", "SAMP"):
-        for tag, fn in ((f"{key}OFFSET", lambda v: (v - (factor - 1) / 2) / factor),
-                        (f"{key}SCALE", lambda v: v / factor)):
-            xml, n = re.subn(rf"<{tag}>([^<]+)</{tag}>",
-                             lambda m: f"<{tag}>{fn(float(m.group(1))):.10g}</{tag}>", xml)
-            if n != 1:
-                raise ValueError(f"{camera}: expected one <{tag}>, found {n}")
-    with open(out_camera, "w") as f:
-        f.write(xml)
+from pathlib import Path
 
 
 def show_image_pair(left, right, titles, downsample=8):
@@ -56,10 +25,29 @@ def show_image_pair(left, right, titles, downsample=8):
     plt.show()
 
 
-def show_dem_hillshade(dem_fn, title="Stereo DEM"):
-    """Show a DEM as a hillshade with elevation in color on top.
+def multidirectional_hillshade(dem_fn, out_fn=None):
+    """A multi-directional hillshade of a DEM (gdaldem's, lit from four directions).
 
-    Uses asp_plot's `Raster.hillshade` and `Plotter.plot_array`.
+    Returns the array (no-data masked). With `out_fn`, also writes it as a
+    GeoTIFF; the file is reused on later calls.
+    """
+    import numpy as np
+    from osgeo import gdal
+
+    gdal.UseExceptions()
+    if out_fn and Path(out_fn).exists():
+        ds = gdal.Open(str(out_fn))
+    else:
+        ds = gdal.DEMProcessing(str(out_fn) if out_fn else "", str(dem_fn), "hillshade",
+                                format="GTiff" if out_fn else "MEM", multiDirectional=True, computeEdges=True,
+                                creationOptions=["COMPRESS=DEFLATE", "TILED=YES"] if out_fn else [])
+    return np.ma.masked_equal(ds.ReadAsArray(), 0)
+
+
+def show_dem_hillshade(dem_fn, title="Stereo DEM", hillshade_fn=None):
+    """Show a DEM as a multi-directional hillshade with elevation in color on top.
+
+    With `hillshade_fn`, the hillshade is written there too, for the results zip.
     """
     import matplotlib.pyplot as plt
     from asp_plot.utils import Plotter, Raster
@@ -67,7 +55,7 @@ def show_dem_hillshade(dem_fn, title="Stereo DEM"):
     dem = Raster(dem_fn)
     plotter = Plotter()
     fig, ax = plt.subplots(figsize=(8, 7))
-    plotter.plot_array(ax, dem.hillshade(), cmap="gray", add_cbar=False)
+    plotter.plot_array(ax, multidirectional_hillshade(dem_fn, hillshade_fn), cmap="gray", add_cbar=False)
     plotter.plot_array(ax, dem.read_array(), cmap="viridis", alpha=0.5, cbar_label="Elevation (m HAE)")
     ax.set_title(title)
     ax.set_axis_off()
@@ -99,7 +87,7 @@ def show_hillshades(dem_fns, titles):
 REPORT_FIGURES = {
     "dem_results": "The DEM, its triangulation intersection error, and its difference from the reference DEM.",
     "detailed_hillshade": "A hillshade of the DEM, with zoomed details.",
-    "icesat_2_atl06_sr_profile": "The DEM along one ICESat-2 track, and the difference between them.",
+    "icesat_2_atl06_sr_profile_aligned_dem": "The DEM along one ICESat-2 track, before and after the shift onto the ICESat-2 points, and the difference after it.",
 }
 
 
@@ -120,6 +108,9 @@ def show_report_figures(figures_dir, figures=REPORT_FIGURES, max_width=1400):
     shown = 0
     for name, caption in figures.items():
         matches = sorted(figures_dir.glob(f"[0-9][0-9]_{name}.png"))
+        if not matches and name.endswith("_aligned_dem"):
+            # No aligned figure when pc_align found nothing to improve: show the plain one.
+            matches = sorted(figures_dir.glob(f"[0-9][0-9]_{name[: -len('_aligned_dem')]}.png"))
         if not matches:
             continue
         fig = matches[0]
@@ -200,7 +191,7 @@ def _tail(log, n=5, width=160):
 
 
 def _log_lines(text):
-    """The log tail as a small grey block, or an empty output once the step is done."""
+    """The log tail as a small gray block, or an empty output once the step is done."""
     from html import escape
 
     from IPython.display import HTML
@@ -273,49 +264,154 @@ class timer:
             self.status.update(_markdown(f"❌ **{self.label}** failed after {elapsed}"))
 
 
-def zip_results(zip_path, files, eight_bit=()):
+def _cog(src, dst, eight_bit=False):
+    """Write `src` as a Cloud Optimized GeoTIFF with averaged overviews, 8-bit if asked.
+
+    The 8-bit copy (for orthoimages saved as 32-bit floats) scales linearly
+    from the image's minimum and maximum to 1-255, with 0 for no data.
+    """
+    from osgeo import gdal
+
+    gdal.UseExceptions()
+    image = gdal.Open(str(src))
+    floating = image.GetRasterBand(1).DataType in (gdal.GDT_Float32, gdal.GDT_Float64) and not eight_bit
+    options = dict(format="COG", creationOptions=[
+        "COMPRESS=DEFLATE", f"PREDICTOR={3 if floating else 2}", "OVERVIEW_RESAMPLING=AVERAGE", "NUM_THREADS=ALL_CPUS"])
+    if eight_bit:
+        low, high = image.GetRasterBand(1).ComputeRasterMinMax(False)
+        options.update(outputType=gdal.GDT_Byte, scaleParams=[[low, high, 1, 255]], noData=0)
+    gdal.Translate(str(dst), image, **options)
+
+
+def _qgis_project(path, layers, title):
+    """Write a QGIS project (.qgs) with the given rasters, by relative path, so the zip opens with one click.
+
+    `layers` is a list of (file name, layer name, kind), kind one of "dem",
+    "hillshade", "error", "image", "pdf"; PDFs are left out. The hillshade
+    goes under the DEM, which is drawn half-transparent with a color ramp,
+    and the error map is listed but unchecked. The layout follows a project
+    QGIS 4.0 wrote itself (the elements QGIS needs to load and draw a layer:
+    type="raster" on <maplayer>, an <extent>, the CRS as WKT, <layerorder>);
+    a hand-written file without them listed the layers but drew nothing.
+    The version string is QGIS 4.0's: an older one, or none, makes QGIS say
+    the file was saved by an older version (none reads as 0.0.0).
+    """
+    from osgeo import gdal
+    from xml.sax.saxutils import escape
+
+    gdal.UseExceptions()
+    rasters = [(f, n, k) for f, n, k in layers if k != "pdf"]
+    # Draw order, bottom to top: images, the hillshade, the DEM, the error map.
+    order = {"image": 0, "hillshade": 1, "dem": 2, "error": 3}
+    rasters.sort(key=lambda r: order[r[2]])
+    folder = Path(path).parent
+
+    def info(fn):
+        ds = gdal.Open(str(folder / fn))
+        gt = ds.GetGeoTransform()
+        return ds, (gt[0], gt[3] + gt[5] * ds.RasterYSize, gt[0] + gt[1] * ds.RasterXSize, gt[3])
+
+    def renderer(ds, kind):
+        band = ds.GetRasterBand(1)
+        if kind in ("hillshade", "image"):
+            lo, hi = (1, 255) if kind == "hillshade" else band.ComputeRasterMinMax(True)
+            return (f'<rasterrenderer alphaBand="-1" gradient="BlackToWhite" grayBand="1" nodataColor="" opacity="1" type="singlebandgray">'
+                    f'<rasterTransparency/><minMaxOrigin><limits>MinMax</limits><extent>WholeRaster</extent><statAccuracy>Estimated</statAccuracy>'
+                    f'<cumulativeCutLower>0.02</cumulativeCutLower><cumulativeCutUpper>0.98</cumulativeCutUpper><stdDevFactor>2</stdDevFactor></minMaxOrigin>'
+                    f'<contrastEnhancement><minValue>{lo}</minValue><maxValue>{hi}</maxValue><algorithm>StretchToMinimumMaximum</algorithm></contrastEnhancement></rasterrenderer>')
+        stats = band.GetStatistics(True, True)
+        if kind == "error":
+            lo, hi = 0, stats[2] + 2 * stats[3]
+            ramp = [(lo, "#000004"), ((lo + hi) / 2, "#b63679"), (hi, "#fcfdbf")]
+            opacity = 1
+        else:
+            lo, hi = stats[0], stats[1]
+            ramp = [(lo, "#440154"), ((lo + hi) / 2, "#21918c"), (hi, "#fde725")]
+            opacity = 0.5
+        items = "".join(f'<item alpha="255" color="{c}" label="{v:.0f}" value="{v}"/>' for v, c in ramp)
+        return (f'<rasterrenderer alphaBand="-1" band="1" classificationMax="{hi}" classificationMin="{lo}" nodataColor="" opacity="{opacity}" type="singlebandpseudocolor">'
+                f'<rasterTransparency/><minMaxOrigin><limits>None</limits><extent>WholeRaster</extent><statAccuracy>Estimated</statAccuracy>'
+                f'<cumulativeCutLower>0.02</cumulativeCutLower><cumulativeCutUpper>0.98</cumulativeCutUpper><stdDevFactor>2</stdDevFactor></minMaxOrigin>'
+                f'<rastershader><colorrampshader classificationMode="1" clip="0" colorRampType="INTERPOLATED" labelPrecision="0" maximumValue="{hi}" minimumValue="{lo}">'
+                f'{items}<rampLegendSettings direction="0" maximumLabel="" minimumLabel="" orientation="2" prefix="" suffix="" useContinuousLegend="1"/></colorrampshader></rastershader></rasterrenderer>')
+
+    first_ds, _ = info(rasters[0][0])
+    wkt = escape(first_ds.GetProjection())
+    srs = f'<spatialrefsys nativeFormat="Wkt"><wkt>{wkt}</wkt><authid>EPSG:{first_ds.GetSpatialRef().GetAuthorityCode(None) or ""}</authid></spatialrefsys>'
+    tree, layer_xml, order_xml = [], [], []
+    for i, (fn, name, kind) in enumerate(rasters):
+        ds, (xmin, ymin, xmax, ymax) = info(fn)
+        lid = f"layer{i}_{Path(fn).stem}".replace(".", "_")
+        checked = "Qt::Unchecked" if kind == "error" else "Qt::Checked"
+        tree.append(f'<layer-tree-layer checked="{checked}" expanded="0" id="{lid}" legend_exp="" legend_split_behavior="0" name="{escape(name)}" patch_size="-1,-1" providerKey="gdal" source="./{escape(fn)}"><customproperties><Option/></customproperties></layer-tree-layer>')
+        order_xml.append(f'<layer id="{lid}"/>')
+        layer_xml.append(
+            f'<maplayer autoRefreshMode="Disabled" autoRefreshTime="0" hasScaleBasedVisibilityFlag="0" layerType="Raster" legendPlaceholderImage="" maxScale="0" minScale="1e+08" refreshOnNotifyEnabled="0" refreshOnNotifyMessage="" styleCategories="AllStyleCategories" type="raster">'
+            f'<extent><xmin>{xmin}</xmin><ymin>{ymin}</ymin><xmax>{xmax}</xmax><ymax>{ymax}</ymax></extent>'
+            f'<id>{lid}</id><datasource>./{escape(fn)}</datasource><layername>{escape(name)}</layername><srs>{srs}</srs><provider>gdal</provider>'
+            f'<noData><noDataList bandNo="1" useSrcNoData="1"/></noData><map-layer-style-manager current="default"><map-layer-style name="default"/></map-layer-style-manager>'
+            f'<flags><Identifiable>1</Identifiable><Removable>1</Removable><Searchable>1</Searchable><Private>0</Private></flags>'
+            f'<pipe><provider><resampling enabled="true" maxOversampling="2" zoomedInResamplingMethod="bilinear" zoomedOutResamplingMethod="bilinear"/></provider>'
+            f'{renderer(ds, kind)}<brightnesscontrast brightness="0" contrast="0" gamma="1"/><huesaturation colorizeBlue="128" colorizeGreen="128" colorizeOn="0" colorizeRed="255" colorizeStrength="100" grayscaleMode="0" invertColors="0" saturation="0"/>'
+            f'<rasterresampler maxOversampling="2" zoomedInResampler="bilinear" zoomedOutResampler="bilinear"/><resamplingStage>resamplingFilter</resamplingStage></pipe><blendMode>0</blendMode><legend showfeaturecount="0" type="default-raster"/></maplayer>')
+    # QGIS lists the layer tree top to bottom, so the top-drawn layer comes first.
+    tree.reverse()
+    xml = f"""<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="{escape(title)}" version="4.0.0-Norrköping">
+  <homePath path=""/>
+  <title>{escape(title)}</title>
+  <projectCrs>{srs}</projectCrs>
+  <layer-tree-group><customproperties><Option/></customproperties>{"".join(tree)}<custom-order enabled="0">{"".join(order_xml)}</custom-order></layer-tree-group>
+  <projectlayers>{"".join(layer_xml)}</projectlayers>
+  <layerorder>{"".join(order_xml)}</layerorder>
+  <properties><Paths><Absolute type="bool">false</Absolute></Paths></properties>
+</qgis>
+"""
+    Path(path).write_text(xml)
+
+
+def zip_results(zip_path, results, title):
     """Put a tutorial's results in one zip file, to download and open in a GIS.
 
-    Paths inside the zip are relative to the files' common folder. Files that don't
-    exist (a step was skipped or failed) are left out and listed. The files in
-    `eight_bit` (the orthoimages, saved as 32-bit floats) go in as 8-bit copies,
-    scaled linearly from their minimum and maximum to 1-255, with 0 for no data.
-    That keeps each zip under 32 MB: VS Code in the browser downloads larger
-    files by asking for write access to a local folder, and Chrome refuses
-    ~/Downloads for that. The zip is written under a temporary name and renamed
-    when complete, so that a complete file is all that ever appears at
-    `zip_path`: in a Codespace, the close-panel extension shows a notification
-    when it does.
+    `results` lists (source path, name in the zip, kind), kind one of "dem",
+    "hillshade", "error", "image", "pdf". Every raster is rewritten as a
+    Cloud Optimized GeoTIFF with averaged overviews, flat in the zip under its
+    new name; images (orthoimages saved as 32-bit floats) become 8-bit, which
+    keeps each zip under 32 MB (VS Code in the browser downloads larger files
+    by asking for write access to a local folder, and Chrome refuses
+    ~/Downloads for that). A QGIS project (<title>.qgs) with every raster by
+    relative path goes in too, so the zip opens with one click. Sources that
+    don't exist (a step was skipped or failed) are left out and listed. The
+    zip is written under a temporary name and renamed when complete, so that a
+    complete file is all that ever appears at `zip_path`: in a Codespace, the
+    close-panel extension shows a notification when it does.
     """
     import os
     import tempfile
     import zipfile
-    from pathlib import Path
 
     from IPython.display import display
-    from osgeo import gdal
 
-    gdal.UseExceptions()
     zip_path = Path(zip_path)
-    present = [Path(f) for f in files if Path(f).exists()]
-    base = Path(os.path.commonpath([p.resolve().parent for p in present])) if present else Path.cwd()
-    missing = [str(f) for f in files if not Path(f).exists()]
-    eight_bit = {Path(f).resolve() for f in eight_bit}
+    present = [(Path(src), name, kind) for src, name, kind in results if Path(src).exists()]
+    missing = [str(src) for src, _, _ in results if not Path(src).exists()]
     partial = zip_path.with_name(zip_path.name + ".part")
     with timer("Zipping the results"), tempfile.TemporaryDirectory() as tmp:
+        staged = []
+        for src, name, kind in present:
+            dst = Path(tmp) / name
+            if kind == "pdf":
+                dst = src
+            else:
+                _cog(src, dst, eight_bit=(kind == "image"))
+            staged.append((dst, name, kind))
+        project = Path(tmp) / f"{title}.qgs"
+        if any(k != "pdf" for _, _, k in staged):
+            _qgis_project(project, [(n, Path(n).stem, k) for _, n, k in staged], title)
+            staged.append((project, project.name, "project"))
         with zipfile.ZipFile(partial, "w", zipfile.ZIP_DEFLATED) as archive:
-            for path in present:
-                source = path
-                if path.resolve() in eight_bit:
-                    source = Path(tmp) / path.name
-                    image = gdal.Open(str(path))
-                    low, high = image.GetRasterBand(1).ComputeRasterMinMax(False)
-                    gdal.Translate(
-                        str(source), image, outputType=gdal.GDT_Byte,
-                        scaleParams=[[low, high, 1, 255]], noData=0,
-                        creationOptions=["COMPRESS=DEFLATE", "PREDICTOR=2", "TILED=YES"],
-                    )
-                archive.write(source, path.resolve().relative_to(base))
+            for dst, name, _ in staged:
+                archive.write(dst, name)
         partial.replace(zip_path)
     if missing:
         print("Not found, so not in the zip:\n  " + "\n  ".join(missing))
@@ -323,9 +419,11 @@ def zip_results(zip_path, files, eight_bit=()):
     # The path as the file explorer shows it: from the repository's top folder,
     # the one above notebooks/.
     shown = os.path.relpath(zip_path.resolve(), Path.cwd().parent)
+    listing = "\n".join(f"- `{name}`" for _, name, _ in staged)
     display(_markdown(
-        f"### Results: `{shown}` ({size:.0f} MB, {len(present)} files)\n\n"
-        "To save it to your computer, right-click it in the file explorer on the left and choose **Download**."
+        f"### Results: `{shown}` ({size:.0f} MB, {len(staged)} files)\n\n{listing}\n\n"
+        "To save it to your computer, right-click it in the file explorer on the left and choose **Download**. "
+        f"Unzip it and open `{title}.qgs` in QGIS to see everything at once."
     ))
 
 
@@ -348,8 +446,7 @@ STEREO_STAGES = {
 # twice too long. The status file still says stereo_pprc while the
 # low-resolution matching runs, so that is counted in stereo_pprc.
 STAGE_SECONDS = {
-    "ucsd_soledad/stereo/": {"stereo_pprc": 47, "stereo_corr": 38, "stereo_blend": 3, "stereo_fltr": 5, "stereo_tri": 19},
-    "ucsd_soledad/pairs/": {"stereo_pprc": 30, "stereo_corr": 52, "stereo_blend": 4, "stereo_fltr": 6, "stereo_tri": 22},
+    "ucsd_penasquitos/": {"stereo_pprc": 21, "stereo_corr": 250, "stereo_blend": 21, "stereo_fltr": 10, "stereo_tri": 82},
     "": {"stereo_pprc": 40, "stereo_corr": 74, "stereo_blend": 23, "stereo_fltr": 5, "stereo_tri": 39},
 }
 
@@ -420,8 +517,11 @@ def _tile_heights(path, step):
     return height
 
 
-def _tile_shift(path, step, tile, size):
-    """The horizontal shift between the images in a tile's disparity (<tile>-D.tif), every `step` pixels.
+def _tile_offsets(path, step, tile, size):
+    """The pixel offsets between the images in a tile's disparity (<tile>-D.tif), every `step` pixels.
+
+    Returns (dx, dy): how far each pixel of the left image sits from its
+    match in the right one, along the image's columns and rows.
 
     The disparity also covers a margin (collar) around the tile on each side
     that borders another tile; it is cut off here. `tile` is the tile's
@@ -440,11 +540,29 @@ def _tile_shift(path, step, tile, size):
             pads.append((extent - length) // sides if start > 0 else 0)
         win = dict(xoff=pads[0], yoff=pads[1], win_xsize=w, win_ysize=h, buf_xsize=w // step, buf_ysize=h // step)
         dx = ds.GetRasterBand(1).ReadAsArray(**win).astype("float64")
+        dy = ds.GetRasterBand(2).ReadAsArray(**win).astype("float64")
         valid = ds.GetRasterBand(3).ReadAsArray(**win)
     except RuntimeError:
         return None
     dx[valid == 0] = np.nan
-    return dx
+    dy[valid == 0] = np.nan
+    return dx, dy
+
+
+def _tile_grid(cmd, size):
+    """The tile boundaries parallel_stereo will use: x edges and y edges in pixels of the left image.
+
+    From --job-size-w/-h in the command (ASP's default is 1024). The grid is
+    drawn before any tile finishes, so the map shows what to expect.
+    """
+    import re
+
+    edges = []
+    for flag, extent in (("--job-size-w", size[0]), ("--job-size-h", size[1])):
+        m = re.search(rf"{flag}\s+(\d+)", cmd)
+        job = int(m.group(1)) if m else 1024
+        edges.append(list(range(job, extent, job)))
+    return edges
 
 
 def _match_points_png(prefix):
@@ -491,9 +609,11 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
     to `log`. While it runs, the notebook shows the last lines of the log, the
     current stage, the tiles done, the time so far and, after the first stage,
     an estimate of the time left. Once the features are matched, it shows
-    asp-plot's match-point figure, and then a map of the processing window that
-    fills in tile by tile: the shift between the images after matching, and
-    the heights after triangulation. The map is drawn every `step` pixels, to
+    asp-plot's match-point figure, and then a map of the processing window
+    with the tile boundaries dashed, which fills in tile by tile: the offsets
+    between the images after matching (east-west and north-south on the map
+    grid; along rows and columns otherwise), and the heights after
+    triangulation. The map is drawn every `step` pixels, to
     keep it quick.
 
     The tiles are placed by their pixel position in the left image as stereo
@@ -519,9 +639,10 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
     t0 = time.time()
     proc, out = _start(cmd, log)
 
-    shift = heights = None  # window-sized arrays, made once the left image exists
+    dx = dy = heights = None  # window-sized arrays, made once the left image exists
     drawn = set()
     plot = None
+    grid_drawn = False
     matches_shown = False
     seconds = _stage_seconds(prefix)
     stage_start = {}  # when each stage first showed up in the status file
@@ -566,17 +687,25 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
             if png:
                 display(Image(data=png))
 
-        if shift is None:
+        if dx is None:
             left = _read_tile(f"{prefix}-L.tif", (1,), step)
             if left is None:
                 continue
             shape = left[0][0].shape
-            shift, heights = np.full(shape, np.nan), np.full(shape, np.nan)
+            dx, dy, heights = (np.full(shape, np.nan) for _ in range(3))
             left_image = gdal.Open(f"{prefix}-L.tif")
             size = (left_image.RasterXSize, left_image.RasterYSize)
             spacing = abs(left_image.GetGeoTransform()[1]) * step
-
+            grid = _tile_grid(cmd, size)
+            # Orthorectified images sit on the map grid, so the offsets run
+            # east-west and north-south; otherwise along the image's own axes.
+            on_map = bool(left_image.GetProjection())
+            directions = ("east-west", "north-south") if on_map else ("along rows", "along columns")
         new = False
+        if not grid_drawn and matches_shown:
+            # The empty map with its tile grid, under the match figure, before
+            # any tile is done, so the filling-in has a visible frame.
+            grid_drawn = new = True
         for tile_dir in Path(prefix).parent.glob(f"{Path(prefix).name}-*_*_*_*"):
             m = re.fullmatch(r".*-(\d+)_(\d+)_(\d+)_(\d+)", tile_dir.name)
             if not m:
@@ -585,43 +714,59 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
             x0, y0 = window[0] // step, window[1] // step
             tile = tile_dir / tile_dir.name.split("-", 1)[1]
             readers = (
-                ("D", lambda path: _tile_shift(path, step, window, size), shift),
-                ("PC", lambda path: _tile_heights(path, step), heights),
+                ("D", lambda path: _tile_offsets(path, step, window, size), (dx, dy)),
+                ("PC", lambda path: (_tile_heights(path, step),), (heights,)),
             )
-            for key, read, target in readers:
+            for key, read, targets in readers:
                 path = Path(f"{tile}-{key}.tif")
                 if (tile_dir.name, key) in drawn or not path.exists() or time.time() - path.stat().st_mtime < 2:
                     continue
                 values = read(path)
-                if values is None:
+                if values is None or values[0] is None:
                     continue
-                h, w = values.shape
-                target[y0 : y0 + h, x0 : x0 + w] = values[: target.shape[0] - y0, : target.shape[1] - x0]
+                for target, array in zip(targets, values):
+                    h, w = array.shape
+                    target[y0 : y0 + h, x0 : x0 + w] = array[: target.shape[0] - y0, : target.shape[1] - x0]
                 drawn.add((tile_dir.name, key))
                 new = True
 
         if new:
-            fig = Figure(figsize=(11, 5))
-            ax1, ax2 = fig.subplots(1, 2)
-            if np.isfinite(shift).any():
-                lo, hi = np.nanpercentile(shift, (2, 98))
-                im = ax1.imshow(shift, cmap="magma", vmin=lo, vmax=hi)
-                fig.colorbar(im, ax=ax1, shrink=0.7, label="Shift (pixels)")
-            ax1.set_title("After matching: shift between the images")
-            if np.isfinite(heights).any():
-                lo, hi = np.nanpercentile(heights, (2, 98))
-                shade = LightSource(azdeg=315, altdeg=45).hillshade(np.nan_to_num(heights, nan=np.nanmedian(heights)), dx=spacing, dy=spacing)
-                shade[np.isnan(heights)] = np.nan
-                ax2.imshow(shade, cmap="gray")
-                im = ax2.imshow(heights, cmap="viridis", vmin=lo, vmax=hi, alpha=0.5)
-                fig.colorbar(im, ax=ax2, shrink=0.7, label="Height (m)")
-            ax2.set_title("After triangulation: heights")
-            for ax in (ax1, ax2):
-                ax.set_xlim(0, shift.shape[1])
-                ax.set_ylim(shift.shape[0], 0)
+            # Every panel gets a colorbar axis from the first frame (empty until
+            # there is data), so the maps keep their size as tiles arrive.
+            fig = Figure(figsize=(15, 5), constrained_layout=True)
+            axes = fig.subplots(1, 3)
+            # The offsets are shown about their median, on a diverging scale centred
+            # on it, as the report's disparity figure does: the constant part of the
+            # offset is the cameras' error, and what varies is the relief.
+            panels = [(axes[0], dx, f"Offset between the images: {directions[0]}", "RdBu_r", "Offset (pixels, about the median)"),
+                      (axes[1], dy, f"Offset between the images: {directions[1]}", "RdBu_r", "Offset (pixels, about the median)"),
+                      (axes[2], heights, "After triangulation: heights", "viridis", "Height (m)")]
+            for ax, array, title, cmap, label in panels:
+                has_data = np.isfinite(array).any()
+                if ax is not axes[2] and has_data:
+                    array = array - np.nanmedian(array)
+                    limit = np.nanmax(np.abs(np.nanpercentile(array, (2, 98))))
+                    lo, hi = -limit, limit
+                else:
+                    lo, hi = np.nanpercentile(array, (2, 98)) if has_data else (0, 1)
+                if ax is axes[2] and has_data:
+                    shade = LightSource(azdeg=315, altdeg=45).hillshade(np.nan_to_num(heights, nan=np.nanmedian(heights)), dx=spacing, dy=spacing)
+                    shade[np.isnan(heights)] = np.nan
+                    ax.imshow(shade, cmap="gray")
+                im = ax.imshow(array, cmap=cmap, vmin=lo, vmax=hi, alpha=0.5 if ax is axes[2] else 1)
+                cbar = fig.colorbar(im, ax=ax, shrink=0.7, label=label)
+                if not has_data:
+                    cbar.ax.set_visible(False)
+                ax.set_title(title, fontsize=10)
+                # The tiles parallel_stereo works through, so the map's filling in makes sense.
+                for x in grid[0]:
+                    ax.axvline(x / step, color="black", linestyle="--", linewidth=1.2)
+                for y in grid[1]:
+                    ax.axhline(y / step, color="black", linestyle="--", linewidth=1.2)
+                ax.set_xlim(0, dx.shape[1])
+                ax.set_ylim(dx.shape[0], 0)
                 ax.set_xticks([])
                 ax.set_yticks([])
-            fig.tight_layout()
             buf = BytesIO()
             fig.savefig(buf, format="png", dpi=80)
             if plot is None:

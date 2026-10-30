@@ -1,4 +1,4 @@
-# SETSM — WorldView-3, Mount Soledad
+# SETSM — WorldView-3, Los Peñasquitos Canyon
 
 Compare DEMs produced by two open-source stereo photogrammetry pipelines on the same WorldView-3 stereo pair:
 
@@ -9,22 +9,22 @@ Both pipelines accept raw satellite imagery with {term}`RPC` camera models and p
 
 ## Source Data
 
-The same WorldView-3 pair as [Tutorial 2](../tutorials/02_worldview_ucsd.ipynb), as the tutorial prepares it: a 3 × 3 km window around the summit of Mount Soledad, cut from each image with `cam2rpc` and averaged to 1.2 m pixels (the native 0.31 m pixels, 4 × 4 at a time). Both images come from the IARPA CORE3D SpaceNet UCSD dataset.
+The same WorldView-3 pair as [Tutorial 2](../tutorials/02_worldview_ucsd.ipynb), over the tutorial's 1 km square at the west end of Los Peñasquitos Canyon (UTM 11N 480420–481420 E, 3641720–3642720 N). SETSM gets the two full scenes with their vendor camera files, and the square as its output boundary. Both images come from the IARPA CORE3D SpaceNet UCSD dataset.
 
-| Catalog ID | Date | Off-nadir | Crop size |
+| Catalog ID | Date | Off-nadir | Scene size |
 |---|---|---|---|
-| 104001000496A100 | 2014-11-09 | 1.1° | 2738 × 2805 px |
-| 10400100071D8800 | 2015-01-24 | 16.3° | 2623 × 2645 px |
+| 104001000496A100 | 2014-11-09 | 1.1° | 43008 × 47104 px |
+| 10400100071D8800 | 2015-01-24 | 16.3° | 43008 × 45056 px |
 
-The pair's convergence angle is 16.8°. Each tool gets the same two crops and their RPC cameras, and writes a 2.4 m DEM, the tutorial's output grid. ASP's DEM is the tutorial's own, made from the orthorectified crops after bundle adjustment, as the notebook describes.
+The pair's convergence angle is 16.8°. Both tools write a 1 m DEM, the tutorial's output grid. ASP's DEM is the tutorial's own, made from the square orthorectified out of the full scenes with the vendor cameras as they are, as the notebook describes.
 
 ## Approach
 
 SETSM is open-source (Apache 2.0), pure C++ with no GPU requirement. We built and ran it via Docker to avoid host dependency conflicts.
 
-SETSM reads `*.tif` images with a WorldView-style XML camera file of the same name next to each one. The tutorial's crops are GeoTIFFs, but the camera files `cam2rpc` writes hold only the RPC coefficients, and SETSM reads more than that from a WorldView XML: the image corners (`<BAND_P>`), from which it picks the UTM zone; the pixel size and satellite ID (`<IMAGE>`); and the RPC error terms, which `cam2rpc` writes as 0. Run on the crops as they are, SETSM found no overlap between the images: with no corners it chose UTM zone 31 south. `scripts/docs_figures/setsm_inputs.py` copies the crops to a folder with camera files that add those fields, with the corners computed from each crop's RPC and the pixel size from the vendor's XML times the averaging factor.
+SETSM reads `*.tif` images with a WorldView-style XML camera file of the same name next to each one, so the scenes are converted from NTF with the `gdal_translate` command in section 2.1.4 of its manual (ASP's `gdal_translate` has the JPEG2000 driver the NTFs need, in its `lib/` folder, found with `GDAL_DRIVER_PATH`), and the vendor XMLs are copied beside them. The `-boundary_*` flags limit the run to the square: SETSM reads and pyramids only the part of each scene it needs, so memory scales with the square, not the scenes.
 
-The crops are small (about 8 million pixels each), so SETSM processes them whole; the `-boundary_*` flags that limit a run to part of a full scene aren't needed.
+Cutting the square out of each scene with `cam2rpc` first, as the CARS run does, does not work for SETSM: on those crops it matched only a few hundred points at its coarsest pyramid level and wrote noise (NMAD 37 m against the USGS 3DEP lidar), where the full scenes with the same boundary matched over 2,000 and gave the DEM below. SETSM reads more than the RPC from a camera file (the image corners, the pixel size, the RPC error terms), and a refitted RPC over a crop is not what it expects.
 
 Also, note that SETSM's user manual warns against `-seed <filepath> <sigma>`: *"We caution that it is better to not use a seed DEM if possible, as it can only negatively impact the quality of the SETSM DEM."*
 
@@ -63,35 +63,37 @@ Multi-stage build — the final image contains only the `setsm` binary and runti
 
 ```bash
 docker run --platform linux/amd64 --rm --memory 11g --cpus 6 \
-    -v /path/to/setsm_inputs:/data -v /path/to/output:/out -w /data setsm \
+    -v /path/to/scenes:/data -w /data setsm \
     -image 104001000496A100_P001.tif -image 10400100071D8800_P001.tif \
-    -outpath /out/results -outres 2.4 -mem 10 -minH -50 -maxH 300 -projection utm
+    -outpath /data/results -outres 1 -mem 10 -minH -60 -maxH 150 \
+    -boundary_min_X 480420 -boundary_min_Y 3641720 -boundary_max_X 481420 -boundary_max_Y 3642720 \
+    -projection utm
 ```
 
-`-minH`/`-maxH` span the window's heights (COP30 ranges from −32 to 216 m here). `scripts/docs_figures/run_comparisons.sh` runs this and the CARS run below.
+`-minH`/`-maxH` span the square's heights (COP30 ranges from about −30 to 90 m here). `scripts/docs_figures/run_comparisons.sh` converts the scenes and runs this, and the CARS run.
 
 | Metric | Value |
 |---|---|
-| Computation time | 15 min 29 s (Apple M-series laptop, amd64 emulation, 6 CPUs) |
-| Peak memory (SETSM-reported) | 668 MB |
-| Output DEM | 1396 × 1434 px (the crops' overlap), 2.4 m, EPSG:32611 |
+| Computation time | 3 min 29 s (Apple M-series laptop, amd64 emulation, 6 CPUs), after about 8 minutes converting the two scenes to TIFF |
+| Peak memory (SETSM-reported) | 774 MB |
+| Output DEM | 1000 × 1000 px (the square), 1 m, EPSG:32611 |
 | Convergence angle | 16.8° |
 
 ### Hillshade Comparison
 
-SETSM resolves the same hills, canyons, streets and blocks of houses as ASP, and leaves no voids where ASP has a few (0.8% of the window, mostly at the freeway interchange and along building edges). Its surface is noisier pixel to pixel, which shows as a fine speckle in the hillshade. SETSM's DEM sits 10.9 m below ASP's (median difference): SETSM uses the vendor RPCs as they are, while Tutorial 2 ties the cameras to COP30 heights in bundle adjustment, which removes the vendor offset. Apart from that offset the two DEMs agree to 1.4 m (NMAD).
+SETSM resolves the same spurs and gullies as ASP, with a smoother, more rounded surface that carries a grainy texture, where ASP's gullies and trails are sharper. It leaves a few more voids (1.7% of the square against ASP's 0.9%), in the trees along the creek and on the shadowed gully walls. Both tools use the vendor RPCs as they are, so the two DEMs sit at nearly the same height (SETSM 0.9 m above ASP, median difference) and agree to 0.6 m (NMAD) over the square; both sit about 10 m below ICESat-2, which Tutorial 2's report measures and removes.
 
 ::::{grid} 2
 :::{grid-item}
-![ASP 2.4 m](figures/soledad-asp-hillshade.png)
-**ASP 2.4 m DEM**
+![ASP 1 m](figures/soledad-asp-hillshade.png)
+**ASP 1 m DEM**
 <div class="fullres-btns">
   <a class="fullres-btn" href="../_images/soledad-asp-hillshade.png" target="_blank" rel="noopener noreferrer">Open at full resolution ↗</a>
 </div>
 :::
 :::{grid-item}
-![SETSM 2.4 m](figures/soledad-setsm-hillshade.png)
-**SETSM 2.4 m DEM**
+![SETSM 1 m](figures/soledad-setsm-hillshade.png)
+**SETSM 1 m DEM**
 <div class="fullres-btns">
   <a class="fullres-btn" href="../_images/soledad-setsm-hillshade.png" target="_blank" rel="noopener noreferrer">Open at full resolution ↗</a>
 </div>
@@ -99,7 +101,7 @@ SETSM resolves the same hills, canyons, streets and blocks of houses as ASP, and
 ::::
 
 ```{raw} html
-<a href="https://maps.google.com/?ll=32.8396,-117.2413&z=15&t=k" target="_blank" rel="noopener noreferrer">View the comparison area in Google Maps</a>
+<a href="https://maps.google.com/?ll=32.918,-117.204&z=15&t=k" target="_blank" rel="noopener noreferrer">View the comparison area in Google Maps</a>
 ```
 
 ## References

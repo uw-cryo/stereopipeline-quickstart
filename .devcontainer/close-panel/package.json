@@ -2,7 +2,7 @@
   "name": "close-panel",
   "displayName": "stereopipeline-quickstart: first-launch tidying and collapsed code",
   "description": "Closes the terminal panel and clears notifications once, after a new Codespace opens Tutorial 1. Collapses the tutorials' code cells, and starts Tutorial 1 the first time it opens. Announces each tutorial's results zip when it is ready.",
-  "version": "0.0.11",
+  "version": "0.0.13",
   "publisher": "stereopipeline-quickstart",
   "license": "BSD-3-Clause",
   "engines": {

@@ -31,7 +31,13 @@ Open in GitHub Codespaces
 
 A GitHub page opens with a green **Create new codespace** button. Click it.
 
-![GitHub's "Create a new codespace" page, with the green button labelled](start/figures/launch-create.png)
+![GitHub's "Create a new codespace" page, with the green button labeled](start/figures/launch-create.png)
+
+**Used this before?** Then the page says "Resume codespace" instead, with your previous workspace listed. (1) **Create a new one** starts fresh: an options page follows; leave its settings as they are and click **Create codespace**. (2) **Resume this codespace** picks up where you left off, with your files; Tutorial 1 won't start again by itself there, so click **Run All** (shown below).
+
+![GitHub's "Resume codespace" page, with its two buttons labeled](start/figures/launch-resume.png)
+
+![The options page after "Create a new one", with the "Create codespace" button boxed](start/figures/launch-options.png)
 
 GitHub then builds a workspace for you with everything installed: a page says "Setting up your codespace", and then VS Code appears in your browser with a message at the bottom right while it connects. **Nothing asks you to do anything for between 30 seconds and a minute.**
 
@@ -47,7 +53,7 @@ A box asks "Do you trust the authors of the files in this folder?". Every new wo
 
 Tutorial 1 opens within a few seconds and, **between 30 seconds and a minute later**, starts running by itself. You don't have to click anything.
 
-![Tutorial 1 just after it opens, with the parts of the window labelled](start/figures/launch-running.png)
+![Tutorial 1 just after it opens, with the parts of the window labeled](start/figures/launch-running.png)
 
 1. The file explorer: `notebooks/` holds the three tutorials, and `data/` fills with the images and results.
 2. The tutorial itself: each step has a short explanation and how long it takes.
@@ -65,6 +71,10 @@ What to expect:
 2. The last step's result line: the zip's name and size.
 3. The zip itself, at the top of the file explorer: right-click it and choose **Download**.
 
+The first time you right-click in the explorer, your browser may ask whether the page can see your clipboard. Click **Allow** or **Block**, whichever you prefer; the menu with **Download** appears either way.
+
+![The browser's clipboard question, with Block and Allow buttons](start/figures/clipboard-prompt.png)
+
 If nothing has started after a couple of minutes, or to run it again later, click **Run All** in the toolbar at the top of the notebook:
 
 ![The top of the window: the notebook's toolbar, with the Run All button boxed](start/figures/run-all.png)
@@ -81,7 +91,7 @@ If nothing has started after a couple of minutes, or to run it again later, clic
 - [Tutorials](tutorials/index.md): the three notebooks, with their outputs.
 - [What ASP is](start/what-is-asp.md) and the concept pages: [the pipeline](concepts/pipeline-overview.md), [stereo photogrammetry](concepts/stereo-photogrammetry.md), [bundle adjustment](concepts/bundle-adjustment.md), [orthorectification](concepts/orthorectification.md), [alignment](concepts/alignment.md), [visualization with `asp-plot`](concepts/visualization.md).
 - [Other open-source stereo pipelines](comparisons/index.md): the same images through SETSM and CARS.
-- Reference: [glossary](reference/glossary.md), [ASP output files](reference/output-files.md), [local install](reference/installation.md), [data sources and licences](reference/data.md), [further reading](reference/further-reading.md).
+- Reference: [glossary](reference/glossary.md), [ASP output files](reference/output-files.md), [local install](reference/installation.md), [data sources and licenses](reference/data.md), [further reading](reference/further-reading.md).
 
 This guide covers one straightforward path through ASP, which has hundreds of options for dozens of sensors; the [official ASP documentation](https://stereopipeline.readthedocs.io/) is the reference.
 

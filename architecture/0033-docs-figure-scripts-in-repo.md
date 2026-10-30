@@ -12,7 +12,7 @@ The data figures on the concept pages (`docs/concepts/figures/*.png`) and the co
 - **Extra runs:** some figures need runs the tutorials don't do.
   - `run_aster_raw.sh` runs Tutorial 1's stereo on the raw ASTER images, for the raw-vs-orthorectified figures and the GoodPixelMap figure.
   - `run_aster_align.sh` aligns Tutorial 1's DEM to COP30 with `pc_align`, for the before-and-after difference maps on the alignment page.
-  - `run_comparisons.sh` runs SETSM and CARS (both in Docker) on Tutorial 2's crops, for the comparison pages' hillshades and run metrics. `setsm_inputs.py` builds the camera files SETSM needs from the crops and the vendor XMLs; `cars_config.yaml` is the CARS config.
+  - `run_comparisons.sh` runs SETSM and CARS (both in Docker) on Tutorial 2's crops, for the comparison pages' hillshades and run metrics. `setsm_inputs.py` builds the camera files SETSM needs from the crops and the vendor XMLs; `cars_config.yaml` is the CARS config. *(Amended 2026-10-30: the tutorial no longer crops, so the script makes `cam2rpc` crops of the square for CARS and converts the full scenes to TIFF for SETSM, which runs with `-boundary_*`; `setsm_inputs.py` is gone. SETSM on `cam2rpc` crops at the images' own resolution wrote noise, matching only a few hundred points at its coarsest pyramid level; the 1.2 m crops of the earlier window had merely got away with it.)*
 - **What stays the same:** ADR-0018's conventions; the PNGs are committed, and each page still says in prose where its figure comes from.
 
 ## Consequences

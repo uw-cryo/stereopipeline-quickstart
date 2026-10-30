@@ -29,15 +29,19 @@ const STARTED = "stereopipeline-quickstart.tutorialStarted";
 const DELAYS_MS = [500, 2000, 5000];
 const FIRST_TUTORIAL = "/notebooks/01_aster_rainier.ipynb";
 const KERNEL_WAIT_MS = 5000;
-// Run All is tried again until a cell is seen running: once, it did nothing
-// in a new Codespace (the panel closed and the cells collapsed, so the
-// extension ran; no kernel picker appeared) and the user had to click it.
+// Run All is tried again until a cell is seen to have run: once, it did
+// nothing in a new Codespace (the panel closed and the cells collapsed, so the
+// extension ran; no kernel picker appeared) and the user had to click it. A
+// cell's executionSummary appears when it finishes, and the first cell waits
+// for the kernel's cold start, which can take two minutes on a new Codespace,
+// so the check allows for that before trying again.
 const RUN_TRIES = 4;
-const RUN_CHECK_MS = 15000;
+const RUN_CHECK_MS = 150000;
 
 // "Quickstart launch" in the Output panel: what the extension did and when,
 // for when a launch doesn't go as it should.
 let log;
+
 
 function note(message) {
     log?.appendLine(`${new Date().toISOString()} ${message}`);
@@ -98,7 +102,7 @@ async function startFirstTutorial(context, notebook) {
     }
     await new Promise((resolve) => setTimeout(resolve, KERNEL_WAIT_MS));
     for (let attempt = 1; attempt <= RUN_TRIES; attempt++) {
-        note(`Run All, attempt ${attempt}`);
+        note(`Run All, attempt ${attempt} of ${RUN_TRIES}`);
         try {
             await vscode.commands.executeCommand("notebook.execute", notebook.uri);
         } catch (error) {
@@ -108,7 +112,7 @@ async function startFirstTutorial(context, notebook) {
         while (Date.now() < deadline) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             if (hasStarted(notebook)) {
-                note("a cell is running");
+                note("a cell has run");
                 await context.globalState.update(STARTED, true);
                 return;
             }
@@ -127,7 +131,9 @@ async function onVisible(context, editors) {
         }
         collapsed.add(key);
         note(`collapsing the code cells of ${editor.notebook.uri.path}`);
-        await collapseCode(editor.notebook);
+        // The collapse repeats over 30 s; the start must not wait behind it
+        // (it did once, and Run All came 30 s later than it needed to).
+        collapseCode(editor.notebook);
         await startFirstTutorial(context, editor.notebook);
     }
 }

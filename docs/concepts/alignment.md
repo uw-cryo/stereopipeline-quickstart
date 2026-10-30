@@ -24,24 +24,24 @@ If the difference map against the reference still shows structure after alignmen
 
 ## Reading the alignment report
 
-`pc_align` prints percentile breakdowns of the point-to-reference distances before and after alignment, plus the transformation it applied. From the WorldView tutorial's report, which aligns its DEM to {term}`ICESat-2` points:
+`pc_align` prints percentile breakdowns of the point-to-reference distances before and after alignment, plus the transformation it applied. From the ASTER tutorial's report, which aligns its DEM to {term}`ICESat-2` points:
 
 ```text
-Input:  error percentile of smallest errors (meters): 16%: 0.433324, 50%: 1.36121, 84%: 3.16269
-Output: error percentile of smallest errors (meters): 16%: 0.296353, 50%: 1.21818, 84%: 3.28416
-Translation vector (North-East-Down, meters): Vector3(-1.2293,-0.015487776,0.67589126)
-Translation vector magnitude (meters): 1.4029424
+Input:  error percentile of smallest errors (meters): 16%: 2.33428, 50%: 8.00829, 84%: 15.6824
+Output: error percentile of smallest errors (meters): 16%: 2.07483, 50%: 7.07163, 84%: 13.6993
+Translation vector (North-East-Down, meters): Vector3(5.9170475,-13.31291,3.1383536)
+Translation vector magnitude (meters): 14.902828
 ```
 
 Three things to check:
 
-- The 50% lines are the main metric: the median point-to-reference distance dropped from 1.36 m to 1.22 m. That is a small change, because the tutorial's bundle adjustment already tied the cameras to the COP30 heights, which removed most of the offset.
-- The translation vector says where the DEM moved: here 1.2 m south and 0.7 m down. It should be a plausible magnitude for your sensor.
+- The 50% lines are the main metric: the median point-to-reference distance dropped from 8.0 m to 7.1 m. The drop is modest because much of the remaining distance is not a rigid offset: the summit's snow and ice changed between the dates, and 15 m ASTER pixels blur the steep terrain.
+- The translation vector says where the DEM moved: here 6 m north, 13 m west and 3 m down, 15 m in all. It should be a plausible magnitude for your sensor: tens of meters for ASTER's 15 m pixels, meters for WorldView.
 - A median that barely drops, or a huge translation, means the DEM and reference disagree in a way ICP cannot reconcile; check the vertical datums and the overlap area first.
 
 ## Alignment inside `asp-plot`
 
-The `asp_report` command runs `pc_align` by default (`--no-pc-align` turns it off, and `--no-altimetry` skips it too) against the appropriate altimetry reference for the body (ICESat-2 for Earth, MOLA for Mars, LOLA for the Moon) and appends alignment-report pages to the PDF. This is how the WorldView tutorial aligns its DEM: its report command runs `pc_align` without any extra flag.
+The `asp_report` command runs `pc_align` by default (`--no-pc-align` turns it off, and `--no-altimetry` skips it too) against the appropriate altimetry reference for the body (ICESat-2 for Earth, MOLA for Mars, LOLA for the Moon) and appends alignment-report pages to the PDF. This is how the ASTER tutorial aligns its DEM: its report command runs `pc_align` without any extra flag. It wants at least 500 reference points on the DEM by default; the WorldView tutorials' 1 km square holds a few hundred ICESat-2 points, so their reports pass `--pc-align-min-points 150`, and their profiles show the DEM before and after the 10 m shift onto the points.
 
 ## Where to read more
 

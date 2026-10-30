@@ -27,6 +27,6 @@ Map tiles are an exception to ADR-0028 because a stale copy does no harm. They a
 
 ## Alternatives considered
 - **Fetch the tiles in parallel** (contextily's `n_connections`): this would need a change in `asp-plot`. OpenStreetMap's tile usage policy allows at most 2 connections, so it would gain little.
-- **Ship the tiles on a release:** rejected. The tiles are OpenStreetMap's, and this repo would take on attribution and licence terms for imagery that is only a background.
+- **Ship the tiles on a release:** rejected. The tiles are OpenStreetMap's, and this repo would take on attribution and license terms for imagery that is only a background.
 - **Fetch them in the notebook's download step:** moves the wait to an earlier cell rather than removing it.
 - **Leave it:** the plot works, but a step meant to take a few seconds took half a minute.

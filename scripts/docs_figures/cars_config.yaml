@@ -7,7 +7,7 @@ input:
 
 output:
   directory: /output/results
-  resolution: 2.4
+  resolution: 1
   epsg: 32611
   geoid: false
 

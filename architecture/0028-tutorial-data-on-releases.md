@@ -9,14 +9,14 @@ The tutorials fetched data from several hosts: the ASTER scene from Zenodo, the 
 
 Codespace startup (`onCreate.sh`) also pre-fetched the ASTER data, so prebuilds held data. Twice, a Codespace made from an older prebuild had stale shipped files: the old ICESat-2 files after a regeneration, and a broken COP30 file after a fix.
 
-Licences decide what may be re-hosted:
+Licenses decide what may be re-hosted:
 
 - The ASTER L1A archive is Zenodo record 10.5281/zenodo.7972223, CC BY 4.0 (attribution).
-- Copernicus DEM data may be reproduced, distributed and modified under the Copernicus WorldDEM-30 licence, with a notice and a no-liability statement (Article 6).
-- The WorldView-3 pair is IARPA CORE3D data in the `Hosted-Datasets/` folder of SpaceNet's bucket, which the bucket's CC BY-SA 4.0 licence explicitly excludes. CORE3D's own pages say the imagery is free for public research and that publications must cite Hagstrom et al. (2021); no redistribution grant was found.
+- Copernicus DEM data may be reproduced, distributed and modified under the Copernicus WorldDEM-30 license, with a notice and a no-liability statement (Article 6).
+- The WorldView-3 pair is IARPA CORE3D data in the `Hosted-Datasets/` folder of SpaceNet's bucket, which the bucket's CC BY-SA 4.0 license explicitly excludes. CORE3D's own pages say the imagery is free for public research and that publications must cite Hagstrom et al. (2021); no redistribution grant was found.
 
 ## Decision
-- One dated release per tutorial dataset, holding everything it needs that may be re-hosted, as separate assets: `aster-rainier-2026-10-27` (L1A archive, ICESat-2 points and figure selections, COP30 clip) and `ucsd-wv3-2026-10-27` (ICESat-2 points and figure selections, COP30 clip). The release notes record each file's source, licence and how it was made, with the attribution the licences require; `docs/reference/data.md` lists them for readers.
+- One dated release per tutorial dataset, holding everything it needs that may be re-hosted, as separate assets: `aster-rainier-2026-10-27` (L1A archive, ICESat-2 points and figure selections, COP30 clip) and `ucsd-wv3-2026-10-27` (ICESat-2 points and figure selections, COP30 clip). The release notes record each file's source, license and how it was made, with the attribution the licenses require; `docs/reference/data.md` lists them for readers.
 - The WorldView-3 imagery stays on SpaceNet's bucket, fetched over plain HTTPS with `curl`, so the AWS CLI is no longer needed for it.
 - The notebooks' download cells fetch their dataset; `onCreate.sh` downloads nothing. A `RELEASE` marker per dataset replaces shipped files from an older release.
 - Shipped COP30 clips are rewritten with their CRS inside the GeoTIFF (`gdal_translate -a_srs`), since `fetch_cop_dem.py` keeps its 3D CRS in an `.aux.xml` sidecar that a release asset wouldn't carry.
