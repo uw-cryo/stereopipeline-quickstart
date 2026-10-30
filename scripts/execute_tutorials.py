@@ -13,6 +13,7 @@ a conda env, the env's bin folder goes before ASP's (both have asp_report)
 and PROJ_DATA and GDAL_DATA point at the env's share/ folders. About 25
 minutes on an 8-core laptop for all three.
 """
+import re
 import shutil
 import sys
 import time
@@ -38,8 +39,11 @@ def main():
         # Screenshots in markdown cells are referenced relative to notebooks/
         # (../docs/start/figures/); from docs/tutorials/ the same files are at
         # ../start/figures/.
+        # A sized <img> tag (width for VS Code) becomes a markdown image: Sphinx
+        # copies only the images it sees in markdown.
         for cell in nb.cells:
             if cell.cell_type == "markdown":
+                cell.source = re.sub(r'<img src="([^"]+)" alt="([^"]*)"[^>]*>', r"![\2](\1)", cell.source)
                 cell.source = cell.source.replace("../docs/start/figures/", "../start/figures/")
         nbformat.write(nb, out / f"{name}.ipynb")
         print(f"{name}: {(time.time() - start) / 60:.1f} min, {(out / f'{name}.ipynb').stat().st_size / 1e6:.1f} MB")

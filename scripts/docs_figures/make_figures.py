@@ -320,7 +320,7 @@ COMPARISON_DEMS = {
 
 
 def comparison_hillshades(wv, extra, out):
-    """A bare hillshade of each tool's DEM over Tutorial 2's window, on Tutorial 2's 2.4 m grid."""
+    """A bare hillshade of each tool's DEM over Tutorial 2's square, on Tutorial 2's 1 m grid."""
     like = wv / COMPARISON_DEMS["asp"]
     for tool, rel in COMPARISON_DEMS.items():
         dem = like if tool == "asp" else extra / rel

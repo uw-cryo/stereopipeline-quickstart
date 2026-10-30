@@ -1,4 +1,4 @@
-"""Make a folder SETSM can run on from Tutorial 2's cropped images.
+"""Make a folder SETSM can run on from the comparison's cropped images.
 
     python scripts/docs_figures/setsm_inputs.py <wv run> <output folder>
 
@@ -12,7 +12,8 @@ takes the image corners from the <BAND_P> block to pick the UTM zone (without
 them it chose zone 31 south), the pixel size and satellite ID from <IMAGE>,
 and the RPC error terms, which cam2rpc writes as 0. This adds those blocks:
 the corners from the crop's own RPC, the pixel sizes from the vendor's XML
-times the crop's averaging factor, and the rest copied from the vendor's XML.
+(times FACTOR, the crop's averaging factor, 1 now), and the rest copied from
+the vendor's XML.
 """
 import re
 import shutil
@@ -24,7 +25,7 @@ from osgeo import gdal
 gdal.UseExceptions()
 
 SCENES = ["104001000496A100", "10400100071D8800"]
-FACTOR = 4   # the crops average FACTOR x FACTOR pixels (Tutorial 2's FACTOR)
+FACTOR = 1   # the crops are at the images' own resolution (cam2rpc in run_comparisons.sh)
 IMAGE_TAGS = ["SATID", "FIRSTLINETIME", "ABSCALFACTOR", "EFFECTIVEBANDWIDTH", "TDILEVEL",
               "MEANPRODUCTGSD", "MEANPRODUCTROWGSD", "MEANPRODUCTCOLGSD",
               "MEANCOLLECTEDGSD", "MEANCOLLECTEDROWGSD", "MEANCOLLECTEDCOLGSD",
