@@ -17,7 +17,7 @@ Open in GitHub Codespaces
 
 4. Tutorial 1 opens within a few seconds and, between 30 seconds and a minute later, starts running by itself. Scroll down to follow it: (1) the file explorer, (2) each step's text, (3) the step that is running, with its command, the last lines of its output and the time so far.
 
-   ![Tutorial 1 just after it opens, with the parts of the window labelled](figures/launch-running.png)
+   ![Tutorial 1 just after it opens, with the parts of the window labeled](figures/launch-running.png)
 
 The whole of Tutorial 1 takes about 10 minutes, sometimes 15. The repo's **Code → Codespaces** tab also creates a Codespace; the "Create codespace with options" entry there lets you pick a larger machine.
 
@@ -34,8 +34,8 @@ On a machine with more than 4 cores, raise `--processes` in the `parallel_stereo
 | Notebook | What it makes | Time |
 |---|---|---|
 | `01_aster_rainier.ipynb` | A 30 m DEM of Mount Rainier from two ASTER images, and a PDF report | about 10 min |
-| `02_worldview_ucsd.ipynb` | A 2.4 m DEM of Mount Soledad from a WorldView-3 pair, compared with ICESat-2 | about 10 min |
-| `03_worldview_ucsd_blend.ipynb` | Three WorldView-3 pairs of the same window, blended into one DEM | about 16 min more |
+| `02_worldview_ucsd.ipynb` | A 0.5 m DEM of Los Peñasquitos Canyon from a WorldView-3 pair, compared with ICESat-2 | about 12 min |
+| `03_worldview_ucsd_blend.ipynb` | Three WorldView-3 pairs of the same area, blended into one DEM | about 22 min more |
 
 Tutorial 1 starts by itself the first time a new Codespace opens. For the others, or if Tutorial 1 hasn't started after a couple of minutes, open the notebook from the explorer and click **Run All** in the toolbar at the top, then scroll down to follow it. The code cells are shown as one line; click one to see its code.
 

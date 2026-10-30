@@ -19,10 +19,10 @@ You need a free [GitHub account](https://github.com/signup). There is nothing to
 | Tutorial | What you get | Time |
 |---|---|---|
 | 1. ASTER, Mount Rainier | A 30 m DEM and a PDF report from two ASTER images of the mountain | about 10 min |
-| 2. WorldView-3, Mount Soledad | A 2.4 m DEM from a sharp WorldView-3 pair over San Diego, compared with ICESat-2 laser heights | about 10 min |
-| 3. Three images blended | Three WorldView-3 pairs of the same place, blended into one DEM with fewer holes | about 16 min more |
+| 2. WorldView-3, Los Peñasquitos Canyon | A 0.5 m DEM from a sharp WorldView-3 pair over a canyon in San Diego, compared with ICESat-2 laser heights | about 12 min |
+| 3. Three images blended | Three WorldView-3 pairs of the same place, blended into one DEM with fewer holes | about 22 min more |
 
-Times are for the standard 4-core workspace. All the data is open; no login other than GitHub. The sources and licences are listed in the guide: [Data sources and licences](https://stereopipeline-quickstart.readthedocs.io/en/latest/reference/data.html).
+Times are for the standard 4-core workspace. All the data is open; no login other than GitHub. The sources and licenses are listed in the guide: [Data sources and licenses](https://stereopipeline-quickstart.readthedocs.io/en/latest/reference/data.html).
 
 The [guide](https://stereopipeline-quickstart.readthedocs.io/) explains what ASP does, each step of the pipeline, and how to read the results. ASP's own documentation is at [stereopipeline.readthedocs.io](https://stereopipeline.readthedocs.io/).
 
@@ -50,4 +50,4 @@ The reasoning behind the repo's design is in architecture decision records under
 
 ## License
 
-BSD 3-Clause. See [LICENSE](LICENSE). The tutorial data have their own licences and credits, listed in the guide: [Data sources and licences](https://stereopipeline-quickstart.readthedocs.io/en/latest/reference/data.html).
+BSD 3-Clause. See [LICENSE](LICENSE). The tutorial data have their own licenses and credits, listed in the guide: [Data sources and licenses](https://stereopipeline-quickstart.readthedocs.io/en/latest/reference/data.html).

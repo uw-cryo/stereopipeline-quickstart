@@ -26,7 +26,7 @@ Very flat terrain, missing reference DEMs, or quick first passes can use ASP's `
 
 | Reference | Coverage | Notes |
 |---|---|---|
-| [Copernicus GLO-30](https://registry.opendata.aws/copernicus-dem/) | global | free on AWS Open Data; what the tutorials use (see [Data sources and licences](../reference/data.md) for the required notice) |
+| [Copernicus GLO-30](https://registry.opendata.aws/copernicus-dem/) | global | free on AWS Open Data; what the tutorials use (see [Data sources and licenses](../reference/data.md) for the required notice) |
 | [USGS 3DEP](https://www.usgs.gov/3d-elevation-program) | United States | lidar-derived, high resolution |
 | [ArcticDEM](https://www.pgc.umn.edu/data/arcticdem/) | Arctic | WorldView-derived strips and mosaics |
 | [REMA](https://www.pgc.umn.edu/data/rema/) | Antarctica | WorldView-derived strips and mosaics |

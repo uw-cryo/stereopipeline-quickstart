@@ -1,7 +1,7 @@
 # 29. WorldView tutorials on Mount Soledad crops: one pair, then three pairs blended
 
 - **Date:** 2026-10-27
-- **Status:** Accepted; supersedes [0011](0011-wv3-roi-and-resolution.md) and [0012](0012-no-ba-canonical-wv.md)
+- **Status:** Accepted; supersedes [0011](0011-wv3-roi-and-resolution.md) and [0012](0012-no-ba-canonical-wv.md). The crop flow (cam2rpc, 1.2 m, 2.4 m DEMs, bundle adjustment tied to COP30) is replaced by [0037](0037-wv3-full-resolution-box.md); the scenes, the release and the three-pair blend stand
 - **Context doc:** `ARCHITECTURE.md` § WV3 window, crops and resolution
 
 ## Context

@@ -36,7 +36,7 @@ CARS reads the RPC from the crops' GeoTIFF tags (through [Shareloc](https://gith
 docker pull cnes/cars
 
 docker run --platform linux/amd64 --rm --memory 11g --cpus 6 \
-    -v /path/to/data/ucsd_soledad/crops:/input:ro \
+    -v /path/to/data/ucsd_penasquitos/crops:/input:ro \
     -v /path/to/output:/output \
     cnes/cars /output/config.yaml
 ```

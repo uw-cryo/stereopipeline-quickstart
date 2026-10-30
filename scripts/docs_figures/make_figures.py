@@ -122,11 +122,11 @@ def aster_disparity_hist(aster, raw, out):
     raw_dx, raw_dy = raw_dx[inside], raw_dy[inside]
     ortho_dx, ortho_dy, _ = disparity(aster / "stereo/run", step)
 
-    centred = [(d - np.median(d)) for d in (raw_dx, raw_dy, ortho_dx, ortho_dy)]
-    limit = np.ceil(max(np.abs(c).max() for c in centred))
+    centered = [(d - np.median(d)) for d in (raw_dx, raw_dy, ortho_dx, ortho_dy)]
+    limit = np.ceil(max(np.abs(c).max() for c in centered))
     bins = np.linspace(-limit, limit, 121)
     fig, axes = plt.subplots(1, 2, figsize=(10, 3.4), sharex=True, sharey=True, constrained_layout=True)
-    for ax, (dx, dy), title in zip(axes, (centred[:2], centred[2:]), ("Raw images", "Orthorectified images")):
+    for ax, (dx, dy), title in zip(axes, (centered[:2], centered[2:]), ("Raw images", "Orthorectified images")):
         for d, label, color in ((dx, "horizontal", "#2a78d6"), (dy, "vertical", "#f0a830")):
             ax.hist(d, bins=bins, color=color, alpha=0.85, label=label)
         ax.set_yscale("log")
@@ -188,7 +188,7 @@ def wv3_stereo_geometry(wv_run, out):
     cache = wv_run / "data/basemap_cache"
     if cache.is_dir():
         contextily.set_cache_dir(str(cache))
-    data = wv_run / "data/ucsd_soledad"
+    data = wv_run / "data/ucsd_penasquitos"
     StereoGeometryPlotter(inputs=[str(data / f"{c}_P001.xml") for c in WV_SCENES]).stereo_geom_plot()
     # asp_plot's five-line header overlaps the top of a tall map; push the axes down.
     fig = plt.gcf()
@@ -208,7 +208,7 @@ def goodpixelmap_failures(raw, wv, out):
     """
     fig, axes = plt.subplots(1, 2, figsize=(10, 5.2), constrained_layout=True)
     for ax, prefix, title in ((axes[0], raw / "run", "ASTER, Mount Rainier, raw images"),
-                              (axes[1], wv / "pairs" / WV_FAILURE_PAIR / "run", "WorldView-3, Mount Soledad, Tutorial 3 pair")):
+                              (axes[1], wv / "pairs" / WV_FAILURE_PAIR / "run", "WorldView-3, Los Peñasquitos Canyon, Tutorial 3 pair")):
         ds = gdal.Open(f"{prefix}-GoodPixelMap.tif")
         rgb = np.dstack([ds.GetRasterBand(b).ReadAsArray() for b in (1, 2, 3)])
         ax.imshow(rgb, interpolation="none")
@@ -238,7 +238,7 @@ def wv3_disparity_dem(wv, out):
 def ba_residuals(wv):
     from asp_plot.bundle_adjust import ReadBundleAdjustFiles
 
-    return ReadBundleAdjustFiles(str(wv), "ba").get_initial_final_residuals_gdfs()
+    return ReadBundleAdjustFiles(str(wv), "ba3").get_initial_final_residuals_gdfs()
 
 
 def wv3_ba_residuals_hist(wv, out):
@@ -294,7 +294,7 @@ def report_pages(wv, out):
     """Five pages of Tutorial 2's report, found by their titles."""
     import fitz
 
-    pdf = fitz.open(wv / "stereo/soledad_wv3_report.pdf")
+    pdf = fitz.open(wv / "stereo/penasquitos_wv3_report.pdf")
     picked = []
     for title in REPORT_PAGES:
         # The first page that has the title, not a later "(Aligned DEM)" version of it.
@@ -343,7 +343,7 @@ def main():
     args = parser.parse_args()
 
     aster = args.aster_run / "data/aster_rainier"
-    wv = args.wv_run / "data/ucsd_soledad"
+    wv = args.wv_run / "data/ucsd_penasquitos"
     raw = args.extra / "aster_raw"
     figures = {
         "aster-disparity-hist": lambda: aster_disparity_hist(aster, raw, args.out),

@@ -34,7 +34,7 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0026 — A simplified VS Code window for the tutorials](0026-simplified-vs-code.md)
 - [0027 — One ASTER tutorial: orthorectify, then `asp_mgm`, on a window around the summit](0027-single-aster-tutorial.md) — *supersedes 0023 and 0008's two reports*
 - [0028 — Tutorial data on this repo's releases, fetched by the notebooks](0028-tutorial-data-on-releases.md) — *extends 0022*
-- [0029 — WorldView tutorials on Mount Soledad crops: one pair, then three pairs blended](0029-ucsd-soledad-tutorials.md) — *supersedes 0011 and 0012*
+- [0029 — WorldView tutorials on Mount Soledad crops: one pair, then three pairs blended](0029-ucsd-soledad-tutorials.md) — *supersedes 0011 and 0012; crop flow replaced by 0037*
 - [0030 — Start Tutorial 1 by itself; don't scroll to the running cell](0030-no-scroll-to-running-cell.md)
 - [0031 — ASP output to log files; a status line, log tail and live map in the notebook](0031-status-lines-and-logs.md)
 - [0032 — Fetch the stereo geometry plot's map tiles when the Codespace is built](0032-prefetch-basemap-tiles.md) — *an exception to 0028*
@@ -42,3 +42,4 @@ These records were backfilled on 2026-07-02 from the repo's git history and issu
 - [0034 — The notebooks' prose is for beginners; the docs site carries the detail](0034-beginner-notebook-prose.md)
 - [0035 — The site renders executed copies of the notebooks, committed in docs/tutorials/](0035-executed-notebooks-for-the-site.md) — *amends 0003*
 - [0036 — The docs home page is the beginner path, with screenshots of the launch](0036-beginner-landing-page.md)
+- [0037 — WorldView tutorials at full resolution on a 1.2 × 1 km box in Los Peñasquitos Canyon, with the census matching cost](0037-wv3-full-resolution-box.md) — *replaces the crop flow of 0029*

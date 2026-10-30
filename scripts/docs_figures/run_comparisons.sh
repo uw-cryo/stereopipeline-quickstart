@@ -35,5 +35,5 @@ docker run --platform linux/amd64 --rm --memory 11g --cpus 6 \
 mkdir -p "${OUT}/cars"
 cp "${HERE}/cars_config.yaml" "${OUT}/cars/config.yaml"
 docker run --platform linux/amd64 --rm --memory 11g --cpus 6 \
-    -v "${RUN}/data/ucsd_soledad/crops:/input:ro" -v "${OUT}/cars:/output" \
+    -v "${RUN}/data/ucsd_penasquitos/crops:/input:ro" -v "${OUT}/cars:/output" \
     cnes/cars /output/config.yaml > "${OUT}/cars/cars.log" 2>&1

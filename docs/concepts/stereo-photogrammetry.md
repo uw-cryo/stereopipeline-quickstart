@@ -42,7 +42,7 @@ The skyplot (left) shows where each satellite sat in the sky when it imaged the 
 
 Featureless surfaces (open water, fresh snow, sand), repetitive texture, occlusion (one camera sees a slope face the other cannot), clouds, and illumination differences between acquisitions all break the matcher. Failures show up as red in `run-GoodPixelMap.tif` (successful matches are gray) and as voids in the DEM. The maps below are from two runs on images that were not orthorectified first: the ASTER tutorial's pair, and the WorldView pair from the blending tutorial with the most failures. At Rainier the failures are on the snow-covered summit and in the steep, dark terrain north of it; at Mount Soledad they are mostly on shadowed slopes. Red along the edges is mostly where the two images don't overlap.
 
-![GoodPixelMaps: failures on the summit and steep terrain at Mount Rainier, and on shadowed slopes at Mount Soledad](figures/goodpixelmap-failures.png)
+![GoodPixelMaps: failures on the summit and steep terrain at Mount Rainier, and on shadowed slopes at Los Peñasquitos Canyon](figures/goodpixelmap-failures.png)
 
 Voids in reasonable places are normal; voids everywhere usually mean a geometry or preprocessing problem, not a matching problem.
 

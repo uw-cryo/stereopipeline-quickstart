@@ -19,7 +19,7 @@ Each ASP command in Tutorial 1 runs through a helper in `notebooks/utils.py`. Th
 - **`run(cmd, log, label)`**
   - **Command line:** prints the command on one line.
   - **Log:** writes all output to `data/<tutorial>/logs/<step>.log`.
-  - **While it runs:** shows the last 5 lines of the log in small grey text, and a ⏳ status line with the time so far, both updated every second.
+  - **While it runs:** shows the last 5 lines of the log in small gray text, and a ⏳ status line with the time so far, both updated every second.
   - **When it ends:** the tail is cleared and the line says ✅ with the time. On failure it says ❌, prints the last 30 log lines and stops the cell.
 - **`run_stereo(cmd, prefix, log)`**, the same for `parallel_stereo`, with three additions:
   - **Stage and time left:** the stage in plain words, the tile, and an estimate of the time left.

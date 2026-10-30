@@ -27,22 +27,20 @@ Output: a ~30 m DEM of Mt. Rainier. Run time: ~10 min.
 :link: 02_worldview_ucsd
 :link-type: doc
 
-Stereo from a high-resolution WorldView-3 pair over Mount Soledad, next to UC San Diego (SpaceNet CORE3D, openly hosted on AWS). Steps:
+Stereo from a high-resolution WorldView-3 pair over Los Peñasquitos Canyon, a nature preserve on the north edge of San Diego (SpaceNet CORE3D, openly hosted on AWS), at the images' own 0.3 m resolution on a 1.2 × 1 km area. Steps:
 - Stereo geometry with `StereoGeometryPlotter`
-- `cam2rpc` to crop both images to a 3 × 3 km window, with an RPC camera per crop
-- `bundle_adjust` to refine the cameras, and its residuals
-- `mapproject` onto a COP30 reference DEM
-- `parallel_stereo` (`asp_mgm`, subpixel mode 9) + `point2dem`
+- `mapproject` of just the area out of each full image, onto a COP30 reference DEM
+- `parallel_stereo` (`asp_mgm`, subpixel mode 9, census cost) + `point2dem`
 - `asp-plot` PDF report with ICESat-2 alignment (`pc_align` runs by default)
 
-Output: a 2.4 m DEM of Mount Soledad. Run time: ~10 min, 2 of them downloading.
+Output: a 0.5 m DEM of the west end of Los Peñasquitos Canyon. Run time: ~12 min, 2 of them downloading.
 :::
 
-:::{grid-item-card} 3. WorldView-3 Mount Soledad, three images blended
+:::{grid-item-card} 3. WorldView-3 Los Peñasquitos Canyon, three images blended
 :link: 03_worldview_ucsd_blend
 :link-type: doc
 
-Adds a third image of the same window: bundle adjusts all three cameras, runs stereo on each of the three pairs, and averages the three DEMs with `dem_mosaic` into one with fewer holes and less noise. Run time: ~16 min after Tutorial 2.
+Adds a third image of the same area: bundle adjusts all three cameras on the orthoimages, runs stereo on each of the three pairs, and averages the three DEMs with `dem_mosaic` into one with fewer holes and less noise. Run time: ~22 min after Tutorial 2.
 :::
 ::::
 

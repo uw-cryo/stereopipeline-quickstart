@@ -5,38 +5,6 @@ import re
 from pathlib import Path
 
 
-def average_crop(image, camera, out_image, out_camera, factor):
-    """Average `factor` x `factor` pixel blocks of a cam2rpc crop, and rescale its RPC camera to match.
-
-    Writes `out_image` as compressed UInt16 (WorldView panchromatic data is
-    11-bit integer) and `out_camera` as the RPC camera of the smaller image.
-    ASP puts pixel centres at whole numbers, so new pixel j is centred on old
-    pixel factor*j + (factor-1)/2: the RPC line and sample offsets become
-    (offset - (factor-1)/2) / factor and their scales scale / factor.
-    """
-    from osgeo import gdal
-
-    src = gdal.Open(str(image))
-    w, h = src.RasterXSize // factor, src.RasterYSize // factor
-    gdal.Translate(
-        str(out_image), src, srcWin=[0, 0, w * factor, h * factor], width=w, height=h,
-        resampleAlg="average", outputType=gdal.GDT_UInt16,
-        creationOptions=["COMPRESS=DEFLATE", "PREDICTOR=2", "TILED=YES"],
-    )
-    src = None
-
-    xml = open(camera).read()
-    for key in ("LINE", "SAMP"):
-        for tag, fn in ((f"{key}OFFSET", lambda v: (v - (factor - 1) / 2) / factor),
-                        (f"{key}SCALE", lambda v: v / factor)):
-            xml, n = re.subn(rf"<{tag}>([^<]+)</{tag}>",
-                             lambda m: f"<{tag}>{fn(float(m.group(1))):.10g}</{tag}>", xml)
-            if n != 1:
-                raise ValueError(f"{camera}: expected one <{tag}>, found {n}")
-    with open(out_camera, "w") as f:
-        f.write(xml)
-
-
 def show_image_pair(left, right, titles, downsample=8):
     """Show two images side by side in grayscale, downsampled for display.
 
@@ -220,7 +188,7 @@ def _tail(log, n=5, width=160):
 
 
 def _log_lines(text):
-    """The log tail as a small grey block, or an empty output once the step is done."""
+    """The log tail as a small gray block, or an empty output once the step is done."""
     from html import escape
 
     from IPython.display import HTML
@@ -317,7 +285,7 @@ def _qgis_project(path, layers, title):
 
     `layers` is a list of (file name, layer name, kind), kind one of "dem",
     "hillshade", "error", "image", "pdf"; PDFs are left out. The hillshade
-    goes under the DEM, which is drawn half-transparent with a colour ramp,
+    goes under the DEM, which is drawn half-transparent with a color ramp,
     and the error map is listed but unchecked. The layout follows a project
     QGIS 4.0 wrote itself (the elements QGIS needs to load and draw a layer:
     type="raster" on <maplayer>, an <extent>, the CRS as WKT, <layerorder>);
@@ -475,8 +443,7 @@ STEREO_STAGES = {
 # twice too long. The status file still says stereo_pprc while the
 # low-resolution matching runs, so that is counted in stereo_pprc.
 STAGE_SECONDS = {
-    "ucsd_soledad/stereo/": {"stereo_pprc": 47, "stereo_corr": 38, "stereo_blend": 3, "stereo_fltr": 5, "stereo_tri": 19},
-    "ucsd_soledad/pairs/": {"stereo_pprc": 30, "stereo_corr": 52, "stereo_blend": 4, "stereo_fltr": 6, "stereo_tri": 22},
+    "ucsd_penasquitos/": {"stereo_pprc": 20, "stereo_corr": 270, "stereo_blend": 20, "stereo_fltr": 17, "stereo_tri": 50},
     "": {"stereo_pprc": 40, "stereo_corr": 74, "stereo_blend": 23, "stereo_fltr": 5, "stereo_tri": 39},
 }
 

@@ -3,7 +3,7 @@
     python scripts/docs_figures/setsm_inputs.py <wv run> <output folder>
 
 <wv run> is the top folder of a checkout where Tutorial 2 has run (it holds
-notebooks/ and data/). Copies each crop (data/ucsd_soledad/crops/<catid>_P001.tif)
+notebooks/ and data/). Copies each crop (data/ucsd_penasquitos/crops/<catid>_P001.tif)
 to the output folder, with a camera file SETSM accepts next to it.
 
 SETSM reads more than the RPC from a WorldView camera file. cam2rpc writes
@@ -55,7 +55,7 @@ def corners(tif):
 
 
 def main():
-    data = Path(sys.argv[1]) / "data/ucsd_soledad"
+    data = Path(sys.argv[1]) / "data/ucsd_penasquitos"
     out = Path(sys.argv[2])
     out.mkdir(parents=True, exist_ok=True)
     for catid in SCENES:

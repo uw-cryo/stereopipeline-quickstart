@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Download WorldView-3 scenes over Mount Soledad (UCSD, San Diego) for the
+# Download WorldView-3 scenes of the SpaceNet UCSD stack (San Diego) for the
 # WorldView tutorials, plus the tutorials' shipped data.
 #
 # Scenes (the three used by the tutorials; chosen in the cropped and full-scene
@@ -12,19 +12,19 @@
 # plain HTTPS, so no AWS CLI or credentials are needed. It is IARPA CORE3D data,
 # released for public research; publications using it should cite Hagstrom et
 # al. (2021), "Cumulative assessment for urban 3d modeling", IGARSS. It is not
-# re-hosted here: no licence we could find allows redistribution.
+# re-hosted here: no license we could find allows redistribution.
 #
 # The shipped ICESat-2 points and figure selections, and the Copernicus
 # reference DEM for the processing window, come from a release of this repo.
 #
 # Usage:
-#   bash scripts/download_worldview_ucsd.sh                 # all three → ./data/ucsd_soledad/
+#   bash scripts/download_worldview_ucsd.sh                 # all three → ./data/ucsd_penasquitos/
 #   bash scripts/download_worldview_ucsd.sh /path           # all three → /path/
 #   bash scripts/download_worldview_ucsd.sh /path CATID...  # only these scenes
 
 set -euo pipefail
 
-DEST="${1:-data/ucsd_soledad}"
+DEST="${1:-data/ucsd_penasquitos}"
 shift || true
 mkdir -p "${DEST}/images"
 
@@ -85,13 +85,13 @@ done
 #   the Copernicus notice).
 # RELEASE records which release they came from: files from an older release
 # (for example from an earlier version of this script) are replaced.
-DATA_TAG="ucsd-soledad-2026-10-27"
+DATA_TAG="ucsd-penasquitos-2026-10-30"
 DATA_URL="https://github.com/uw-cryo/stereopipeline-quickstart/releases/download/${DATA_TAG}"
 SHIPPED=(
-    "soledad_atl06sr_all.parquet icesat2_shipped/atl06sr_all.parquet"
-    "soledad_pair_figure_selections.yml icesat2_shipped/pair_figure_selections.yml"
-    "soledad_blend_figure_selections.yml icesat2_shipped/blend_figure_selections.yml"
-    "soledad_cop30.tif ref/cop30_soledad.tif"
+    "penasquitos_atl06sr_all.parquet icesat2_shipped/atl06sr_all.parquet"
+    "penasquitos_pair_figure_selections.yml icesat2_shipped/pair_figure_selections.yml"
+    "penasquitos_blend_figure_selections.yml icesat2_shipped/blend_figure_selections.yml"
+    "penasquitos_cop30.tif ref/cop30_penasquitos.tif"
 )
 mkdir -p "${DEST}/icesat2_shipped" "${DEST}/ref"
 if [[ "$(cat "${DEST}/RELEASE" 2>/dev/null)" != "${DATA_TAG}" ]]; then
@@ -112,5 +112,5 @@ done
 echo "${DATA_TAG}" > "${DEST}/RELEASE"
 
 echo
-echo "WorldView-3 Mount Soledad data ready at ${DEST}/"
+echo "WorldView-3 data ready at ${DEST}/"
 ls -lh "${DEST}"/*.NTF "${DEST}"/*.xml 2>/dev/null || true
