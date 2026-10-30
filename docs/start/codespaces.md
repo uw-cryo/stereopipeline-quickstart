@@ -34,7 +34,7 @@ On a machine with more than 4 cores, raise `--processes` in the `parallel_stereo
 | Notebook | What it makes | Time |
 |---|---|---|
 | `01_aster_rainier.ipynb` | A 30 m DEM of Mount Rainier from two ASTER images, and a PDF report | about 10 min |
-| `02_worldview_ucsd.ipynb` | A 0.5 m DEM of Los Peñasquitos Canyon from a WorldView-3 pair, compared with ICESat-2 | about 12 min |
+| `02_worldview_ucsd.ipynb` | A 1 m DEM of Los Peñasquitos Canyon from a WorldView-3 pair, compared with ICESat-2 | about 12 min |
 | `03_worldview_ucsd_blend.ipynb` | Three WorldView-3 pairs of the same area, blended into one DEM | about 22 min more |
 
 Tutorial 1 starts by itself the first time a new Codespace opens. For the others, or if Tutorial 1 hasn't started after a couple of minutes, open the notebook from the explorer and click **Run All** in the toolbar at the top, then scroll down to follow it. The code cells are shown as one line; click one to see its code.

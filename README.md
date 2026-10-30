@@ -19,7 +19,7 @@ You need a free [GitHub account](https://github.com/signup). There is nothing to
 | Tutorial | What you get | Time |
 |---|---|---|
 | 1. ASTER, Mount Rainier | A 30 m DEM and a PDF report from two ASTER images of the mountain | about 10 min |
-| 2. WorldView-3, Los Peñasquitos Canyon | A 0.5 m DEM from a sharp WorldView-3 pair over a canyon in San Diego, compared with ICESat-2 laser heights | about 12 min |
+| 2. WorldView-3, Los Peñasquitos Canyon | A 1 m DEM from a sharp WorldView-3 pair over a canyon in San Diego, compared with ICESat-2 laser heights | about 12 min |
 | 3. Three images blended | Three WorldView-3 pairs of the same place, blended into one DEM with fewer holes | about 22 min more |
 
 Times are for the standard 4-core workspace. All the data is open; no login other than GitHub. The sources and licenses are listed in the guide: [Data sources and licenses](https://stereopipeline-quickstart.readthedocs.io/en/latest/reference/data.html).

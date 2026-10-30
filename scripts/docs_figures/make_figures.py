@@ -196,8 +196,8 @@ def wv3_stereo_geometry(wv_run, out):
     save(fig, out, "wv3-stereo-geometry")
 
 
-# Tutorial 3's pair with the most failed pixels (about 10%; the others 2-4%).
-WV_FAILURE_PAIR = "10400100057DD500_10400100071D8800"
+# Tutorial 3's pair with the most failed pixels (about 3.6%; the others 2.7-3.1%).
+WV_FAILURE_PAIR = "104001000496A100_10400100057DD500"
 
 
 def goodpixelmap_failures(raw, wv, out):

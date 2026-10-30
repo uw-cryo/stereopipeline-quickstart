@@ -33,7 +33,7 @@ Stereo from a high-resolution WorldView-3 pair over Los Peñasquitos Canyon, a n
 - `parallel_stereo` (`asp_mgm`, subpixel mode 9, census cost) + `point2dem`
 - `asp-plot` PDF report with ICESat-2 alignment (`pc_align` runs by default)
 
-Output: a 0.5 m DEM of the west end of Los Peñasquitos Canyon. Run time: ~12 min, 2 of them downloading.
+Output: a 1 m DEM of the west end of Los Peñasquitos Canyon. Run time: ~12 min, 2 of them downloading.
 :::
 
 :::{grid-item-card} 3. WorldView-3 Los Peñasquitos Canyon, three images blended
