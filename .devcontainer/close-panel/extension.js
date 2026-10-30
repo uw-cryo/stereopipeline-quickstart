@@ -29,54 +29,19 @@ const STARTED = "stereopipeline-quickstart.tutorialStarted";
 const DELAYS_MS = [500, 2000, 5000];
 const FIRST_TUTORIAL = "/notebooks/01_aster_rainier.ipynb";
 const KERNEL_WAIT_MS = 5000;
-// Run All is tried again until a cell is seen running: once, it did nothing
-// in a new Codespace (the panel closed and the cells collapsed, so the
-// extension ran; no kernel picker appeared) and the user had to click it.
+// Run All is tried again until a cell is seen to have run: once, it did
+// nothing in a new Codespace (the panel closed and the cells collapsed, so the
+// extension ran; no kernel picker appeared) and the user had to click it. A
+// cell's executionSummary appears when it finishes, and the first cell waits
+// for the kernel's cold start, which can take two minutes on a new Codespace,
+// so the check allows for that before trying again.
 const RUN_TRIES = 4;
-const RUN_CHECK_MS = 15000;
+const RUN_CHECK_MS = 150000;
 
 // "Quickstart launch" in the Output panel: what the extension did and when,
 // for when a launch doesn't go as it should.
 let log;
 
-// Resolves once closePanel() has made its last notifications.clearAll call,
-// so a progress notification shown after it is not cleared by it.
-let panelClosed = Promise.resolve();
-
-// A progress notification while Tutorial 1 is being started: between the
-// Codespace looking ready and the first cell running, the Python extension
-// scans the environments and the kernel starts on a cold disk, which can take
-// a minute or two with nothing on screen to say so.
-let progress;
-let progressDone;
-
-function showProgress() {
-    const done = new Promise((resolve) => {
-        progressDone = resolve;
-    });
-    panelClosed.then(() =>
-        vscode.window.withProgress(
-            {
-                location: vscode.ProgressLocation.Notification,
-                title: "Starting Tutorial 1. It runs by itself in a moment; no click needed.",
-            },
-            (p) => {
-                progress = p;
-                return done;
-            },
-        ),
-    );
-}
-
-function report(message) {
-    note(message);
-    progress?.report({ message });
-}
-
-function endProgress() {
-    progressDone?.();
-    progress = undefined;
-}
 
 function note(message) {
     log?.appendLine(`${new Date().toISOString()} ${message}`);
@@ -116,8 +81,7 @@ async function startFirstTutorial(context, notebook) {
     if (context.globalState.get(STARTED) || !notebook.uri.path.endsWith(FIRST_TUTORIAL)) {
         return;
     }
-    showProgress();
-    report("waiting for the Python and Jupyter extensions");
+    note("Tutorial 1 is open; waiting for the Python and Jupyter extensions");
     // Run All only once the asp kernel is attached, or VS Code opens a "Select
     // Kernel" picker. The Jupyter extension attaches it after the Python
     // extension has found the conda environments, and a few seconds later.
@@ -132,13 +96,13 @@ async function startFirstTutorial(context, notebook) {
         if (jupyter) {
             await jupyter.activate();
         }
-        report("the Python and Jupyter extensions are ready; starting the kernel");
+        note("the Python and Jupyter extensions are ready");
     } catch (error) {
         note(`waiting for the extensions failed: ${error}`);
     }
     await new Promise((resolve) => setTimeout(resolve, KERNEL_WAIT_MS));
     for (let attempt = 1; attempt <= RUN_TRIES; attempt++) {
-        report(`Run All, attempt ${attempt} of ${RUN_TRIES}`);
+        note(`Run All, attempt ${attempt} of ${RUN_TRIES}`);
         try {
             await vscode.commands.executeCommand("notebook.execute", notebook.uri);
         } catch (error) {
@@ -148,8 +112,7 @@ async function startFirstTutorial(context, notebook) {
         while (Date.now() < deadline) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             if (hasStarted(notebook)) {
-                note("a cell is running");
-                endProgress();
+                note("a cell has run");
                 await context.globalState.update(STARTED, true);
                 return;
             }
@@ -157,8 +120,6 @@ async function startFirstTutorial(context, notebook) {
         note("no cell started");
     }
     note("gave up; Run All at the top of the notebook starts it");
-    endProgress();
-    vscode.window.showInformationMessage("Tutorial 1 did not start by itself. Click Run All at the top of the notebook.");
     await context.globalState.update(STARTED, true);
 }
 
@@ -170,7 +131,9 @@ async function onVisible(context, editors) {
         }
         collapsed.add(key);
         note(`collapsing the code cells of ${editor.notebook.uri.path}`);
-        await collapseCode(editor.notebook);
+        // The collapse repeats over 30 s; the start must not wait behind it
+        // (it did once, and Run All came 30 s later than it needed to).
+        collapseCode(editor.notebook);
         await startFirstTutorial(context, editor.notebook);
     }
 }
@@ -250,8 +213,8 @@ exports.activate = function (context) {
         vscode.workspace.onDidCloseNotebookDocument((notebook) => collapsed.delete(notebook.uri.toString())),
     );
     // Neither waits for the other: starting Tutorial 1 waits for the kernel.
-    panelClosed = closePanel(context);
     onVisible(context, vscode.window.visibleNotebookEditors);
+    closePanel(context);
 };
 
 exports.deactivate = function () {};
