@@ -315,75 +315,84 @@ def _cog(src, dst, eight_bit=False):
 def _qgis_project(path, layers, title):
     """Write a QGIS project (.qgs) with the given rasters, by relative path, so the zip opens with one click.
 
-    No version attribute: QGIS then treats the file as current and shows no
-    "saved by an older version" message (checked with QGIS 4.0).
-
     `layers` is a list of (file name, layer name, kind), kind one of "dem",
     "hillshade", "error", "image", "pdf"; PDFs are left out. The hillshade
-    goes under the DEM, which is drawn half-transparent with a colour ramp.
+    goes under the DEM, which is drawn half-transparent with a colour ramp,
+    and the error map is listed but unchecked. The layout follows a project
+    QGIS 4.0 wrote itself (the elements QGIS needs to load and draw a layer:
+    type="raster" on <maplayer>, an <extent>, the CRS as WKT, <layerorder>);
+    a hand-written file without them listed the layers but drew nothing.
+    The version string is QGIS 4.0's: an older one, or none, makes QGIS say
+    the file was saved by an older version (none reads as 0.0.0).
     """
-    from osgeo import gdal, osr
+    from osgeo import gdal
     from xml.sax.saxutils import escape
 
     gdal.UseExceptions()
     rasters = [(f, n, k) for f, n, k in layers if k != "pdf"]
-    # Draw order: images at the bottom, then the hillshade, the DEM, the error map on top.
+    # Draw order, bottom to top: images, the hillshade, the DEM, the error map.
     order = {"image": 0, "hillshade": 1, "dem": 2, "error": 3}
     rasters.sort(key=lambda r: order[r[2]])
-    first = gdal.Open(str(Path(path).parent / rasters[0][0]))
-    srs = osr.SpatialReference(wkt=first.GetProjection())
-    auth = f"{srs.GetAuthorityName(None)}:{srs.GetAuthorityCode(None)}" if srs.GetAuthorityCode(None) else ""
-    wkt = escape(first.GetProjection())
-    gt = first.GetGeoTransform()
-    xmin, ymax = gt[0], gt[3]
-    xmax, ymin = xmin + gt[1] * first.RasterXSize, ymax + gt[5] * first.RasterYSize
+    folder = Path(path).parent
 
-    def renderer(fn, kind):
-        ds = gdal.Open(str(Path(path).parent / fn))
+    def info(fn):
+        ds = gdal.Open(str(folder / fn))
+        gt = ds.GetGeoTransform()
+        return ds, (gt[0], gt[3] + gt[5] * ds.RasterYSize, gt[0] + gt[1] * ds.RasterXSize, gt[3])
+
+    def renderer(ds, kind):
         band = ds.GetRasterBand(1)
-        if kind == "hillshade":
-            return '<rasterrenderer type="singlebandgray" band="1" gradient="BlackToWhite" opacity="1"><contrastEnhancement><minValue>1</minValue><maxValue>255</maxValue><algorithm>StretchToMinimumMaximum</algorithm></contrastEnhancement></rasterrenderer>'
-        if kind == "image":
-            lo, hi = band.ComputeRasterMinMax(True)
-            return f'<rasterrenderer type="singlebandgray" band="1" gradient="BlackToWhite" opacity="1"><contrastEnhancement><minValue>{lo}</minValue><maxValue>{hi}</maxValue><algorithm>StretchToMinimumMaximum</algorithm></contrastEnhancement></rasterrenderer>'
+        if kind in ("hillshade", "image"):
+            lo, hi = (1, 255) if kind == "hillshade" else band.ComputeRasterMinMax(True)
+            return (f'<rasterrenderer alphaBand="-1" gradient="BlackToWhite" grayBand="1" nodataColor="" opacity="1" type="singlebandgray">'
+                    f'<rasterTransparency/><minMaxOrigin><limits>MinMax</limits><extent>WholeRaster</extent><statAccuracy>Estimated</statAccuracy>'
+                    f'<cumulativeCutLower>0.02</cumulativeCutLower><cumulativeCutUpper>0.98</cumulativeCutUpper><stdDevFactor>2</stdDevFactor></minMaxOrigin>'
+                    f'<contrastEnhancement><minValue>{lo}</minValue><maxValue>{hi}</maxValue><algorithm>StretchToMinimumMaximum</algorithm></contrastEnhancement></rasterrenderer>')
         stats = band.GetStatistics(True, True)
-        lo, hi = stats[0], stats[1]
         if kind == "error":
             lo, hi = 0, stats[2] + 2 * stats[3]
             ramp = [(lo, "#000004"), ((lo + hi) / 2, "#b63679"), (hi, "#fcfdbf")]
             opacity = 1
         else:
+            lo, hi = stats[0], stats[1]
             ramp = [(lo, "#440154"), ((lo + hi) / 2, "#21918c"), (hi, "#fde725")]
             opacity = 0.5
-        items = "".join(f'<item value="{v}" label="{v:.0f}" color="{c}" alpha="255"/>' for v, c in ramp)
-        return (f'<rasterrenderer type="singlebandpseudocolor" band="1" classificationMin="{lo}" classificationMax="{hi}" opacity="{opacity}">'
-                f'<rastershader><colorrampshader colorRampType="INTERPOLATED" minimumValue="{lo}" maximumValue="{hi}" clip="0">{items}</colorrampshader></rastershader></rasterrenderer>')
+        items = "".join(f'<item alpha="255" color="{c}" label="{v:.0f}" value="{v}"/>' for v, c in ramp)
+        return (f'<rasterrenderer alphaBand="-1" band="1" classificationMax="{hi}" classificationMin="{lo}" nodataColor="" opacity="{opacity}" type="singlebandpseudocolor">'
+                f'<rasterTransparency/><minMaxOrigin><limits>None</limits><extent>WholeRaster</extent><statAccuracy>Estimated</statAccuracy>'
+                f'<cumulativeCutLower>0.02</cumulativeCutLower><cumulativeCutUpper>0.98</cumulativeCutUpper><stdDevFactor>2</stdDevFactor></minMaxOrigin>'
+                f'<rastershader><colorrampshader classificationMode="1" clip="0" colorRampType="INTERPOLATED" labelPrecision="0" maximumValue="{hi}" minimumValue="{lo}">'
+                f'{items}<rampLegendSettings direction="0" maximumLabel="" minimumLabel="" orientation="2" prefix="" suffix="" useContinuousLegend="1"/></colorrampshader></rastershader></rasterrenderer>')
 
-    layer_xml, order_xml, tree_xml = [], [], []
+    first_ds, _ = info(rasters[0][0])
+    wkt = escape(first_ds.GetProjection())
+    srs = f'<spatialrefsys nativeFormat="Wkt"><wkt>{wkt}</wkt><authid>EPSG:{first_ds.GetSpatialRef().GetAuthorityCode(None) or ""}</authid></spatialrefsys>'
+    tree, layer_xml, order_xml = [], [], []
     for i, (fn, name, kind) in enumerate(rasters):
-        lid = f"layer_{i}"
+        ds, (xmin, ymin, xmax, ymax) = info(fn)
+        lid = f"layer{i}_{Path(fn).stem}".replace(".", "_")
         checked = "Qt::Unchecked" if kind == "error" else "Qt::Checked"
-        tree_xml.append(f'<layer-tree-layer id="{lid}" name="{escape(name)}" source="./{escape(fn)}" providerKey="gdal" checked="{checked}" expanded="0"/>')
+        tree.append(f'<layer-tree-layer checked="{checked}" expanded="0" id="{lid}" legend_exp="" legend_split_behavior="0" name="{escape(name)}" patch_size="-1,-1" providerKey="gdal" source="./{escape(fn)}"><customproperties><Option/></customproperties></layer-tree-layer>')
         order_xml.append(f'<layer id="{lid}"/>')
         layer_xml.append(
-            f'<maplayer type="raster" hasScaleBasedVisibilityFlag="0"><id>{lid}</id><datasource>./{escape(fn)}</datasource>'
-            f'<layername>{escape(name)}</layername><srs><spatialrefsys><wkt>{wkt}</wkt><authid>{auth}</authid></spatialrefsys></srs>'
-            f'<provider>gdal</provider><pipe>{renderer(fn, kind)}<rasterresampler zoomedInResamplingMethod="bilinear" zoomedOutResamplingMethod="bilinear" maxOversampling="2"/></pipe></maplayer>')
-    # QGIS draws the layer tree top to bottom, so the last in draw order comes first.
-    tree_xml.reverse()
+            f'<maplayer autoRefreshMode="Disabled" autoRefreshTime="0" hasScaleBasedVisibilityFlag="0" layerType="Raster" legendPlaceholderImage="" maxScale="0" minScale="1e+08" refreshOnNotifyEnabled="0" refreshOnNotifyMessage="" styleCategories="AllStyleCategories" type="raster">'
+            f'<extent><xmin>{xmin}</xmin><ymin>{ymin}</ymin><xmax>{xmax}</xmax><ymax>{ymax}</ymax></extent>'
+            f'<id>{lid}</id><datasource>./{escape(fn)}</datasource><layername>{escape(name)}</layername><srs>{srs}</srs><provider>gdal</provider>'
+            f'<noData><noDataList bandNo="1" useSrcNoData="1"/></noData><map-layer-style-manager current="default"><map-layer-style name="default"/></map-layer-style-manager>'
+            f'<flags><Identifiable>1</Identifiable><Removable>1</Removable><Searchable>1</Searchable><Private>0</Private></flags>'
+            f'<pipe><provider><resampling enabled="true" maxOversampling="2" zoomedInResamplingMethod="bilinear" zoomedOutResamplingMethod="bilinear"/></provider>'
+            f'{renderer(ds, kind)}<brightnesscontrast brightness="0" contrast="0" gamma="1"/><huesaturation colorizeBlue="128" colorizeGreen="128" colorizeOn="0" colorizeRed="255" colorizeStrength="100" grayscaleMode="0" invertColors="0" saturation="0"/>'
+            f'<rasterresampler maxOversampling="2" zoomedInResampler="bilinear" zoomedOutResampler="bilinear"/><resamplingStage>resamplingFilter</resamplingStage></pipe><blendMode>0</blendMode><legend showfeaturecount="0" type="default-raster"/></maplayer>')
+    # QGIS lists the layer tree top to bottom, so the top-drawn layer comes first.
+    tree.reverse()
     xml = f"""<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis projectname="{escape(title)}">
+<qgis projectname="{escape(title)}" version="4.0.0-Norrköping">
+  <homePath path=""/>
   <title>{escape(title)}</title>
-  <projectCrs><spatialrefsys><wkt>{wkt}</wkt><authid>{auth}</authid></spatialrefsys></projectCrs>
-  <layer-tree-group>
-    {"".join(tree_xml)}
-    <custom-order enabled="0">{"".join(order_xml)}</custom-order>
-  </layer-tree-group>
-  <mapcanvas name="theMapCanvas" annotationsVisible="1">
-    <extent><xmin>{xmin}</xmin><ymin>{ymin}</ymin><xmax>{xmax}</xmax><ymax>{ymax}</ymax></extent>
-    <destinationsrs><spatialrefsys><wkt>{wkt}</wkt><authid>{auth}</authid></spatialrefsys></destinationsrs>
-  </mapcanvas>
+  <projectCrs>{srs}</projectCrs>
+  <layer-tree-group><customproperties><Option/></customproperties>{"".join(tree)}<custom-order enabled="0">{"".join(order_xml)}</custom-order></layer-tree-group>
   <projectlayers>{"".join(layer_xml)}</projectlayers>
+  <layerorder>{"".join(order_xml)}</layerorder>
   <properties><Paths><Absolute type="bool">false</Absolute></Paths></properties>
 </qgis>
 """
