@@ -87,7 +87,7 @@ def show_hillshades(dem_fns, titles):
 REPORT_FIGURES = {
     "dem_results": "The DEM, its triangulation intersection error, and its difference from the reference DEM.",
     "detailed_hillshade": "A hillshade of the DEM, with zoomed details.",
-    "icesat_2_atl06_sr_profile": "The DEM along one ICESat-2 track, and the difference between them.",
+    "icesat_2_atl06_sr_profile_aligned_dem": "The DEM along one ICESat-2 track, before and after the shift onto the ICESat-2 points, and the difference after it.",
 }
 
 
@@ -108,6 +108,9 @@ def show_report_figures(figures_dir, figures=REPORT_FIGURES, max_width=1400):
     shown = 0
     for name, caption in figures.items():
         matches = sorted(figures_dir.glob(f"[0-9][0-9]_{name}.png"))
+        if not matches and name.endswith("_aligned_dem"):
+            # No aligned figure when pc_align found nothing to improve: show the plain one.
+            matches = sorted(figures_dir.glob(f"[0-9][0-9]_{name[: -len('_aligned_dem')]}.png"))
         if not matches:
             continue
         fig = matches[0]

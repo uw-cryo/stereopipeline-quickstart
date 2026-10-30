@@ -29,6 +29,7 @@ dependencies:
       # always one step ahead during active development. Capped below the
       # next major version, which may break the notebooks' asp_report calls
       # (architecture/0021-asp-plot-major-version-bound.md).
-      # 3.5 is the floor for asp_report --figures-directory, which the
-      # notebooks use to show report figures inline.
-      - asp-plot>=3.5,<4
+      # 3.6 is the floor for asp_report --pc-align-min-points, which the
+      # WorldView notebooks need for pc_align on their 1.2 x 1 km area
+      # (3.5 brought --figures-directory, which shows report figures inline).
+      - asp-plot>=3.6,<4
