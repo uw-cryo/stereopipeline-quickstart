@@ -27,7 +27,7 @@ Output: a ~30 m DEM of Mt. Rainier. Run time: ~10 min.
 :link: 02_worldview_ucsd
 :link-type: doc
 
-Stereo from a high-resolution WorldView-3 pair over Los Peñasquitos Canyon, a nature preserve on the north edge of San Diego (SpaceNet CORE3D, openly hosted on AWS), at the images' own 0.3 m resolution on a 1.2 × 1 km area. Steps:
+Stereo from a high-resolution WorldView-3 pair over Los Peñasquitos Canyon, a nature preserve on the north edge of San Diego (SpaceNet CORE3D, openly hosted on AWS), at the images' own 0.3 m resolution on a 1 km square. Steps:
 - Stereo geometry with `StereoGeometryPlotter`
 - `mapproject` of just the area out of each full image, onto a COP30 reference DEM
 - `parallel_stereo` (`asp_mgm`, subpixel mode 9, census cost) + `point2dem`
@@ -40,7 +40,7 @@ Output: a 1 m DEM of the west end of Los Peñasquitos Canyon. Run time: ~12 min,
 :link: 03_worldview_ucsd_blend
 :link-type: doc
 
-Adds a third image of the same area: bundle adjusts all three cameras on the orthoimages, runs stereo on each of the three pairs, and averages the three DEMs with `dem_mosaic` into one with fewer holes and less noise. Run time: ~22 min after Tutorial 2.
+Adds a third image of the same area: bundle adjusts all three cameras on the orthoimages, runs stereo on each of the three pairs, and averages the three DEMs with `dem_mosaic` into one with fewer holes and less noise. Run time: ~23 min after Tutorial 2.
 :::
 ::::
 

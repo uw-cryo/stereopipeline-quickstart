@@ -35,6 +35,12 @@ def main():
         start = time.time()
         NotebookClient(nb, timeout=None, kernel_name="python3",
                        resources={"metadata": {"path": str(run / "notebooks")}}).execute()
+        # Screenshots in markdown cells are referenced relative to notebooks/
+        # (../docs/start/figures/); from docs/tutorials/ the same files are at
+        # ../start/figures/.
+        for cell in nb.cells:
+            if cell.cell_type == "markdown":
+                cell.source = cell.source.replace("../docs/start/figures/", "../start/figures/")
         nbformat.write(nb, out / f"{name}.ipynb")
         print(f"{name}: {(time.time() - start) / 60:.1f} min, {(out / f'{name}.ipynb').stat().st_size / 1e6:.1f} MB")
 

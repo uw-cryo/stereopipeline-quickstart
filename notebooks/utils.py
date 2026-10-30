@@ -446,7 +446,7 @@ STEREO_STAGES = {
 # twice too long. The status file still says stereo_pprc while the
 # low-resolution matching runs, so that is counted in stereo_pprc.
 STAGE_SECONDS = {
-    "ucsd_penasquitos/": {"stereo_pprc": 20, "stereo_corr": 270, "stereo_blend": 20, "stereo_fltr": 17, "stereo_tri": 50},
+    "ucsd_penasquitos/": {"stereo_pprc": 21, "stereo_corr": 250, "stereo_blend": 21, "stereo_fltr": 10, "stereo_tri": 82},
     "": {"stereo_pprc": 40, "stereo_corr": 74, "stereo_blend": 23, "stereo_fltr": 5, "stereo_tri": 39},
 }
 
@@ -735,12 +735,20 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
             # there is data), so the maps keep their size as tiles arrive.
             fig = Figure(figsize=(15, 5), constrained_layout=True)
             axes = fig.subplots(1, 3)
-            panels = [(axes[0], dx, f"Offset between the images: {directions[0]}", "magma", "Offset (pixels)"),
-                      (axes[1], dy, f"Offset between the images: {directions[1]}", "magma", "Offset (pixels)"),
+            # The offsets are shown about their median, on a diverging scale centred
+            # on it, as the report's disparity figure does: the constant part of the
+            # offset is the cameras' error, and what varies is the relief.
+            panels = [(axes[0], dx, f"Offset between the images: {directions[0]}", "RdBu_r", "Offset (pixels, about the median)"),
+                      (axes[1], dy, f"Offset between the images: {directions[1]}", "RdBu_r", "Offset (pixels, about the median)"),
                       (axes[2], heights, "After triangulation: heights", "viridis", "Height (m)")]
             for ax, array, title, cmap, label in panels:
                 has_data = np.isfinite(array).any()
-                lo, hi = np.nanpercentile(array, (2, 98)) if has_data else (0, 1)
+                if ax is not axes[2] and has_data:
+                    array = array - np.nanmedian(array)
+                    limit = np.nanmax(np.abs(np.nanpercentile(array, (2, 98))))
+                    lo, hi = -limit, limit
+                else:
+                    lo, hi = np.nanpercentile(array, (2, 98)) if has_data else (0, 1)
                 if ax is axes[2] and has_data:
                     shade = LightSource(azdeg=315, altdeg=45).hillshade(np.nan_to_num(heights, nan=np.nanmedian(heights)), dx=spacing, dy=spacing)
                     shade[np.isnan(heights)] = np.nan
