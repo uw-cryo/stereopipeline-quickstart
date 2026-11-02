@@ -49,7 +49,7 @@ from matplotlib import patheffects
 import contextily as cx
 import numpy as np
 from matplotlib.patches import Rectangle
-from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+from matplotlib_scalebar.scalebar import ScaleBar
 from osgeo import gdal
 
 gdal.UseExceptions()
@@ -185,7 +185,7 @@ def basemap(ax, srs, zoom="auto"):
     cx.add_basemap(ax, crs=srs, source=BASEMAP, zoom=zoom, attribution_size=5, zorder=0)
 
 
-def draw_scene(ax, path, srs, box, box_label, bar_km, title, bounds):
+def draw_scene(ax, path, srs, box, box_label, title, bounds):
     """The scene over the basemap, the processed area outlined, a scale bar."""
     a, extent = read_map(path)
     ax.set_xlim(bounds[0], bounds[2])
@@ -198,12 +198,12 @@ def draw_scene(ax, path, srs, box, box_label, bar_km, title, bounds):
     ax.annotate(box_label, (xmin, ymax), xytext=(0, 4), textcoords="offset points",
                 color=OUTLINE, fontsize=9, fontweight="bold", zorder=3,
                 path_effects=[patheffects.withStroke(linewidth=2.5, foreground="white")])
-    ax.add_artist(AnchoredSizeBar(ax.transData, bar_km * 1000, f"{bar_km} km", "lower right",
-                                  pad=0.5, borderpad=0.8, sep=4, frameon=True, size_vertical=bar_km * 1000 / 25))
+    # As the notebooks and asp-plot draw them (the axes are in meters).
+    ax.add_artist(ScaleBar(1))
     frame(ax, title)
 
 
-def draw_context(ax, srs, scene, half_km, bar_km):
+def draw_context(ax, srs, scene, half_km):
     """A map about 2 x half_km across, centered on the scene, with the scene's outline."""
     cxm, cym = (scene[0] + scene[2]) / 2, (scene[1] + scene[3]) / 2
     ax.set_xlim(cxm - half_km * 1000, cxm + half_km * 1000)
@@ -211,8 +211,8 @@ def draw_context(ax, srs, scene, half_km, bar_km):
     basemap(ax, srs)
     ax.add_patch(Rectangle((scene[0], scene[1]), scene[2] - scene[0], scene[3] - scene[1], fill=False,
                            edgecolor=OUTLINE, linewidth=1.8, zorder=3))
-    ax.add_artist(AnchoredSizeBar(ax.transData, bar_km * 1000, f"{bar_km} km", "lower right",
-                                  pad=0.5, borderpad=0.8, sep=4, frameon=True, size_vertical=bar_km * 1000 / 25))
+    # As the notebooks and asp-plot draw them (the axes are in meters).
+    ax.add_artist(ScaleBar(1))
     ax.set_aspect("equal")
     frame(ax, "Location")
 
@@ -230,10 +230,10 @@ def wv_maps(catids, work, out, name):
     bounds = union([read_map(p)[1] for p in paths], 2000)
     fig, axes = plt.subplots(1, len(catids) + 1, figsize=(4.4 * (len(catids) + 1), 5.2),
                              gridspec_kw={"width_ratios": [1] * (len(catids) + 1)})
-    draw_context(axes[0], WV_SRS, scenes, 150, 50)
+    draw_context(axes[0], WV_SRS, scenes, 150)
     for ax, catid, path in zip(axes[1:], catids, paths):
         date, angle = WV[catid][:2]
-        draw_scene(ax, path, WV_SRS, WV_SQUARE, "1 km", 2, f"{date}, {angle}\n{catid}", bounds)
+        draw_scene(ax, path, WV_SRS, WV_SQUARE, "1 km", f"{date}, {angle}\n{catid}", bounds)
     fig.tight_layout()
     save(fig, out, name)
 
@@ -243,8 +243,8 @@ def aster_map(aster_run, work, out):
     scene = union([read_map(path)[1]], 0)
     bounds = union([read_map(path)[1]], 5000)
     fig, axes = plt.subplots(1, 2, figsize=(11, 5.6), gridspec_kw={"width_ratios": [1, 1.25]})
-    draw_context(axes[0], ASTER_SRS, scene, 200, 50)
-    draw_scene(axes[1], path, ASTER_SRS, ASTER_WINDOW, "processing window", 10,
+    draw_context(axes[0], ASTER_SRS, scene, 200)
+    draw_scene(axes[1], path, ASTER_SRS, ASTER_WINDOW, "processing window",
                "ASTER band 3N (near infrared, nadir), 2017-07-31", bounds)
     fig.tight_layout()
     save(fig, out, "aster-scene-map")

@@ -248,7 +248,7 @@ The no-chdir `DATA` pattern itself is an editing rule in `AGENTS.md`. Earlier it
 - Re-running the chdir cell after later cells produce subdirs compounds the chdir and breaks subsequent paths.
 - It hides what's actually happening. With explicit paths in every cell, the reader sees the layout.
 
-`notebooks/utils.py` holds the plotting helpers the notebooks call (`show_image_pair`, `show_dem_hillshade`, `show_hillshades`, `show_report_figures`), so cells show `asp-plot` calls without matplotlib boilerplate.
+`notebooks/utils.py` holds the plotting helpers the notebooks call (`show_image_pair`, `show_dem_hillshade`, `show_hillshades`, `show_report_figures`), so cells show `asp-plot` calls without matplotlib boilerplate. Every map they draw has a scale bar, as `asp-plot`'s own figures do (matplotlib-scalebar's `ScaleBar`, upper right): `add_scale_bar()` gives meters for a raster on a map (pixel size times any downsampling) and a fixed 1000-pixel bar for an image not on a map yet (Tutorial 1's raw images); `run_stereo`'s live map and the scene maps (`make_scene_maps.py`) use the same bar.
 
 It also holds the run helpers, which keep ASP's verbose output out of the notebook (all three tutorials; [ADR-0031](architecture/0031-status-lines-and-logs.md)):
 
