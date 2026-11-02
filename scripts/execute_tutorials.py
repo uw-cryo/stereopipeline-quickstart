@@ -38,13 +38,15 @@ def main():
                        resources={"metadata": {"path": str(run / "notebooks")}}).execute()
         # Screenshots in markdown cells are referenced relative to notebooks/
         # (../docs/start/figures/); from docs/tutorials/ the same files are at
-        # ../start/figures/.
+        # ../start/figures/. The scene maps (../docs/tutorials/figures/) are at
+        # figures/.
         # A sized <img> tag (width for VS Code) becomes a markdown image: Sphinx
         # copies only the images it sees in markdown.
         for cell in nb.cells:
             if cell.cell_type == "markdown":
                 cell.source = re.sub(r'<img src="([^"]+)" alt="([^"]*)"[^>]*>', r"![\2](\1)", cell.source)
                 cell.source = cell.source.replace("../docs/start/figures/", "../start/figures/")
+                cell.source = cell.source.replace("../docs/tutorials/figures/", "figures/")
         nbformat.write(nb, out / f"{name}.ipynb")
         print(f"{name}: {(time.time() - start) / 60:.1f} min, {(out / f'{name}.ipynb').stat().st_size / 1e6:.1f} MB")
 
