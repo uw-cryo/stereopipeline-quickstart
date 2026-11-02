@@ -233,7 +233,7 @@ def wv_maps(catids, work, out, name):
     draw_context(axes[0], WV_SRS, scenes, 150, 50)
     for ax, catid, path in zip(axes[1:], catids, paths):
         date, angle = WV[catid][:2]
-        draw_scene(ax, path, WV_SRS, WV_SQUARE, "1 km", 2, f"{date}, {angle} from straight down\n{catid}", bounds)
+        draw_scene(ax, path, WV_SRS, WV_SQUARE, "1 km", 2, f"{date}, {angle}\n{catid}", bounds)
     fig.tight_layout()
     save(fig, out, name)
 
