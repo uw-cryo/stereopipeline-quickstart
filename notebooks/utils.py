@@ -293,6 +293,10 @@ def _qgis_project(path, layers, title):
     QGIS 4.0 wrote itself (the elements QGIS needs to load and draw a layer:
     type="raster" on <maplayer>, an <extent>, the CRS as WKT, <layerorder>);
     a hand-written file without them listed the layers but drew nothing.
+    QGIS reads <projectCrs> only when the property SpatialRefSys/
+    ProjectionsEnabled is 1; without it the project opens with no CRS. The
+    default view extent (<ProjectViewSettings>) is the view QGIS opens on,
+    the extent of all the layers.
     The version string is QGIS 4.0's: an older one, or none, makes QGIS say
     the file was saved by an older version (none reads as 0.0.0).
     """
@@ -338,9 +342,10 @@ def _qgis_project(path, layers, title):
     first_ds, _ = info(rasters[0][0])
     wkt = escape(first_ds.GetProjection())
     srs = f'<spatialrefsys nativeFormat="Wkt"><wkt>{wkt}</wkt><authid>EPSG:{first_ds.GetSpatialRef().GetAuthorityCode(None) or ""}</authid></spatialrefsys>'
-    tree, layer_xml, order_xml = [], [], []
+    tree, layer_xml, order_xml, extents = [], [], [], []
     for i, (fn, name, kind) in enumerate(rasters):
         ds, (xmin, ymin, xmax, ymax) = info(fn)
+        extents.append((xmin, ymin, xmax, ymax))
         lid = f"layer{i}_{Path(fn).stem}".replace(".", "_")
         checked = "Qt::Unchecked" if kind == "error" else "Qt::Checked"
         tree.append(f'<layer-tree-layer checked="{checked}" expanded="0" id="{lid}" legend_exp="" legend_split_behavior="0" name="{escape(name)}" patch_size="-1,-1" providerKey="gdal" source="./{escape(fn)}"><customproperties><Option/></customproperties></layer-tree-layer>')
@@ -356,6 +361,7 @@ def _qgis_project(path, layers, title):
             f'<rasterresampler maxOversampling="2" zoomedInResampler="bilinear" zoomedOutResampler="bilinear"/><resamplingStage>resamplingFilter</resamplingStage></pipe><blendMode>0</blendMode><legend showfeaturecount="0" type="default-raster"/></maplayer>')
     # QGIS lists the layer tree top to bottom, so the top-drawn layer comes first.
     tree.reverse()
+    view = (min(e[0] for e in extents), min(e[1] for e in extents), max(e[2] for e in extents), max(e[3] for e in extents))
     xml = f"""<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
 <qgis projectname="{escape(title)}" version="4.0.0-Norrköping">
   <homePath path=""/>
@@ -364,7 +370,8 @@ def _qgis_project(path, layers, title):
   <layer-tree-group><customproperties><Option/></customproperties>{"".join(tree)}<custom-order enabled="0">{"".join(order_xml)}</custom-order></layer-tree-group>
   <projectlayers>{"".join(layer_xml)}</projectlayers>
   <layerorder>{"".join(order_xml)}</layerorder>
-  <properties><Paths><Absolute type="bool">false</Absolute></Paths></properties>
+  <ProjectViewSettings UseProjectScales="0" rotation="0"><Scales/><DefaultViewExtent xmin="{view[0]}" ymin="{view[1]}" xmax="{view[2]}" ymax="{view[3]}">{srs}</DefaultViewExtent></ProjectViewSettings>
+  <properties><SpatialRefSys><ProjectionsEnabled type="int">1</ProjectionsEnabled></SpatialRefSys><Paths><Absolute type="bool">false</Absolute></Paths></properties>
 </qgis>
 """
     Path(path).write_text(xml)
