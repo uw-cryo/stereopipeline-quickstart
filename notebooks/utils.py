@@ -5,8 +5,41 @@ import re
 from pathlib import Path
 
 
+def add_scale_bar(ax, fn, shown_width):
+    """A scale bar for a raster drawn in pixel coordinates, as asp-plot draws them.
+
+    `shown_width` is the width of the array as drawn, in pixels, so a
+    downsampled image gets the right scale. A raster on a map (one with a
+    projected CRS, here UTM) gets a bar in meters; an image that is not on a
+    map yet (a raw satellite image) gets a bar in its own pixels.
+    """
+    from matplotlib_scalebar.scalebar import ScaleBar
+    from osgeo import gdal
+
+    gdal.UseExceptions()
+    ds = gdal.Open(str(fn))
+    per_pixel = ds.RasterXSize / shown_width
+    srs = ds.GetSpatialRef()
+    if srs is not None and srs.IsProjected():
+        ax.add_artist(ScaleBar(abs(ds.GetGeoTransform()[1]) * srs.GetLinearUnits() * per_pixel))
+    else:
+        ax.add_artist(pixel_scale_bar(per_pixel))
+
+
+def pixel_scale_bar(per_pixel):
+    """A 1000-pixel scale bar for an image not on a map, `per_pixel` image pixels to a drawn one.
+
+    A fixed length and a plain label, so two images side by side get the same
+    bar ("1000 px", not "750 px" on one and "1 kpx" on the other).
+    """
+    from matplotlib_scalebar.scalebar import ScaleBar
+
+    return ScaleBar(per_pixel, units="px", dimension="pixel-length", fixed_value=1000, fixed_units="px",
+                    scale_formatter=lambda value, unit: f"{value} {unit}")
+
+
 def show_image_pair(left, right, titles, downsample=8):
-    """Show two images side by side in grayscale, downsampled for display.
+    """Show two images side by side in grayscale, downsampled for display, each with a scale bar.
 
     Uses asp_plot's `Raster` to read each image and `Plotter.plot_array` to
     draw it with a percentile contrast stretch.
@@ -19,6 +52,7 @@ def show_image_pair(left, right, titles, downsample=8):
     for ax, fn, title in zip(axes, (left, right), titles):
         image = Raster(fn, downsample=downsample).read_array()
         plotter.plot_array(ax, image, cmap="gray", add_cbar=False)
+        add_scale_bar(ax, fn, image.shape[1])
         ax.set_title(title)
         ax.set_axis_off()
     plt.tight_layout()
@@ -52,11 +86,12 @@ def show_dem_hillshade(dem_fn, title="Stereo DEM", hillshade_fn=None):
     import matplotlib.pyplot as plt
     from asp_plot.utils import Plotter, Raster
 
-    dem = Raster(dem_fn)
+    dem = Raster(dem_fn).read_array()
     plotter = Plotter()
     fig, ax = plt.subplots(figsize=(8, 7))
     plotter.plot_array(ax, multidirectional_hillshade(dem_fn, hillshade_fn), cmap="gray", add_cbar=False)
-    plotter.plot_array(ax, dem.read_array(), cmap="viridis", alpha=0.5, cbar_label="Elevation (m HAE)")
+    plotter.plot_array(ax, dem, cmap="viridis", alpha=0.5, cbar_label="Elevation (m HAE)")
+    add_scale_bar(ax, dem_fn, dem.shape[1])
     ax.set_title(title)
     ax.set_axis_off()
     plt.show()
@@ -74,7 +109,9 @@ def show_hillshades(dem_fns, titles):
     plotter = Plotter()
     fig, axes = plt.subplots(1, len(dem_fns), figsize=(5.5 * len(dem_fns), 5.5))
     for ax, fn, title in zip(axes, dem_fns, titles):
-        plotter.plot_array(ax, Raster(fn).hillshade(), cmap="gray", add_cbar=False)
+        shade = Raster(fn).hillshade()
+        plotter.plot_array(ax, shade, cmap="gray", add_cbar=False)
+        add_scale_bar(ax, fn, shade.shape[1])
         ax.set_title(title)
         ax.set_axis_off()
     plt.tight_layout()
@@ -293,6 +330,10 @@ def _qgis_project(path, layers, title):
     QGIS 4.0 wrote itself (the elements QGIS needs to load and draw a layer:
     type="raster" on <maplayer>, an <extent>, the CRS as WKT, <layerorder>);
     a hand-written file without them listed the layers but drew nothing.
+    QGIS reads <projectCrs> only when the property SpatialRefSys/
+    ProjectionsEnabled is 1; without it the project opens with no CRS. The
+    default view extent (<ProjectViewSettings>) is the view QGIS opens on,
+    the extent of all the layers.
     The version string is QGIS 4.0's: an older one, or none, makes QGIS say
     the file was saved by an older version (none reads as 0.0.0).
     """
@@ -338,9 +379,10 @@ def _qgis_project(path, layers, title):
     first_ds, _ = info(rasters[0][0])
     wkt = escape(first_ds.GetProjection())
     srs = f'<spatialrefsys nativeFormat="Wkt"><wkt>{wkt}</wkt><authid>EPSG:{first_ds.GetSpatialRef().GetAuthorityCode(None) or ""}</authid></spatialrefsys>'
-    tree, layer_xml, order_xml = [], [], []
+    tree, layer_xml, order_xml, extents = [], [], [], []
     for i, (fn, name, kind) in enumerate(rasters):
         ds, (xmin, ymin, xmax, ymax) = info(fn)
+        extents.append((xmin, ymin, xmax, ymax))
         lid = f"layer{i}_{Path(fn).stem}".replace(".", "_")
         checked = "Qt::Unchecked" if kind == "error" else "Qt::Checked"
         tree.append(f'<layer-tree-layer checked="{checked}" expanded="0" id="{lid}" legend_exp="" legend_split_behavior="0" name="{escape(name)}" patch_size="-1,-1" providerKey="gdal" source="./{escape(fn)}"><customproperties><Option/></customproperties></layer-tree-layer>')
@@ -356,6 +398,7 @@ def _qgis_project(path, layers, title):
             f'<rasterresampler maxOversampling="2" zoomedInResampler="bilinear" zoomedOutResampler="bilinear"/><resamplingStage>resamplingFilter</resamplingStage></pipe><blendMode>0</blendMode><legend showfeaturecount="0" type="default-raster"/></maplayer>')
     # QGIS lists the layer tree top to bottom, so the top-drawn layer comes first.
     tree.reverse()
+    view = (min(e[0] for e in extents), min(e[1] for e in extents), max(e[2] for e in extents), max(e[3] for e in extents))
     xml = f"""<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
 <qgis projectname="{escape(title)}" version="4.0.0-Norrköping">
   <homePath path=""/>
@@ -364,7 +407,8 @@ def _qgis_project(path, layers, title):
   <layer-tree-group><customproperties><Option/></customproperties>{"".join(tree)}<custom-order enabled="0">{"".join(order_xml)}</custom-order></layer-tree-group>
   <projectlayers>{"".join(layer_xml)}</projectlayers>
   <layerorder>{"".join(order_xml)}</layerorder>
-  <properties><Paths><Absolute type="bool">false</Absolute></Paths></properties>
+  <ProjectViewSettings UseProjectScales="0" rotation="0"><Scales/><DefaultViewExtent xmin="{view[0]}" ymin="{view[1]}" xmax="{view[2]}" ymax="{view[3]}">{srs}</DefaultViewExtent></ProjectViewSettings>
+  <properties><SpatialRefSys><ProjectionsEnabled type="int">1</ProjectionsEnabled></SpatialRefSys><Paths><Absolute type="bool">false</Absolute></Paths></properties>
 </qgis>
 """
     Path(path).write_text(xml)
@@ -631,6 +675,7 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
     from IPython.display import Image, display
     from matplotlib.colors import LightSource
     from matplotlib.figure import Figure
+    from matplotlib_scalebar.scalebar import ScaleBar
     from osgeo import gdal
 
     print(_one_line(cmd))
@@ -767,6 +812,8 @@ def run_stereo(cmd, prefix, log, label="Stereo", step=4):
                 ax.set_ylim(dx.shape[0], 0)
                 ax.set_xticks([])
                 ax.set_yticks([])
+                # As add_scale_bar: meters on the map grid, the image's own pixels otherwise.
+                ax.add_artist(ScaleBar(spacing) if on_map else pixel_scale_bar(step))
             buf = BytesIO()
             fig.savefig(buf, format="png", dpi=80)
             if plot is None:
