@@ -180,9 +180,17 @@ def frame(ax, title):
     ax.set_title(title, fontsize=11)
 
 
-def basemap(ax, srs, zoom="auto"):
-    """Esri's World Topo Map under whatever the axes show, with its attribution."""
-    cx.add_basemap(ax, crs=srs, source=BASEMAP, zoom=zoom, attribution_size=5, zorder=0)
+def basemap(ax, srs, zoom_adjust=0):
+    """Esri's World Topo Map under whatever the axes show, with its attribution.
+
+    The tiles' place names are a fixed number of tile pixels tall. contextily's
+    automatic zoom fetches tiles about 1.5 to 2 times finer than these figures'
+    pixels, which shrinks the names to half or two-thirds of their size. The
+    location maps pass zoom_adjust=-1, which doubles them. The scene panels keep
+    the automatic zoom: there the image covers most of the basemap, and at the
+    coarser zoom the names along its edges are cut off.
+    """
+    cx.add_basemap(ax, crs=srs, source=BASEMAP, zoom_adjust=zoom_adjust, attribution_size=5, zorder=0)
 
 
 def draw_scene(ax, path, srs, box, box_label, title, bounds):
@@ -208,7 +216,7 @@ def draw_context(ax, srs, scene, half_km):
     cxm, cym = (scene[0] + scene[2]) / 2, (scene[1] + scene[3]) / 2
     ax.set_xlim(cxm - half_km * 1000, cxm + half_km * 1000)
     ax.set_ylim(cym - half_km * 1000, cym + half_km * 1000)
-    basemap(ax, srs)
+    basemap(ax, srs, zoom_adjust=-1)
     ax.add_patch(Rectangle((scene[0], scene[1]), scene[2] - scene[0], scene[3] - scene[1], fill=False,
                            edgecolor=OUTLINE, linewidth=1.8, zorder=3))
     # As the notebooks and asp-plot draw them (the axes are in meters).
