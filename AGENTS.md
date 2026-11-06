@@ -67,4 +67,5 @@ Both notebooks declare `kernelspec.name = "asp"` in their metadata; keep it when
 - No specific wall-time claims, core-hour estimates, or speedup ratios in user-facing docs.
 - No unverified hard numbers. Performance/quality claims with magnitudes ("DEM bias drops to ~1 m", "residual reprojection error <1 px") don't belong in user-facing prose. Configuration facts (machine specs, output resolutions set by `--tr`, file sizes of demo data) are fine.
 - Don't author from-scratch parameter or API references that duplicate upstream docs. Link out to the ASP CLI's own `--help` and the upstream ASP docs instead.
+- Don't send readers to GitHub issues or PRs from docs pages or notebooks. Issues get closed, and their threads mix results with discussion; state what the reader needs in the text. Links to the problem-report form are fine, and so are issue links in `architecture/`, PR descriptions and commit messages.
 - Default to concise. Technical-docs prose tends to over-explain and editorialize; trim aggressively.
