@@ -41,7 +41,7 @@ Three things to check:
 
 ## Alignment inside `asp-plot`
 
-The `asp_report` command runs `pc_align` by default (`--no-pc-align` turns it off, and `--no-altimetry` skips it too) against the appropriate altimetry reference for the body (ICESat-2 for Earth, MOLA for Mars, LOLA for the Moon) and appends alignment-report pages to the PDF. This is how the ASTER tutorial aligns its DEM: its report command runs `pc_align` without any extra flag. It wants at least 500 reference points on the DEM by default; the WorldView tutorials' 1 km square holds a few hundred ICESat-2 points, so their reports pass `--pc-align-min-points 150`, and their profiles show the DEM before and after the 10 m shift onto the points.
+The `asp_report` command runs `pc_align` by default (`--no-pc-align` turns it off, and `--no-altimetry` skips it too) against the appropriate altimetry reference for the body (ICESat-2 for Earth, MOLA for Mars, LOLA for the Moon). An alignment page opens the altimetry part of the PDF, and when the alignment succeeds each altimetry figure after it shows the DEM before and after the shift. This is how the ASTER tutorial aligns its DEM: its report command runs `pc_align` without any extra flag. It wants at least 500 reference points on the DEM by default; the WorldView tutorials' 1 km square holds a few hundred ICESat-2 points, so their reports pass `--pc-align-min-points 150`, and their profiles show the DEM before and after the 10 m shift onto the points.
 
 ## Where to read more
 

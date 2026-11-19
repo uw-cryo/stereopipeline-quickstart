@@ -297,9 +297,10 @@ def report_pages(wv, out):
     pdf = fitz.open(wv / "stereo/penasquitos_wv3_report.pdf")
     picked = []
     for title in REPORT_PAGES:
-        # The first page that has the title, not a later "(Aligned DEM)" version of it.
+        # The first page with the title. asp_plot >= 3.7 draws each altimetry
+        # figure once, as an "(Aligned DEM)" page when pc_align succeeded.
         number = next(i for i, page in enumerate(pdf)
-                      if any(line.strip().startswith(title) and "Aligned" not in line
+                      if any(line.strip().startswith(title)
                              for line in page.get_text().splitlines()))
         picked.append(number)
     fig, axes = plt.subplots(1, len(picked), figsize=(3 * len(picked), 4.4), constrained_layout=True)

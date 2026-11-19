@@ -129,7 +129,7 @@ See [ADR-0013](architecture/0013-python-312-floor.md). The conda env is pinned t
 
 ### asp-plot: bounded to one major version
 
-See [ADR-0021](architecture/0021-asp-plot-major-version-bound.md). `requirements.txt`, `environment.yml`, and the install snippets in `installation.md` all require `asp-plot>=3.5,<4`. The notebooks call the `asp_report` CLI (hyphenated flags) and `StereoGeometryPlotter.stereo_geom_plot()`, both introduced in asp_plot 2.0/3.0, and `asp_report --figures-directory`, introduced in 3.5.0. Moving to a new major version is a manual bump of all three files plus a notebook check.
+See [ADR-0021](architecture/0021-asp-plot-major-version-bound.md). `requirements.txt`, `environment.yml`, and the install snippets in `installation.md` all require `asp-plot>=3.7,<4`. The notebooks call the `asp_report` CLI (hyphenated flags) and `StereoGeometryPlotter.stereo_geom_plot()`, both introduced in asp_plot 2.0/3.0, `asp_report --figures-directory`, introduced in 3.5.0, and `--pc-align-min-points`, introduced in 3.6.0. From 3.7.0 the report draws each altimetry figure once, with the DEM before and after `pc_align` when the alignment succeeds, which the docs describe. Moving to a new major version is a manual bump of all three files plus a notebook check.
 
 ### PATH plumbing for ASP in the container
 
